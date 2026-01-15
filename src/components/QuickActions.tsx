@@ -1,10 +1,13 @@
+import { useNavigate } from "react-router-dom";
 import { Plus, FileUp, Download, RefreshCw } from "lucide-react";
 import { Button } from "./ui/button";
 
 const QuickActions = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="flex flex-wrap gap-3">
-      <Button className="gap-2">
+      <Button className="gap-2" onClick={() => navigate("/add-facility")}>
         <Plus className="w-4 h-4" />
         إضافة منشأة
       </Button>

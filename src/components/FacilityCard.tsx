@@ -1,7 +1,9 @@
 import { MapPin, Calendar, Building2 } from "lucide-react";
 import { Badge } from "./ui/badge";
+import { useNavigate } from "react-router-dom";
 
 interface FacilityCardProps {
+  id?: string;
   name: string;
   sector: string;
   location: string;
@@ -9,7 +11,9 @@ interface FacilityCardProps {
   licenseExpiry?: string;
 }
 
-const FacilityCard = ({ name, sector, location, status, licenseExpiry }: FacilityCardProps) => {
+const FacilityCard = ({ id = "1", name, sector, location, status, licenseExpiry }: FacilityCardProps) => {
+  const navigate = useNavigate();
+  
   const statusConfig = {
     active: {
       label: "نشط",
@@ -28,7 +32,10 @@ const FacilityCard = ({ name, sector, location, status, licenseExpiry }: Facilit
   const config = statusConfig[status];
 
   return (
-    <div className="card-institutional hover:shadow-md transition-shadow animate-fade-in">
+    <div 
+      onClick={() => navigate(`/facility/${id}`)}
+      className="card-institutional hover:shadow-md hover:border-primary/50 transition-all cursor-pointer animate-fade-in"
+    >
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-accent">

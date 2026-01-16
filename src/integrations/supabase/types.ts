@@ -69,6 +69,7 @@ export type Database = {
           short_name: string
           status: Database["public"]["Enums"]["facility_status"]
           updated_at: string
+          website_url: string | null
         }
         Insert: {
           activity_type: string
@@ -91,6 +92,7 @@ export type Database = {
           short_name: string
           status?: Database["public"]["Enums"]["facility_status"]
           updated_at?: string
+          website_url?: string | null
         }
         Update: {
           activity_type?: string
@@ -113,6 +115,7 @@ export type Database = {
           short_name?: string
           status?: Database["public"]["Enums"]["facility_status"]
           updated_at?: string
+          website_url?: string | null
         }
         Relationships: []
       }

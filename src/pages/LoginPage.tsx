@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,11 +20,25 @@ const LoginPage = () => {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await signIn(email, password);
+    const { data, error } = await signIn(email, password);
 
     if (error) {
       toast.error("فشل تسجيل الدخول: " + error.message);
     } else {
+      // Log the login activity
+      if (data?.user) {
+        try {
+          await supabase.functions.invoke("log-activity", {
+            body: {
+              user_id: data.user.id,
+              user_email: data.user.email,
+              action: "login",
+            },
+          });
+        } catch (logError) {
+          console.error("Failed to log activity:", logError);
+        }
+      }
       toast.success("تم تسجيل الدخول بنجاح");
       navigate("/");
     }

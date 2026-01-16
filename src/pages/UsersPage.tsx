@@ -46,7 +46,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useUserRole, type AppRole, type Profile } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { Users, Search, UserPlus, Shield, User, Edit2, Trash2, Loader2 } from "lucide-react";
+import { Users, Search, UserPlus, Shield, User, Edit2, Trash2, Loader2, KeyRound } from "lucide-react";
 
 interface UserWithProfile extends Profile {
   email?: string;
@@ -54,7 +54,7 @@ interface UserWithProfile extends Profile {
 }
 
 const UsersPage = () => {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const { isAdmin, loading: roleLoading } = useUserRole(user?.id);
   const [users, setUsers] = useState<UserWithProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -62,6 +62,9 @@ const UsersPage = () => {
   const [editingUser, setEditingUser] = useState<UserWithProfile | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
+  const [resetPasswordUser, setResetPasswordUser] = useState<UserWithProfile | null>(null);
+  const [newPassword, setNewPassword] = useState("");
   const [saving, setSaving] = useState(false);
   
   const [editForm, setEditForm] = useState({
@@ -274,6 +277,43 @@ const UsersPage = () => {
     } catch (error: any) {
       toast.error(error.message || "خطأ في حذف المستخدم");
     }
+  };
+
+  const handleResetPassword = async () => {
+    if (!isAdmin || !resetPasswordUser || !newPassword) return;
+
+    if (newPassword.length < 6) {
+      toast.error("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const response = await supabase.functions.invoke("reset-user-password", {
+        body: {
+          target_user_id: resetPasswordUser.user_id,
+          new_password: newPassword,
+        },
+      });
+
+      if (response.error) throw response.error;
+      if (response.data?.error) throw new Error(response.data.error);
+
+      toast.success("تم إعادة تعيين كلمة المرور بنجاح");
+      setResetPasswordDialogOpen(false);
+      setResetPasswordUser(null);
+      setNewPassword("");
+    } catch (error: any) {
+      toast.error(error.message || "خطأ في إعادة تعيين كلمة المرور");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const openResetPasswordDialog = (u: UserWithProfile) => {
+    setResetPasswordUser(u);
+    setNewPassword("");
+    setResetPasswordDialogOpen(true);
   };
 
   const filteredUsers = users.filter(
@@ -533,8 +573,18 @@ const UsersPage = () => {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleEditUser(u)}
+                                title="تعديل"
                               >
                                 <Edit2 className="w-4 h-4" />
+                              </Button>
+                              
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => openResetPasswordDialog(u)}
+                                title="إعادة تعيين كلمة المرور"
+                              >
+                                <KeyRound className="w-4 h-4" />
                               </Button>
                               
                               {u.user_id !== user?.id && (
@@ -544,6 +594,7 @@ const UsersPage = () => {
                                       variant="ghost"
                                       size="sm"
                                       className="text-destructive hover:text-destructive"
+                                      title="حذف"
                                     >
                                       <Trash2 className="w-4 h-4" />
                                     </Button>
@@ -672,6 +723,36 @@ const UsersPage = () => {
                 <Button onClick={handleUpdateUser} disabled={saving}>
                   {saving && <Loader2 className="w-4 h-4 ml-2 animate-spin" />}
                   حفظ التغييرات
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Reset Password Dialog */}
+          <Dialog open={resetPasswordDialogOpen} onOpenChange={setResetPasswordDialogOpen}>
+            <DialogContent dir="rtl" className="max-w-sm">
+              <DialogHeader>
+                <DialogTitle>إعادة تعيين كلمة المرور</DialogTitle>
+                <DialogDescription>
+                  أدخل كلمة مرور جديدة للمستخدم "{resetPasswordUser?.full_name}"
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="new-password">كلمة المرور الجديدة</Label>
+                  <Input
+                    id="new-password"
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="6 أحرف على الأقل"
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button onClick={handleResetPassword} disabled={saving || !newPassword}>
+                  {saving && <Loader2 className="w-4 h-4 ml-2 animate-spin" />}
+                  إعادة تعيين
                 </Button>
               </DialogFooter>
             </DialogContent>

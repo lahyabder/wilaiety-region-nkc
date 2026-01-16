@@ -21,7 +21,20 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -33,7 +46,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useUserRole, type AppRole, type Profile } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { Users, Search, UserPlus, Shield, User, Edit2 } from "lucide-react";
+import { Users, Search, UserPlus, Shield, User, Edit2, Trash2, Loader2 } from "lucide-react";
 
 interface UserWithProfile extends Profile {
   email?: string;
@@ -47,7 +60,27 @@ const UsersPage = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [editingUser, setEditingUser] = useState<UserWithProfile | null>(null);
-  const [editRole, setEditRole] = useState<AppRole>("user");
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  
+  const [editForm, setEditForm] = useState({
+    full_name: "",
+    phone: "",
+    job_title: "",
+    department: "",
+    role: "user" as AppRole,
+  });
+
+  const [createForm, setCreateForm] = useState({
+    email: "",
+    password: "",
+    full_name: "",
+    phone: "",
+    job_title: "",
+    department: "",
+    role: "user" as AppRole,
+  });
 
   useEffect(() => {
     fetchUsers();
@@ -90,20 +123,156 @@ const UsersPage = () => {
     setLoading(false);
   };
 
-  const handleUpdateRole = async () => {
+  const handleCreateUser = async () => {
+    if (!isAdmin) return;
+    if (!createForm.email || !createForm.password || !createForm.full_name) {
+      toast.error("يرجى ملء جميع الحقول المطلوبة");
+      return;
+    }
+
+    if (createForm.password.length < 6) {
+      toast.error("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      // Create user through Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: createForm.email,
+        password: createForm.password,
+        options: {
+          data: {
+            full_name: createForm.full_name,
+          },
+        },
+      });
+
+      if (authError) throw authError;
+
+      if (authData.user) {
+        // Wait a bit for the trigger to create profile
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // Update profile with additional data
+        const { error: profileError } = await supabase
+          .from("profiles")
+          .update({
+            full_name: createForm.full_name,
+            phone: createForm.phone || null,
+            job_title: createForm.job_title || null,
+            department: createForm.department || null,
+          })
+          .eq("user_id", authData.user.id);
+
+        if (profileError) {
+          console.error("Profile update error:", profileError);
+        }
+
+        // Update role if admin
+        if (createForm.role === "admin") {
+          const { error: roleError } = await supabase
+            .from("user_roles")
+            .update({ role: "admin" })
+            .eq("user_id", authData.user.id);
+
+          if (roleError) {
+            console.error("Role update error:", roleError);
+          }
+        }
+
+        toast.success("تم إنشاء المستخدم بنجاح");
+        setCreateDialogOpen(false);
+        setCreateForm({
+          email: "",
+          password: "",
+          full_name: "",
+          phone: "",
+          job_title: "",
+          department: "",
+          role: "user",
+        });
+        fetchUsers();
+      }
+    } catch (error: any) {
+      toast.error(error.message || "خطأ في إنشاء المستخدم");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleEditUser = (u: UserWithProfile) => {
+    setEditingUser(u);
+    setEditForm({
+      full_name: u.full_name || "",
+      phone: u.phone || "",
+      job_title: u.job_title || "",
+      department: u.department || "",
+      role: u.role || "user",
+    });
+    setEditDialogOpen(true);
+  };
+
+  const handleUpdateUser = async () => {
     if (!editingUser || !isAdmin) return;
 
-    const { error } = await supabase
-      .from("user_roles")
-      .update({ role: editRole })
-      .eq("user_id", editingUser.user_id);
+    setSaving(true);
+    try {
+      // Update profile
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({
+          full_name: editForm.full_name,
+          phone: editForm.phone || null,
+          job_title: editForm.job_title || null,
+          department: editForm.department || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("user_id", editingUser.user_id);
 
-    if (error) {
-      toast.error("خطأ في تحديث الصلاحية");
-    } else {
-      toast.success("تم تحديث الصلاحية بنجاح");
-      fetchUsers();
+      if (profileError) throw profileError;
+
+      // Update role
+      const { error: roleError } = await supabase
+        .from("user_roles")
+        .update({ role: editForm.role })
+        .eq("user_id", editingUser.user_id);
+
+      if (roleError) throw roleError;
+
+      toast.success("تم تحديث بيانات المستخدم بنجاح");
+      setEditDialogOpen(false);
       setEditingUser(null);
+      fetchUsers();
+    } catch (error: any) {
+      toast.error(error.message || "خطأ في تحديث البيانات");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteUser = async (u: UserWithProfile) => {
+    if (!isAdmin) return;
+    
+    // Prevent deleting self
+    if (u.user_id === user?.id) {
+      toast.error("لا يمكنك حذف حسابك الحالي");
+      return;
+    }
+
+    try {
+      // Delete profile (this will cascade to user_roles due to RLS)
+      const { error } = await supabase
+        .from("profiles")
+        .delete()
+        .eq("user_id", u.user_id);
+
+      if (error) throw error;
+
+      toast.success("تم حذف المستخدم بنجاح");
+      fetchUsers();
+    } catch (error: any) {
+      toast.error(error.message || "خطأ في حذف المستخدم");
     }
   };
 
@@ -133,9 +302,113 @@ const UsersPage = () => {
       <div className="flex">
         <Sidebar />
         <main className="flex-1 p-6">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-foreground">إدارة المستخدمين</h1>
-            <p className="text-muted-foreground">عرض وإدارة المستخدمين وصلاحياتهم</p>
+          <div className="mb-6 flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">إدارة المستخدمين</h1>
+              <p className="text-muted-foreground">عرض وإدارة المستخدمين وصلاحياتهم</p>
+            </div>
+            {isAdmin && (
+              <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <UserPlus className="w-4 h-4 ml-2" />
+                    إضافة مستخدم
+                  </Button>
+                </DialogTrigger>
+                <DialogContent dir="rtl" className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>إضافة مستخدم جديد</DialogTitle>
+                    <DialogDescription>
+                      أدخل بيانات المستخدم الجديد
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="create-email">البريد الإلكتروني *</Label>
+                      <Input
+                        id="create-email"
+                        type="email"
+                        value={createForm.email}
+                        onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
+                        placeholder="example@email.com"
+                        dir="ltr"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="create-password">كلمة المرور *</Label>
+                      <Input
+                        id="create-password"
+                        type="password"
+                        value={createForm.password}
+                        onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
+                        placeholder="6 أحرف على الأقل"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="create-name">الاسم الكامل *</Label>
+                      <Input
+                        id="create-name"
+                        value={createForm.full_name}
+                        onChange={(e) => setCreateForm({ ...createForm, full_name: e.target.value })}
+                        placeholder="أدخل الاسم الكامل"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="create-phone">رقم الهاتف</Label>
+                        <Input
+                          id="create-phone"
+                          value={createForm.phone}
+                          onChange={(e) => setCreateForm({ ...createForm, phone: e.target.value })}
+                          placeholder="رقم الهاتف"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="create-job">المسمى الوظيفي</Label>
+                        <Input
+                          id="create-job"
+                          value={createForm.job_title}
+                          onChange={(e) => setCreateForm({ ...createForm, job_title: e.target.value })}
+                          placeholder="المسمى الوظيفي"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="create-dept">القسم</Label>
+                        <Input
+                          id="create-dept"
+                          value={createForm.department}
+                          onChange={(e) => setCreateForm({ ...createForm, department: e.target.value })}
+                          placeholder="القسم"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>الصلاحية</Label>
+                        <Select
+                          value={createForm.role}
+                          onValueChange={(v) => setCreateForm({ ...createForm, role: v as AppRole })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="user">مستخدم</SelectItem>
+                            <SelectItem value="admin">مدير</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button onClick={handleCreateUser} disabled={saving}>
+                      {saving && <Loader2 className="w-4 h-4 ml-2 animate-spin" />}
+                      إنشاء المستخدم
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
 
           {/* Stats Cards */}
@@ -255,61 +528,46 @@ const UsersPage = () => {
                         </TableCell>
                         {isAdmin && (
                           <TableCell>
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => {
-                                    setEditingUser(u);
-                                    setEditRole(u.role || "user");
-                                  }}
-                                >
-                                  <Edit2 className="w-4 h-4" />
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent dir="rtl">
-                                <DialogHeader>
-                                  <DialogTitle>تعديل صلاحية المستخدم</DialogTitle>
-                                </DialogHeader>
-                                <div className="space-y-4 py-4">
-                                  <div className="flex items-center gap-3">
-                                    <Avatar>
-                                      <AvatarImage src={u.avatar_url || undefined} />
-                                      <AvatarFallback>
-                                        {getInitials(u.full_name)}
-                                      </AvatarFallback>
-                                    </Avatar>
-                                    <div>
-                                      <p className="font-medium">
-                                        {u.full_name || "بدون اسم"}
-                                      </p>
-                                    </div>
-                                  </div>
-                                  <div className="space-y-2">
-                                    <Label>الصلاحية</Label>
-                                    <Select
-                                      value={editRole}
-                                      onValueChange={(v) => setEditRole(v as AppRole)}
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleEditUser(u)}
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </Button>
+                              
+                              {u.user_id !== user?.id && (
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="text-destructive hover:text-destructive"
                                     >
-                                      <SelectTrigger>
-                                        <SelectValue />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="user">مستخدم</SelectItem>
-                                        <SelectItem value="admin">مدير</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
-                                  <Button
-                                    onClick={handleUpdateRole}
-                                    className="w-full"
-                                  >
-                                    حفظ التغييرات
-                                  </Button>
-                                </div>
-                              </DialogContent>
-                            </Dialog>
+                                      <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent dir="rtl">
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        سيتم حذف المستخدم "{u.full_name}" نهائياً. هذا الإجراء لا يمكن التراجع عنه.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter className="flex-row-reverse gap-2">
+                                      <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                                      <AlertDialogAction
+                                        onClick={() => handleDeleteUser(u)}
+                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                      >
+                                        حذف
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              )}
+                            </div>
                           </TableCell>
                         )}
                       </TableRow>
@@ -319,6 +577,105 @@ const UsersPage = () => {
               )}
             </CardContent>
           </Card>
+
+          {/* Edit Dialog */}
+          <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+            <DialogContent dir="rtl" className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>تعديل بيانات المستخدم</DialogTitle>
+                <DialogDescription>
+                  تعديل بيانات وصلاحيات المستخدم
+                </DialogDescription>
+              </DialogHeader>
+              {editingUser && (
+                <div className="space-y-4 py-4">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Avatar>
+                      <AvatarImage src={editingUser.avatar_url || undefined} />
+                      <AvatarFallback>
+                        {getInitials(editingUser.full_name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-medium">
+                        {editingUser.full_name || "بدون اسم"}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-name">الاسم الكامل</Label>
+                    <Input
+                      id="edit-name"
+                      value={editForm.full_name}
+                      onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
+                      placeholder="أدخل الاسم الكامل"
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-phone">رقم الهاتف</Label>
+                      <Input
+                        id="edit-phone"
+                        value={editForm.phone}
+                        onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                        placeholder="رقم الهاتف"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-job">المسمى الوظيفي</Label>
+                      <Input
+                        id="edit-job"
+                        value={editForm.job_title}
+                        onChange={(e) => setEditForm({ ...editForm, job_title: e.target.value })}
+                        placeholder="المسمى الوظيفي"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-dept">القسم</Label>
+                      <Input
+                        id="edit-dept"
+                        value={editForm.department}
+                        onChange={(e) => setEditForm({ ...editForm, department: e.target.value })}
+                        placeholder="القسم"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>الصلاحية</Label>
+                      <Select
+                        value={editForm.role}
+                        onValueChange={(v) => setEditForm({ ...editForm, role: v as AppRole })}
+                        disabled={editingUser.user_id === user?.id}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="user">مستخدم</SelectItem>
+                          <SelectItem value="admin">مدير</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {editingUser.user_id === user?.id && (
+                        <p className="text-xs text-muted-foreground">
+                          لا يمكنك تغيير صلاحيتك
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+              <DialogFooter>
+                <Button onClick={handleUpdateUser} disabled={saving}>
+                  {saving && <Loader2 className="w-4 h-4 ml-2 animate-spin" />}
+                  حفظ التغييرات
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </main>
       </div>
     </div>

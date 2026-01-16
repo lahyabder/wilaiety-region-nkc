@@ -35,6 +35,8 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { toast } from "sonner";
+import { useLanguage } from "@/contexts/LanguageContext";
+import Footer from "@/components/Footer";
 
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
@@ -65,6 +67,7 @@ const ReportsPage = () => {
   const { data: facilityStats, isLoading: statsLoading } = useFacilityStats();
   const { data: licenses, isLoading: licensesLoading } = useLicenses();
   const { data: licenseStats, isLoading: licenseStatsLoading } = useLicenseStats();
+  const { t } = useLanguage();
 
   const isLoading = facilitiesLoading || statsLoading || licensesLoading || licenseStatsLoading;
 
@@ -264,17 +267,17 @@ const ReportsPage = () => {
         <main className="flex-1 p-6 min-w-0">
           <div className="mb-6 flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Rapports et statistiques</h1>
-              <p className="text-muted-foreground">Vue d'ensemble des établissements et des licences</p>
+              <h1 className="text-2xl font-bold text-foreground">{t("Rapports et statistiques", "التقارير والإحصائيات")}</h1>
+              <p className="text-muted-foreground">{t("Vue d'ensemble des établissements et des licences", "نظرة عامة على المنشآت والتراخيص")}</p>
             </div>
             <div className="flex gap-2">
               <Button onClick={exportToPDF} variant="outline" className="gap-2">
                 <Download className="w-4 h-4" />
-                Exporter PDF
+                {t("Exporter PDF", "تصدير PDF")}
               </Button>
               <Button onClick={exportToExcel} variant="outline" className="gap-2">
                 <FileSpreadsheet className="w-4 h-4" />
-                Exporter Excel
+                {t("Exporter Excel", "تصدير Excel")}
               </Button>
             </div>
           </div>
@@ -293,7 +296,7 @@ const ReportsPage = () => {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">Total des établissements</p>
+                        <p className="text-sm text-muted-foreground">{t("Total des établissements", "إجمالي المنشآت")}</p>
                         <p className="text-3xl font-bold text-foreground">{facilityStats?.total || 0}</p>
                       </div>
                       <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
@@ -307,7 +310,7 @@ const ReportsPage = () => {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">Total des licences</p>
+                        <p className="text-sm text-muted-foreground">{t("Total des licences", "إجمالي التراخيص")}</p>
                         <p className="text-3xl font-bold text-foreground">{licenseStats?.total || 0}</p>
                       </div>
                       <div className="w-12 h-12 bg-chart-2/10 rounded-full flex items-center justify-center">
@@ -321,7 +324,7 @@ const ReportsPage = () => {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">Licences expirent bientôt</p>
+                        <p className="text-sm text-muted-foreground">{t("Licences expirent bientôt", "تراخيص قريبة الانتهاء")}</p>
                         <p className="text-3xl font-bold text-chart-4">{licenseStats?.expiringSoon || 0}</p>
                       </div>
                       <div className="w-12 h-12 bg-chart-4/10 rounded-full flex items-center justify-center">
@@ -335,7 +338,7 @@ const ReportsPage = () => {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">Licences expirées</p>
+                        <p className="text-sm text-muted-foreground">{t("Licences expirées", "تراخيص منتهية")}</p>
                         <p className="text-3xl font-bold text-destructive">{licenseStats?.expired || 0}</p>
                       </div>
                       <div className="w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center">
@@ -592,6 +595,7 @@ const ReportsPage = () => {
           )}
         </main>
       </div>
+      <Footer />
     </div>
   );
 };

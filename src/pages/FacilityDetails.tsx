@@ -38,67 +38,69 @@ const sectors: FacilitySector[] = [
   "مالية", "كهربائية", "مائية", "تكنولوجية", "بيئية"
 ];
 
-const sectorLabels: Record<FacilitySector, string> = {
-  "صحية": "Santé",
-  "تعليمية": "Éducation",
-  "صناعية": "Industrie",
-  "زراعية": "Agriculture",
-  "رياضية": "Sport",
-  "ثقافية": "Culture",
-  "اجتماعية": "Social",
-  "دينية": "Religieux",
-  "نقل": "Transport",
-  "تجارة": "Commerce",
-  "سياحة": "Tourisme",
-  "إدارية": "Administratif",
-  "قضائية": "Judiciaire",
-  "سياسية": "Politique",
-  "مالية": "Finance",
-  "كهربائية": "Électricité",
-  "مائية": "Eau",
-  "تكنولوجية": "Technologie",
-  "بيئية": "Environnement"
-};
-
 const ownershipTypes: OwnershipType[] = ["ملكية كاملة", "إيجار", "شراكة", "مملوكة مع جهة أخرى"];
-const ownershipLabels: Record<OwnershipType, string> = {
-  "ملكية كاملة": "Pleine propriété",
-  "إيجار": "Location",
-  "شراكة": "Partenariat",
-  "مملوكة مع جهة أخرى": "Copropriété"
-};
-
 const legalDomains: LegalDomain[] = ["مجال عام للجهة", "مجال خاص للجهة", "خارج ملكية الجهة"];
-const legalDomainLabels: Record<LegalDomain, string> = {
-  "مجال عام للجهة": "Domaine public",
-  "مجال خاص للجهة": "Domaine privé",
-  "خارج ملكية الجهة": "Hors propriété"
-};
-
 const jurisdictionTypes: JurisdictionType[] = ["خاص", "محال", "تنسيق"];
-const jurisdictionLabels: Record<JurisdictionType, string> = {
-  "خاص": "Privé",
-  "محال": "Délégué",
-  "تنسيق": "Coordination"
-};
-
 const statusOptions: FacilityStatus[] = ["نشط", "غير نشط", "قيد الإنشاء", "معلق"];
-const statusLabels: Record<FacilityStatus, string> = {
-  "نشط": "Actif",
-  "غير نشط": "Inactif",
-  "قيد الإنشاء": "En construction",
-  "معلق": "Suspendu"
-};
-
-const licenseStatusLabels: Record<string, string> = {
-  "ساري": "Valide",
-  "قريب الانتهاء": "Expire bientôt",
-  "منتهي": "Expiré",
-  "ملغى": "Annulé"
-};
 
 const FacilityDetails = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+
+  // Dynamic labels based on language
+  const sectorLabels: Record<FacilitySector, string> = {
+    "صحية": t("Santé", "صحية"),
+    "تعليمية": t("Éducation", "تعليمية"),
+    "صناعية": t("Industrie", "صناعية"),
+    "زراعية": t("Agriculture", "زراعية"),
+    "رياضية": t("Sport", "رياضية"),
+    "ثقافية": t("Culture", "ثقافية"),
+    "اجتماعية": t("Social", "اجتماعية"),
+    "دينية": t("Religieux", "دينية"),
+    "نقل": t("Transport", "نقل"),
+    "تجارة": t("Commerce", "تجارة"),
+    "سياحة": t("Tourisme", "سياحة"),
+    "إدارية": t("Administratif", "إدارية"),
+    "قضائية": t("Judiciaire", "قضائية"),
+    "سياسية": t("Politique", "سياسية"),
+    "مالية": t("Finance", "مالية"),
+    "كهربائية": t("Électricité", "كهربائية"),
+    "مائية": t("Eau", "مائية"),
+    "تكنولوجية": t("Technologie", "تكنولوجية"),
+    "بيئية": t("Environnement", "بيئية")
+  };
+
+  const ownershipLabels: Record<OwnershipType, string> = {
+    "ملكية كاملة": t("Pleine propriété", "ملكية كاملة"),
+    "إيجار": t("Location", "إيجار"),
+    "شراكة": t("Partenariat", "شراكة"),
+    "مملوكة مع جهة أخرى": t("Copropriété", "مملوكة مع جهة أخرى")
+  };
+
+  const legalDomainLabels: Record<LegalDomain, string> = {
+    "مجال عام للجهة": t("Domaine public", "مجال عام للجهة"),
+    "مجال خاص للجهة": t("Domaine privé", "مجال خاص للجهة"),
+    "خارج ملكية الجهة": t("Hors propriété", "خارج ملكية الجهة")
+  };
+
+  const jurisdictionLabels: Record<JurisdictionType, string> = {
+    "خاص": t("Privé", "خاص"),
+    "محال": t("Délégué", "محال"),
+    "تنسيق": t("Coordination", "تنسيق")
+  };
+
+  const statusLabels: Record<FacilityStatus, string> = {
+    "نشط": t("Actif", "نشط"),
+    "غير نشط": t("Inactif", "غير نشط"),
+    "قيد الإنشاء": t("En construction", "قيد الإنشاء"),
+    "معلق": t("Suspendu", "معلق")
+  };
+
+  const licenseStatusLabels: Record<string, string> = {
+    "ساري": t("Valide", "ساري"),
+    "قريب الانتهاء": t("Expire bientôt", "قريب الانتهاء"),
+    "منتهي": t("Expiré", "منتهي"),
+    "ملغى": t("Annulé", "ملغى")
+  };
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: facility, isLoading, error } = useFacility(id || "");

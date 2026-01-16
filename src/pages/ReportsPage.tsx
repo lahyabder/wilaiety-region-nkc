@@ -221,18 +221,18 @@ const ReportsPage = () => {
         }))
     : [];
 
-  // Prepare facility status data
+  // Prepare facility status data - only include items with value > 0
   const facilityStatusData = [
-    { name: "Actif", value: facilityStats?.active || 0, color: "hsl(var(--chart-2))" },
-    { name: "En attente", value: facilityStats?.pending || 0, color: "hsl(var(--chart-4))" },
-    { name: "Inactif", value: facilityStats?.inactive || 0, color: "hsl(var(--chart-5))" },
+    { name: "Actif", value: facilityStats?.active || 0, color: "hsl(142, 76%, 36%)" },
+    { name: "En attente", value: facilityStats?.pending || 0, color: "hsl(45, 93%, 47%)" },
+    { name: "Inactif", value: facilityStats?.inactive || 0, color: "hsl(0, 84%, 60%)" },
   ].filter(item => item.value > 0);
 
-  // Prepare license status data
+  // Prepare license status data - only include items with value > 0
   const licenseStatusData = [
-    { name: "Valide", value: licenseStats?.active || 0, color: "hsl(var(--chart-2))" },
-    { name: "Expire bientôt", value: licenseStats?.expiringSoon || 0, color: "hsl(var(--chart-4))" },
-    { name: "Expiré", value: licenseStats?.expired || 0, color: "hsl(var(--chart-5))" },
+    { name: "Valide", value: licenseStats?.active || 0, color: "hsl(142, 76%, 36%)" },
+    { name: "Expire bientôt", value: licenseStats?.expiringSoon || 0, color: "hsl(45, 93%, 47%)" },
+    { name: "Expiré", value: licenseStats?.expired || 0, color: "hsl(0, 84%, 60%)" },
   ].filter(item => item.value > 0);
 
   // Monthly trends (mock data based on actual counts)
@@ -390,12 +390,13 @@ const ReportsPage = () => {
                               cy="50%"
                               labelLine={false}
                               label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                              outerRadius={100}
-                              fill="#8884d8"
+                              outerRadius={80}
+                              innerRadius={40}
                               dataKey="value"
+                              paddingAngle={2}
                             >
                               {facilityStatusData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.color} />
+                                <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
                               ))}
                             </Pie>
                             <ChartTooltip content={<ChartTooltipContent />} />
@@ -429,12 +430,13 @@ const ReportsPage = () => {
                               cy="50%"
                               labelLine={false}
                               label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                              outerRadius={100}
-                              fill="#8884d8"
+                              outerRadius={80}
+                              innerRadius={40}
                               dataKey="value"
+                              paddingAngle={2}
                             >
                               {licenseStatusData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.color} />
+                                <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
                               ))}
                             </Pie>
                             <ChartTooltip content={<ChartTooltipContent />} />

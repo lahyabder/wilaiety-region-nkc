@@ -1,4 +1,5 @@
 import { LucideIcon } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface StatsCardProps {
   title: string;
@@ -12,11 +13,13 @@ interface StatsCardProps {
 }
 
 const StatsCard = ({ title, value, icon: Icon, trend, variant = "default" }: StatsCardProps) => {
+  const { t } = useLanguage();
+  
   const variantStyles = {
-    default: "border-l-primary",
-    success: "border-l-success",
-    warning: "border-l-warning",
-    critical: "border-l-critical",
+    default: "border-s-primary",
+    success: "border-s-success",
+    warning: "border-s-warning",
+    critical: "border-s-critical",
   };
 
   const iconStyles = {
@@ -27,14 +30,14 @@ const StatsCard = ({ title, value, icon: Icon, trend, variant = "default" }: Sta
   };
 
   return (
-    <div className={`card-institutional border-l-4 ${variantStyles[variant]} animate-fade-in`}>
+    <div className={`card-institutional border-s-4 ${variantStyles[variant]} animate-fade-in`}>
       <div className="flex items-start justify-between">
         <div>
           <p className="text-muted-foreground text-sm mb-1">{title}</p>
           <p className="text-3xl font-bold text-foreground">{value}</p>
           {trend && (
             <p className={`text-sm mt-2 ${trend.isPositive ? "text-success" : "text-critical"}`}>
-              {trend.isPositive ? "+" : ""}{trend.value}% par rapport au mois précédent
+              {trend.isPositive ? "+" : ""}{trend.value}% {t("par rapport au mois précédent", "مقارنة بالشهر السابق")}
             </p>
           )}
         </div>

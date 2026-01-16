@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import { useFacilities, useFacilityStats } from "@/hooks/useFacilities";
@@ -26,8 +27,14 @@ import {
   AlertTriangle,
   CheckCircle,
   Clock,
-  XCircle
+  XCircle,
+  Download,
+  FileSpreadsheet
 } from "lucide-react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
+import { toast } from "sonner";
 
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
@@ -51,6 +58,150 @@ const ReportsPage = () => {
   const { data: licenseStats, isLoading: licenseStatsLoading } = useLicenseStats();
 
   const isLoading = facilitiesLoading || statsLoading || licensesLoading || licenseStatsLoading;
+
+  // Export to PDF
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    
+    // Add Arabic font support note - jsPDF has limited Arabic support
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.text("Facilities & Licenses Report", 14, 22);
+    
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 32);
+    
+    // Facilities Summary
+    doc.setFont("helvetica", "bold");
+    doc.text("Facilities Summary", 14, 45);
+    
+    autoTable(doc, {
+      startY: 50,
+      head: [["Category", "Count"]],
+      body: [
+        ["Total Facilities", String(facilityStats?.total || 0)],
+        ["Active", String(facilityStats?.active || 0)],
+        ["Pending", String(facilityStats?.pending || 0)],
+        ["Inactive", String(facilityStats?.inactive || 0)],
+      ],
+      theme: "striped",
+      headStyles: { fillColor: [59, 130, 246] },
+    });
+    
+    // Licenses Summary
+    const finalY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
+    doc.setFont("helvetica", "bold");
+    doc.text("Licenses Summary", 14, finalY + 15);
+    
+    autoTable(doc, {
+      startY: finalY + 20,
+      head: [["Category", "Count"]],
+      body: [
+        ["Total Licenses", String(licenseStats?.total || 0)],
+        ["Active", String(licenseStats?.active || 0)],
+        ["Expiring Soon", String(licenseStats?.expiringSoon || 0)],
+        ["Expired", String(licenseStats?.expired || 0)],
+      ],
+      theme: "striped",
+      headStyles: { fillColor: [34, 197, 94] },
+    });
+    
+    // Sector Distribution
+    const finalY2 = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
+    doc.setFont("helvetica", "bold");
+    doc.text("Sector Distribution", 14, finalY2 + 15);
+    
+    const sectorRows = Object.entries(facilityStats?.sectorCounts || {})
+      .filter(([_, count]) => (count as number) > 0)
+      .map(([sector, count]) => [sectorLabels[sector] || sector, String(count)]);
+    
+    if (sectorRows.length > 0) {
+      autoTable(doc, {
+        startY: finalY2 + 20,
+        head: [["Sector", "Count"]],
+        body: sectorRows,
+        theme: "striped",
+        headStyles: { fillColor: [168, 85, 247] },
+      });
+    }
+    
+    doc.save("facilities-report.pdf");
+    toast.success("تم تصدير التقرير بنجاح");
+  };
+
+  // Export to Excel
+  const exportToExcel = () => {
+    const workbook = XLSX.utils.book_new();
+    
+    // Facilities Summary Sheet
+    const facilitiesSummary = [
+      ["إحصائيات المنشآت", ""],
+      ["الإجمالي", facilityStats?.total || 0],
+      ["نشطة", facilityStats?.active || 0],
+      ["قيد المراجعة", facilityStats?.pending || 0],
+      ["غير نشطة", facilityStats?.inactive || 0],
+    ];
+    const ws1 = XLSX.utils.aoa_to_sheet(facilitiesSummary);
+    XLSX.utils.book_append_sheet(workbook, ws1, "المنشآت");
+    
+    // Licenses Summary Sheet
+    const licensesSummary = [
+      ["إحصائيات التراخيص", ""],
+      ["الإجمالي", licenseStats?.total || 0],
+      ["سارية", licenseStats?.active || 0],
+      ["قريبة الانتهاء", licenseStats?.expiringSoon || 0],
+      ["منتهية", licenseStats?.expired || 0],
+    ];
+    const ws2 = XLSX.utils.aoa_to_sheet(licensesSummary);
+    XLSX.utils.book_append_sheet(workbook, ws2, "التراخيص");
+    
+    // Sector Distribution Sheet
+    const sectorData = [["القطاع", "العدد"]];
+    Object.entries(facilityStats?.sectorCounts || {}).forEach(([sector, count]) => {
+      if ((count as number) > 0) {
+        sectorData.push([sectorLabels[sector] || sector, count as unknown as string]);
+      }
+    });
+    const ws3 = XLSX.utils.aoa_to_sheet(sectorData);
+    XLSX.utils.book_append_sheet(workbook, ws3, "القطاعات");
+    
+    // Facilities List Sheet
+    if (facilities && facilities.length > 0) {
+      const facilitiesData = [["الاسم", "القطاع", "المنطقة", "الحالة", "تاريخ الإنشاء"]];
+      facilities.forEach((f) => {
+        facilitiesData.push([
+          f.name,
+          sectorLabels[f.sector] || f.sector,
+          f.region,
+          f.status,
+          new Date(f.created_at).toLocaleDateString("ar"),
+        ]);
+      });
+      const ws4 = XLSX.utils.aoa_to_sheet(facilitiesData);
+      XLSX.utils.book_append_sheet(workbook, ws4, "قائمة المنشآت");
+    }
+    
+    // Licenses List Sheet
+    if (licenses && licenses.length > 0) {
+      const licensesData = [["رقم الترخيص", "النوع", "جهة الإصدار", "تاريخ الإصدار", "تاريخ الانتهاء", "الحالة"]];
+      licenses.forEach((l) => {
+        licensesData.push([
+          l.license_number,
+          l.license_type,
+          l.issuing_authority,
+          new Date(l.issue_date).toLocaleDateString("ar"),
+          new Date(l.expiry_date).toLocaleDateString("ar"),
+          l.status,
+        ]);
+      });
+      const ws5 = XLSX.utils.aoa_to_sheet(licensesData);
+      XLSX.utils.book_append_sheet(workbook, ws5, "قائمة التراخيص");
+    }
+    
+    XLSX.writeFile(workbook, "facilities-report.xlsx");
+    toast.success("تم تصدير التقرير بنجاح");
+  };
 
   // Prepare sector data for charts
   const sectorData = facilityStats?.sectorCounts 
@@ -103,9 +254,21 @@ const ReportsPage = () => {
       <div className="flex">
         <Sidebar />
         <main className="flex-1 p-6">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-foreground">التقارير والإحصائيات</h1>
-            <p className="text-muted-foreground">نظرة شاملة على بيانات المنشآت والتراخيص</p>
+          <div className="mb-6 flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">التقارير والإحصائيات</h1>
+              <p className="text-muted-foreground">نظرة شاملة على بيانات المنشآت والتراخيص</p>
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={exportToPDF} variant="outline" className="gap-2">
+                <Download className="w-4 h-4" />
+                تصدير PDF
+              </Button>
+              <Button onClick={exportToExcel} variant="outline" className="gap-2">
+                <FileSpreadsheet className="w-4 h-4" />
+                تصدير Excel
+              </Button>
+            </div>
           </div>
 
           {isLoading ? (

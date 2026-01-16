@@ -47,6 +47,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useUserRole, type AppRole, type Profile } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { Users, Search, UserPlus, Shield, User, Edit2, Trash2, Loader2, KeyRound } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import Footer from "@/components/Footer";
 
 interface UserWithProfile extends Profile {
   email?: string;
@@ -56,6 +58,7 @@ interface UserWithProfile extends Profile {
 const UsersPage = () => {
   const { user, session } = useAuth();
   const { isAdmin, loading: roleLoading } = useUserRole(user?.id);
+  const { t } = useLanguage();
   const [users, setUsers] = useState<UserWithProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -344,20 +347,20 @@ const UsersPage = () => {
         <main className="flex-1 p-6 min-w-0">
           <div className="mb-6 flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Gestion des utilisateurs</h1>
-              <p className="text-muted-foreground">Afficher et gérer les utilisateurs et leurs permissions</p>
+              <h1 className="text-2xl font-bold text-foreground">{t("Gestion des utilisateurs", "إدارة المستخدمين")}</h1>
+              <p className="text-muted-foreground">{t("Afficher et gérer les utilisateurs et leurs permissions", "عرض وإدارة المستخدمين وصلاحياتهم")}</p>
             </div>
             {isAdmin && (
               <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
                 <DialogTrigger asChild>
                   <Button>
-                    <UserPlus className="w-4 h-4 mr-2" />
-                    Ajouter un utilisateur
+                    <UserPlus className="w-4 h-4 me-2" />
+                    {t("Ajouter un utilisateur", "إضافة مستخدم")}
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-md">
                   <DialogHeader>
-                    <DialogTitle>Ajouter un nouvel utilisateur</DialogTitle>
+                    <DialogTitle>{t("Ajouter un nouvel utilisateur", "إضافة مستخدم جديد")}</DialogTitle>
                     <DialogDescription>
                       Entrez les informations du nouvel utilisateur
                     </DialogDescription>
@@ -456,7 +459,7 @@ const UsersPage = () => {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Total des utilisateurs</p>
+                    <p className="text-sm text-muted-foreground">{t("Total des utilisateurs", "إجمالي المستخدمين")}</p>
                     <p className="text-3xl font-bold text-foreground">{totalUsers}</p>
                   </div>
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
@@ -470,7 +473,7 @@ const UsersPage = () => {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Administrateurs</p>
+                    <p className="text-sm text-muted-foreground">{t("Administrateurs", "المسؤولون")}</p>
                     <p className="text-3xl font-bold text-foreground">{adminCount}</p>
                   </div>
                   <div className="w-12 h-12 bg-chart-4/10 rounded-full flex items-center justify-center">
@@ -484,7 +487,7 @@ const UsersPage = () => {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Utilisateurs</p>
+                    <p className="text-sm text-muted-foreground">{t("Utilisateurs", "المستخدمون")}</p>
                     <p className="text-3xl font-bold text-foreground">{userCount}</p>
                   </div>
                   <div className="w-12 h-12 bg-chart-2/10 rounded-full flex items-center justify-center">
@@ -499,12 +502,12 @@ const UsersPage = () => {
           <Card className="mb-6">
             <CardContent className="p-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
-                  placeholder="Rechercher par nom, poste ou département..."
+                  placeholder={t("Rechercher par nom, poste ou département...", "البحث بالاسم أو المنصب أو القسم...")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
+                  className="ps-10"
                 />
               </div>
             </CardContent>
@@ -513,7 +516,7 @@ const UsersPage = () => {
           {/* Users Table */}
           <Card>
             <CardHeader>
-              <CardTitle>Liste des utilisateurs</CardTitle>
+              <CardTitle>{t("Liste des utilisateurs", "قائمة المستخدمين")}</CardTitle>
             </CardHeader>
             <CardContent>
               {loading || roleLoading ? (
@@ -525,18 +528,18 @@ const UsersPage = () => {
               ) : filteredUsers.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>Aucun utilisateur trouvé</p>
+                  <p>{t("Aucun utilisateur trouvé", "لم يتم العثور على مستخدمين")}</p>
                 </div>
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Utilisateur</TableHead>
-                      <TableHead>Poste</TableHead>
-                      <TableHead>Département</TableHead>
-                      <TableHead>Téléphone</TableHead>
-                      <TableHead>Rôle</TableHead>
-                      {isAdmin && <TableHead>Actions</TableHead>}
+                      <TableHead>{t("Utilisateur", "المستخدم")}</TableHead>
+                      <TableHead>{t("Poste", "المنصب")}</TableHead>
+                      <TableHead>{t("Département", "القسم")}</TableHead>
+                      <TableHead>{t("Téléphone", "الهاتف")}</TableHead>
+                      <TableHead>{t("Rôle", "الدور")}</TableHead>
+                      {isAdmin && <TableHead>{t("Actions", "الإجراءات")}</TableHead>}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -549,7 +552,7 @@ const UsersPage = () => {
                               <AvatarFallback>{getInitials(u.full_name)}</AvatarFallback>
                             </Avatar>
                             <div>
-                              <p className="font-medium">{u.full_name || "Sans nom"}</p>
+                              <p className="font-medium">{u.full_name || t("Sans nom", "بدون اسم")}</p>
                             </div>
                           </div>
                         </TableCell>
@@ -562,7 +565,7 @@ const UsersPage = () => {
                           <Badge
                             variant={u.role === "admin" ? "default" : "secondary"}
                           >
-                            {u.role === "admin" ? "Administrateur" : "Utilisateur"}
+                            {u.role === "admin" ? t("Administrateur", "مسؤول") : t("Utilisateur", "مستخدم")}
                           </Badge>
                         </TableCell>
                         {isAdmin && (
@@ -758,6 +761,7 @@ const UsersPage = () => {
           </Dialog>
         </main>
       </div>
+      <Footer />
     </div>
   );
 };

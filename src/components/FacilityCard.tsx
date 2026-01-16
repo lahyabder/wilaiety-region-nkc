@@ -1,6 +1,7 @@
 import { MapPin, Calendar, Building2, ExternalLink } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface FacilityCardProps {
   id?: string;
@@ -14,18 +15,19 @@ interface FacilityCardProps {
 
 const FacilityCard = ({ id = "1", name, sector, location, status, licenseExpiry, websiteUrl }: FacilityCardProps) => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   
   const statusConfig = {
     active: {
-      label: "Actif",
+      label: t("Actif", "نشط"),
       className: "bg-success text-success-foreground hover:bg-success/90",
     },
     pending: {
-      label: "En révision",
+      label: t("En révision", "قيد المراجعة"),
       className: "bg-warning text-warning-foreground hover:bg-warning/90",
     },
     expired: {
-      label: "Expiré",
+      label: t("Expiré", "منتهي"),
       className: "bg-critical text-critical-foreground hover:bg-critical/90",
     },
   };
@@ -58,7 +60,7 @@ const FacilityCard = ({ id = "1", name, sector, location, status, licenseExpiry,
         {licenseExpiry && (
           <div className="flex items-center gap-2 text-muted-foreground">
             <Calendar className="w-4 h-4" />
-            <span>Expiration de la licence: {licenseExpiry}</span>
+            <span>{t("Expiration de la licence:", "انتهاء الترخيص:")} {licenseExpiry}</span>
           </div>
         )}
         {websiteUrl && (
@@ -70,7 +72,7 @@ const FacilityCard = ({ id = "1", name, sector, location, status, licenseExpiry,
             className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
           >
             <ExternalLink className="w-4 h-4" />
-            <span>Visiter le site</span>
+            <span>{t("Visiter le site", "زيارة الموقع")}</span>
           </a>
         )}
       </div>

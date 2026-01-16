@@ -11,7 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Lock, Bell, LogOut, Save, Loader2, Camera, Trash2 } from "lucide-react";
+import { User, Lock, Bell, LogOut, Save, Loader2, Camera, Trash2, MapPin } from "lucide-react";
+import AdministrativeDivisionsManager from "@/components/AdministrativeDivisionsManager";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -261,7 +262,7 @@ const SettingsPage = () => {
             <h1 className="text-2xl font-bold mb-6">{t("Paramètres", "الإعدادات")}</h1>
 
             <Tabs defaultValue="profile" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-3 lg:w-[400px]">
+              <TabsList className="grid w-full grid-cols-4 lg:w-[500px]">
                 <TabsTrigger value="profile" className="gap-2">
                   <User className="w-4 h-4" />
                   {t("Profil", "الملف الشخصي")}
@@ -269,6 +270,10 @@ const SettingsPage = () => {
                 <TabsTrigger value="security" className="gap-2">
                   <Lock className="w-4 h-4" />
                   {t("Sécurité", "الأمان")}
+                </TabsTrigger>
+                <TabsTrigger value="divisions" className="gap-2">
+                  <MapPin className="w-4 h-4" />
+                  {t("Divisions", "التقسيمات")}
                 </TabsTrigger>
                 <TabsTrigger value="notifications" className="gap-2">
                   <Bell className="w-4 h-4" />
@@ -444,6 +449,10 @@ const SettingsPage = () => {
                     </div>
                   </CardContent>
                 </Card>
+              </TabsContent>
+
+              <TabsContent value="divisions">
+                <AdministrativeDivisionsManager />
               </TabsContent>
 
               <TabsContent value="notifications">

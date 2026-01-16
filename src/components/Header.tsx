@@ -1,7 +1,33 @@
-import { Bell, Menu, Search, User } from "lucide-react";
+import { Bell, Menu, Search, User, LogOut } from "lucide-react";
 import { Button } from "./ui/button";
+import { useAuth, useProfile, useUserRole } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 const Header = () => {
+  const { user, signOut } = useAuth();
+  const { profile } = useProfile(user?.id);
+  const { role } = useUserRole(user?.id);
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    const { error } = await signOut();
+    if (error) {
+      toast.error("فشل تسجيل الخروج");
+    } else {
+      toast.success("تم تسجيل الخروج بنجاح");
+      navigate("/login");
+    }
+  };
+
   return (
     <header className="header-gradient sticky top-0 z-50 shadow-md">
       <div className="container mx-auto px-4">
@@ -36,9 +62,30 @@ const Header = () => {
             <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10">
               <Bell className="w-5 h-5" />
             </Button>
-            <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10">
-              <User className="w-5 h-5" />
-            </Button>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10">
+                  <User className="w-5 h-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel className="text-right">
+                  <div className="flex flex-col gap-1">
+                    <span className="font-medium">{profile?.full_name || user?.email}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {role === "admin" ? "مدير النظام" : "مستخدم"}
+                    </span>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut} className="text-destructive cursor-pointer">
+                  <LogOut className="w-4 h-4 ml-2" />
+                  تسجيل الخروج
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <Button variant="ghost" size="icon" className="md:hidden text-primary-foreground hover:bg-primary-foreground/10">
               <Menu className="w-5 h-5" />
             </Button>

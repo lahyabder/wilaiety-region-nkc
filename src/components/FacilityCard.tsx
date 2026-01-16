@@ -17,15 +17,15 @@ const FacilityCard = ({ id = "1", name, sector, location, status, licenseExpiry,
   
   const statusConfig = {
     active: {
-      label: "نشط",
+      label: "Actif",
       className: "bg-success text-success-foreground hover:bg-success/90",
     },
     pending: {
-      label: "قيد المراجعة",
+      label: "En révision",
       className: "bg-warning text-warning-foreground hover:bg-warning/90",
     },
     expired: {
-      label: "منتهي",
+      label: "Expiré",
       className: "bg-critical text-critical-foreground hover:bg-critical/90",
     },
   };
@@ -58,7 +58,7 @@ const FacilityCard = ({ id = "1", name, sector, location, status, licenseExpiry,
         {licenseExpiry && (
           <div className="flex items-center gap-2 text-muted-foreground">
             <Calendar className="w-4 h-4" />
-            <span>انتهاء الترخيص: {licenseExpiry}</span>
+            <span>Expiration de la licence: {licenseExpiry}</span>
           </div>
         )}
         {websiteUrl && (
@@ -70,7 +70,7 @@ const FacilityCard = ({ id = "1", name, sector, location, status, licenseExpiry,
             className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
           >
             <ExternalLink className="w-4 h-4" />
-            <span>زيارة الموقع</span>
+            <span>Visiter le site</span>
           </a>
         )}
       </div>

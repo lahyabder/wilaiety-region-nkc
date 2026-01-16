@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import FacilitiesMap from "@/components/FacilitiesMap";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Plus, Layers, Filter } from "lucide-react";
+import { ArrowLeft, Plus, Layers, Filter } from "lucide-react";
 
 const MapPage = () => {
   const navigate = useNavigate();
@@ -19,10 +19,10 @@ const MapPage = () => {
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
             <button onClick={() => navigate("/")} className="hover:text-primary transition-colors">
-              لوحة التحكم
+              Tableau de bord
             </button>
-            <ArrowRight className="w-4 h-4 rotate-180" />
-            <span className="text-foreground">خريطة المنشآت</span>
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-foreground">Carte des établissements</span>
           </div>
 
           {/* Header */}
@@ -32,19 +32,19 @@ const MapPage = () => {
                 <Layers className="w-7 h-7 text-primary" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">خريطة المنشآت</h1>
-                <p className="text-muted-foreground">عرض جغرافي لجميع منشآت الجهة</p>
+                <h1 className="text-2xl font-bold text-foreground">Carte des établissements</h1>
+                <p className="text-muted-foreground">Vue géographique de tous les établissements</p>
               </div>
             </div>
             
             <div className="flex gap-2">
               <Button variant="outline" className="gap-2">
                 <Filter className="w-4 h-4" />
-                تصفية
+                Filtrer
               </Button>
               <Button className="gap-2" onClick={() => navigate("/add-facility")}>
                 <Plus className="w-4 h-4" />
-                إضافة منشأة
+                Ajouter un établissement
               </Button>
             </div>
           </div>

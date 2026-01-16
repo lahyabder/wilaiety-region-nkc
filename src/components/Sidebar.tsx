@@ -5,7 +5,7 @@ import {
   FileText, 
   Users, 
   Settings,
-  ChevronLeft,
+  ChevronRight,
   BarChart3,
   Activity
 } from "lucide-react";
@@ -13,14 +13,14 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "لوحة التحكم", path: "/" },
-  { icon: Building2, label: "المنشآت", path: "/" },
-  { icon: MapPin, label: "الخريطة", path: "/map" },
-  { icon: FileText, label: "التراخيص", path: "/licenses" },
-  { icon: BarChart3, label: "التقارير", path: "/reports" },
-  { icon: Users, label: "المستخدمون", path: "/users" },
-  { icon: Activity, label: "سجل النشاطات", path: "/activity-logs" },
-  { icon: Settings, label: "الإعدادات", path: "/settings" },
+  { icon: LayoutDashboard, label: "Tableau de bord", path: "/" },
+  { icon: Building2, label: "Établissements", path: "/" },
+  { icon: MapPin, label: "Carte", path: "/map" },
+  { icon: FileText, label: "Licences", path: "/licenses" },
+  { icon: BarChart3, label: "Rapports", path: "/reports" },
+  { icon: Users, label: "Utilisateurs", path: "/users" },
+  { icon: Activity, label: "Journal d'activité", path: "/activity-logs" },
+  { icon: Settings, label: "Paramètres", path: "/settings" },
 ];
 
 const Sidebar = () => {
@@ -29,24 +29,24 @@ const Sidebar = () => {
   const location = useLocation();
 
   const isActive = (path: string, label: string) => {
-    if (label === "لوحة التحكم" && location.pathname === "/") return true;
-    if (label === "الخريطة" && location.pathname === "/map") return true;
-    if (label === "التراخيص" && location.pathname === "/licenses") return true;
-    if (label === "التقارير" && location.pathname === "/reports") return true;
-    if (label === "المستخدمون" && location.pathname === "/users") return true;
-    if (label === "سجل النشاطات" && location.pathname === "/activity-logs") return true;
-    if (label === "الإعدادات" && location.pathname === "/settings") return true;
+    if (label === "Tableau de bord" && location.pathname === "/") return true;
+    if (label === "Carte" && location.pathname === "/map") return true;
+    if (label === "Licences" && location.pathname === "/licenses") return true;
+    if (label === "Rapports" && location.pathname === "/reports") return true;
+    if (label === "Utilisateurs" && location.pathname === "/users") return true;
+    if (label === "Journal d'activité" && location.pathname === "/activity-logs") return true;
+    if (label === "Paramètres" && location.pathname === "/settings") return true;
     return false;
   };
 
   return (
-    <aside className={`bg-card border-l border-border h-[calc(100vh-4rem)] sticky top-16 transition-all duration-300 ${collapsed ? "w-16" : "w-64"}`}>
+    <aside className={`bg-card border-r border-border h-[calc(100vh-4rem)] sticky top-16 transition-all duration-300 ${collapsed ? "w-16" : "w-64"}`}>
       <div className="p-4">
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="w-full flex items-center justify-center p-2 rounded-lg hover:bg-accent transition-colors mb-4"
         >
-          <ChevronLeft className={`w-5 h-5 text-muted-foreground transition-transform ${collapsed ? "rotate-180" : ""}`} />
+          <ChevronRight className={`w-5 h-5 text-muted-foreground transition-transform ${collapsed ? "rotate-180" : ""}`} />
         </button>
         
         <nav className="space-y-1">

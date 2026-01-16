@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/form";
 import { useCreateFacility, type FacilitySector, type OwnershipType, type LegalDomain, type JurisdictionType, type FacilityStatus } from "@/hooks/useFacilities";
 import { 
-  ArrowRight, 
+  ArrowLeft, 
   Building2, 
   MapPin, 
   Save, 
@@ -41,52 +41,99 @@ const sectors: FacilitySector[] = [
   "مالية", "كهربائية", "مائية", "تكنولوجية", "بيئية"
 ];
 
+const sectorLabels: Record<FacilitySector, string> = {
+  "صحية": "Santé",
+  "تعليمية": "Éducation",
+  "صناعية": "Industrie",
+  "زراعية": "Agriculture",
+  "رياضية": "Sport",
+  "ثقافية": "Culture",
+  "اجتماعية": "Social",
+  "دينية": "Religieux",
+  "نقل": "Transport",
+  "تجارة": "Commerce",
+  "سياحة": "Tourisme",
+  "إدارية": "Administratif",
+  "قضائية": "Judiciaire",
+  "سياسية": "Politique",
+  "مالية": "Finance",
+  "كهربائية": "Électricité",
+  "مائية": "Eau",
+  "تكنولوجية": "Technologie",
+  "بيئية": "Environnement",
+};
+
 const ownershipTypes: OwnershipType[] = ["ملكية كاملة", "إيجار", "شراكة", "مملوكة مع جهة أخرى"];
+const ownershipLabels: Record<OwnershipType, string> = {
+  "ملكية كاملة": "Propriété totale",
+  "إيجار": "Location",
+  "شراكة": "Partenariat",
+  "مملوكة مع جهة أخرى": "Copropriété",
+};
+
 const legalDomains: LegalDomain[] = ["مجال عام للجهة", "مجال خاص للجهة", "خارج ملكية الجهة"];
+const legalDomainLabels: Record<LegalDomain, string> = {
+  "مجال عام للجهة": "Domaine public",
+  "مجال خاص للجهة": "Domaine privé",
+  "خارج ملكية الجهة": "Hors propriété",
+};
+
 const facilityTypes: JurisdictionType[] = ["خاص", "محال", "تنسيق"];
+const jurisdictionLabels: Record<JurisdictionType, string> = {
+  "خاص": "Privé",
+  "محال": "Délégué",
+  "تنسيق": "Coordination",
+};
+
 const statusOptions: FacilityStatus[] = ["نشط", "غير نشط", "قيد الإنشاء", "معلق"];
+const statusLabels: Record<FacilityStatus, string> = {
+  "نشط": "Actif",
+  "غير نشط": "Inactif",
+  "قيد الإنشاء": "En construction",
+  "معلق": "Suspendu",
+};
 
 // Zod validation schema
 const facilitySchema = z.object({
   name: z.string()
-    .min(3, { message: "اسم المنشأة يجب أن يكون 3 أحرف على الأقل" })
-    .max(100, { message: "اسم المنشأة يجب ألا يتجاوز 100 حرف" }),
+    .min(3, { message: "Le nom doit contenir au moins 3 caractères" })
+    .max(100, { message: "Le nom ne doit pas dépasser 100 caractères" }),
   shortName: z.string()
-    .min(2, { message: "اختصار الاسم يجب أن يكون حرفين على الأقل" })
-    .max(20, { message: "اختصار الاسم يجب ألا يتجاوز 20 حرف" }),
+    .min(2, { message: "L'abréviation doit contenir au moins 2 caractères" })
+    .max(20, { message: "L'abréviation ne doit pas dépasser 20 caractères" }),
   legalName: z.string()
-    .min(5, { message: "الاسم القانوني يجب أن يكون 5 أحرف على الأقل" })
-    .max(150, { message: "الاسم القانوني يجب ألا يتجاوز 150 حرف" }),
+    .min(5, { message: "Le nom légal doit contenir au moins 5 caractères" })
+    .max(150, { message: "Le nom légal ne doit pas dépasser 150 caractères" }),
   sector: z.string()
-    .min(1, { message: "يرجى اختيار القطاع" }),
+    .min(1, { message: "Veuillez sélectionner un secteur" }),
   activityType: z.string()
-    .min(3, { message: "نوع النشاط يجب أن يكون 3 أحرف على الأقل" })
-    .max(100, { message: "نوع النشاط يجب ألا يتجاوز 100 حرف" }),
+    .min(3, { message: "Le type d'activité doit contenir au moins 3 caractères" })
+    .max(100, { message: "Le type d'activité ne doit pas dépasser 100 caractères" }),
   facilityType: z.string()
-    .min(1, { message: "يرجى اختيار صفة المنشأة" }),
+    .min(1, { message: "Veuillez sélectionner le type d'établissement" }),
   jurisdictionType: z.string()
-    .min(1, { message: "يرجى اختيار نوع الاختصاص" }),
+    .min(1, { message: "Veuillez sélectionner le type de juridiction" }),
   createdDate: z.string()
-    .min(1, { message: "يرجى تحديد تاريخ الإنشاء" }),
+    .min(1, { message: "Veuillez sélectionner la date de création" }),
   description: z.string()
-    .min(10, { message: "الوصف يجب أن يكون 10 أحرف على الأقل" })
-    .max(500, { message: "الوصف يجب ألا يتجاوز 500 حرف" }),
+    .min(10, { message: "La description doit contenir au moins 10 caractères" })
+    .max(500, { message: "La description ne doit pas dépasser 500 caractères" }),
   gps: z.string()
-    .regex(/^-?\d+\.?\d*,\s*-?\d+\.?\d*$/, { message: "صيغة الإحداثيات غير صحيحة (مثال: 36.7538, 3.0588)" })
+    .regex(/^-?\d+\.?\d*,\s*-?\d+\.?\d*$/, { message: "Format de coordonnées invalide (exemple: 36.7538, 3.0588)" })
     .optional()
     .or(z.literal("")),
   region: z.string()
-    .min(2, { message: "المنطقة يجب أن تكون حرفين على الأقل" })
-    .max(50, { message: "المنطقة يجب ألا تتجاوز 50 حرف" }),
+    .min(2, { message: "La région doit contenir au moins 2 caractères" })
+    .max(50, { message: "La région ne doit pas dépasser 50 caractères" }),
   address: z.string()
-    .min(5, { message: "العنوان يجب أن يكون 5 أحرف على الأقل" })
-    .max(200, { message: "العنوان يجب ألا يتجاوز 200 حرف" }),
+    .min(5, { message: "L'adresse doit contenir au moins 5 caractères" })
+    .max(200, { message: "L'adresse ne doit pas dépasser 200 caractères" }),
   ownership: z.string()
-    .min(1, { message: "يرجى اختيار نوع الملكية" }),
+    .min(1, { message: "Veuillez sélectionner le type de propriété" }),
   legalDomain: z.string()
-    .min(1, { message: "يرجى اختيار المجال القانوني" }),
+    .min(1, { message: "Veuillez sélectionner le domaine juridique" }),
   status: z.string()
-    .min(1, { message: "يرجى اختيار الحالة" }),
+    .min(1, { message: "Veuillez sélectionner le statut" }),
 });
 
 type FacilityFormData = z.infer<typeof facilitySchema>;
@@ -149,10 +196,10 @@ const AddFacility = () => {
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
             <button onClick={() => navigate("/")} className="hover:text-primary transition-colors">
-              لوحة التحكم
+              Tableau de bord
             </button>
-            <ArrowRight className="w-4 h-4 rotate-180" />
-            <span className="text-foreground">إضافة منشأة جديدة</span>
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-foreground">Ajouter un établissement</span>
           </div>
 
           {/* Header */}
@@ -161,8 +208,8 @@ const AddFacility = () => {
               <Building2 className="w-7 h-7 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">إضافة منشأة جديدة</h1>
-              <p className="text-muted-foreground">أدخل بيانات المنشأة الجديدة</p>
+              <h1 className="text-2xl font-bold text-foreground">Ajouter un établissement</h1>
+              <p className="text-muted-foreground">Entrez les informations du nouvel établissement</p>
             </div>
           </div>
 
@@ -174,7 +221,7 @@ const AddFacility = () => {
                 <div className="card-institutional space-y-5">
                   <div className="flex items-center gap-2 border-b border-border pb-3">
                     <FileText className="w-5 h-5 text-primary" />
-                    <h2 className="text-lg font-semibold text-foreground">البيانات الأساسية</h2>
+                    <h2 className="text-lg font-semibold text-foreground">Informations de base</h2>
                   </div>
                   
                   <div className="space-y-4">
@@ -183,9 +230,9 @@ const AddFacility = () => {
                       name="name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>اسم المنشأة *</FormLabel>
+                          <FormLabel>Nom de l'établissement *</FormLabel>
                           <FormControl>
-                            <Input placeholder="مثال: مستشفى المدينة المركزي" {...field} />
+                            <Input placeholder="Ex: Hôpital Central de la Ville" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -198,9 +245,9 @@ const AddFacility = () => {
                         name="shortName"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>اختصار الاسم *</FormLabel>
+                            <FormLabel>Abréviation *</FormLabel>
                             <FormControl>
-                              <Input placeholder="مثال: م.م.م" {...field} />
+                              <Input placeholder="Ex: HCV" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -212,7 +259,7 @@ const AddFacility = () => {
                         name="createdDate"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>تاريخ الإنشاء *</FormLabel>
+                            <FormLabel>Date de création *</FormLabel>
                             <FormControl>
                               <Input type="date" {...field} />
                             </FormControl>
@@ -227,9 +274,9 @@ const AddFacility = () => {
                       name="legalName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>الاسم القانوني *</FormLabel>
+                          <FormLabel>Nom légal *</FormLabel>
                           <FormControl>
-                            <Input placeholder="الاسم الرسمي كما في الوثائق القانونية" {...field} />
+                            <Input placeholder="Nom officiel selon les documents légaux" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -241,16 +288,16 @@ const AddFacility = () => {
                       name="description"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>الوصف العام *</FormLabel>
+                          <FormLabel>Description *</FormLabel>
                           <FormControl>
                             <Textarea 
-                              placeholder="وصف موجز عن المنشأة ونشاطها"
+                              placeholder="Description brève de l'établissement et de ses activités"
                               className="min-h-[100px]"
                               {...field} 
                             />
                           </FormControl>
                           <FormDescription>
-                            {field.value?.length || 0}/500 حرف
+                            {field.value?.length || 0}/500 caractères
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -263,7 +310,7 @@ const AddFacility = () => {
                 <div className="card-institutional space-y-5">
                   <div className="flex items-center gap-2 border-b border-border pb-3">
                     <Building2 className="w-5 h-5 text-primary" />
-                    <h2 className="text-lg font-semibold text-foreground">التصنيف والنشاط</h2>
+                    <h2 className="text-lg font-semibold text-foreground">Classification et activité</h2>
                   </div>
                   
                   <div className="space-y-4">
@@ -272,16 +319,16 @@ const AddFacility = () => {
                       name="sector"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>القطاع *</FormLabel>
+                          <FormLabel>Secteur *</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="اختر القطاع" />
+                                <SelectValue placeholder="Sélectionner le secteur" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
                               {sectors.map((sector) => (
-                                <SelectItem key={sector} value={sector}>{sector}</SelectItem>
+                                <SelectItem key={sector} value={sector}>{sectorLabels[sector]}</SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
@@ -295,9 +342,9 @@ const AddFacility = () => {
                       name="activityType"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>نوع النشاط *</FormLabel>
+                          <FormLabel>Type d'activité *</FormLabel>
                           <FormControl>
-                            <Input placeholder="مثال: خدمات طبية شاملة" {...field} />
+                            <Input placeholder="Ex: Services médicaux complets" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -309,17 +356,17 @@ const AddFacility = () => {
                       name="facilityType"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>صفة المنشأة *</FormLabel>
+                          <FormLabel>Type d'établissement *</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="اختر صفة المنشأة" />
+                                <SelectValue placeholder="Sélectionner le type" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="عام">عام</SelectItem>
-                              <SelectItem value="خاص">خاص</SelectItem>
-                              <SelectItem value="شبه عام">شبه عام</SelectItem>
+                              <SelectItem value="عام">Public</SelectItem>
+                              <SelectItem value="خاص">Privé</SelectItem>
+                              <SelectItem value="شبه عام">Semi-public</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -332,16 +379,16 @@ const AddFacility = () => {
                       name="jurisdictionType"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>نوع الاختصاص *</FormLabel>
+                          <FormLabel>Type de juridiction *</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="اختر نوع الاختصاص" />
+                                <SelectValue placeholder="Sélectionner la juridiction" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
                               {facilityTypes.map((type) => (
-                                <SelectItem key={type} value={type}>{type}</SelectItem>
+                                <SelectItem key={type} value={type}>{jurisdictionLabels[type]}</SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
@@ -355,16 +402,16 @@ const AddFacility = () => {
                       name="status"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>الحالة *</FormLabel>
+                          <FormLabel>Statut *</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="اختر الحالة" />
+                                <SelectValue placeholder="Sélectionner le statut" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
                               {statusOptions.map((status) => (
-                                <SelectItem key={status} value={status}>{status}</SelectItem>
+                                <SelectItem key={status} value={status}>{statusLabels[status]}</SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
@@ -379,7 +426,7 @@ const AddFacility = () => {
                 <div className="card-institutional space-y-5">
                   <div className="flex items-center gap-2 border-b border-border pb-3">
                     <MapPin className="w-5 h-5 text-primary" />
-                    <h2 className="text-lg font-semibold text-foreground">الموقع الجغرافي</h2>
+                    <h2 className="text-lg font-semibold text-foreground">Localisation géographique</h2>
                   </div>
                   
                   <div className="space-y-4">
@@ -388,17 +435,16 @@ const AddFacility = () => {
                       name="gps"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>إحداثيات GPS</FormLabel>
+                          <FormLabel>Coordonnées GPS</FormLabel>
                           <FormControl>
                             <Input 
-                              placeholder="مثال: 36.7538, 3.0588" 
-                              dir="ltr"
-                              className="font-mono text-left"
+                              placeholder="Ex: 36.7538, 3.0588" 
+                              className="font-mono"
                               {...field} 
                             />
                           </FormControl>
                           <FormDescription>
-                            صيغة: خط العرض، خط الطول
+                            Format: latitude, longitude
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -410,9 +456,9 @@ const AddFacility = () => {
                       name="region"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>المنطقة / النطاق *</FormLabel>
+                          <FormLabel>Région *</FormLabel>
                           <FormControl>
-                            <Input placeholder="مثال: المنطقة الشمالية" {...field} />
+                            <Input placeholder="Ex: Région Nord" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -424,10 +470,10 @@ const AddFacility = () => {
                       name="address"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>العنوان التفصيلي *</FormLabel>
+                          <FormLabel>Adresse complète *</FormLabel>
                           <FormControl>
                             <Textarea 
-                              placeholder="الشارع، الحي، المعالم القريبة"
+                              placeholder="Rue, quartier, points de repère"
                               className="min-h-[80px]"
                               {...field} 
                             />
@@ -441,7 +487,7 @@ const AddFacility = () => {
                     <div className="aspect-video bg-muted rounded-lg flex items-center justify-center border-2 border-dashed border-border">
                       <div className="text-center">
                         <MapPin className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                        <span className="text-sm text-muted-foreground">خريطة تفاعلية</span>
+                        <span className="text-sm text-muted-foreground">Carte interactive</span>
                       </div>
                     </div>
                   </div>
@@ -451,7 +497,7 @@ const AddFacility = () => {
                 <div className="card-institutional space-y-5">
                   <div className="flex items-center gap-2 border-b border-border pb-3">
                     <Scale className="w-5 h-5 text-primary" />
-                    <h2 className="text-lg font-semibold text-foreground">الوضع القانوني والملكية</h2>
+                    <h2 className="text-lg font-semibold text-foreground">Statut juridique et propriété</h2>
                   </div>
                   
                   <div className="space-y-4">
@@ -460,16 +506,16 @@ const AddFacility = () => {
                       name="ownership"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>نوع الملكية *</FormLabel>
+                          <FormLabel>Type de propriété *</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="اختر نوع الملكية" />
+                                <SelectValue placeholder="Sélectionner le type de propriété" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
                               {ownershipTypes.map((type) => (
-                                <SelectItem key={type} value={type}>{type}</SelectItem>
+                                <SelectItem key={type} value={type}>{ownershipLabels[type]}</SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
@@ -483,21 +529,21 @@ const AddFacility = () => {
                       name="legalDomain"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>المجال القانوني *</FormLabel>
+                          <FormLabel>Domaine juridique *</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="اختر المجال القانوني" />
+                                <SelectValue placeholder="Sélectionner le domaine juridique" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
                               {legalDomains.map((domain) => (
-                                <SelectItem key={domain} value={domain}>{domain}</SelectItem>
+                                <SelectItem key={domain} value={domain}>{legalDomainLabels[domain]}</SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
                           <FormDescription>
-                            يحدد الإطار القانوني للتصرف في المنشأة
+                            Définit le cadre juridique de gestion de l'établissement
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -506,14 +552,14 @@ const AddFacility = () => {
 
                     {/* Documents upload placeholder */}
                     <div>
-                      <FormLabel>المستندات الداعمة</FormLabel>
+                      <FormLabel>Documents justificatifs</FormLabel>
                       <div className="mt-2 border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer">
                         <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
                         <p className="text-sm text-muted-foreground">
-                          اسحب الملفات هنا أو انقر للرفع
+                          Glissez les fichiers ici ou cliquez pour télécharger
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
-                          PDF, DOC, JPG - حد أقصى 10 ميجابايت
+                          PDF, DOC, JPG - Maximum 10 Mo
                         </p>
                       </div>
                     </div>
@@ -530,7 +576,7 @@ const AddFacility = () => {
                   className="gap-2"
                 >
                   <X className="w-4 h-4" />
-                  إلغاء
+                  Annuler
                 </Button>
                 <Button 
                   type="submit" 
@@ -538,7 +584,7 @@ const AddFacility = () => {
                   className="gap-2"
                 >
                   <Save className="w-4 h-4" />
-                  {createFacility.isPending ? "جاري الحفظ..." : "حفظ المنشأة"}
+                  {createFacility.isPending ? "Enregistrement..." : "Enregistrer"}
                 </Button>
               </div>
             </form>

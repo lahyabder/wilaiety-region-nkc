@@ -55,6 +55,28 @@ const sectorIcons: Record<FacilitySector, LucideIcon> = {
   "بيئية": TreePine,
 };
 
+const sectorLabels: Record<FacilitySector, string> = {
+  "صحية": "Santé",
+  "تعليمية": "Éducation",
+  "صناعية": "Industrie",
+  "زراعية": "Agriculture",
+  "رياضية": "Sport",
+  "ثقافية": "Culture",
+  "اجتماعية": "Social",
+  "دينية": "Religieux",
+  "نقل": "Transport",
+  "تجارة": "Commerce",
+  "سياحة": "Tourisme",
+  "إدارية": "Administratif",
+  "قضائية": "Judiciaire",
+  "سياسية": "Politique",
+  "مالية": "Finance",
+  "كهربائية": "Électricité",
+  "مائية": "Eau",
+  "تكنولوجية": "Technologie",
+  "بيئية": "Environnement",
+};
+
 const allSectors: FacilitySector[] = [
   "صحية", "تعليمية", "صناعية", "زراعية", "رياضية", "ثقافية", "اجتماعية", 
   "دينية", "نقل", "تجارة", "سياحة", "إدارية", "قضائية", "سياسية", 
@@ -71,7 +93,7 @@ const Index = () => {
     return "pending";
   };
 
-  const getSectorLabel = (sector: FacilitySector) => `القطاع ${sector}`;
+  const getSectorLabel = (sector: FacilitySector) => `Secteur ${sectorLabels[sector]}`;
 
   return (
     <div className="min-h-screen bg-background">
@@ -83,8 +105,8 @@ const Index = () => {
         <main className="flex-1 p-6">
           {/* Page Title */}
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-foreground">لوحة التحكم</h1>
-            <p className="text-muted-foreground">نظرة عامة على منشآت الجهة</p>
+            <h1 className="text-2xl font-bold text-foreground">Tableau de bord</h1>
+            <p className="text-muted-foreground">Aperçu des établissements de la région</p>
           </div>
 
           {/* Quick Actions */}
@@ -103,25 +125,25 @@ const Index = () => {
             ) : (
               <>
                 <StatsCard
-                  title="إجمالي المنشآت"
-                  value={(stats?.total || 0).toLocaleString("en-US")}
+                  title="Total des établissements"
+                  value={(stats?.total || 0).toLocaleString("fr-FR")}
                   icon={Building2}
                 />
                 <StatsCard
-                  title="منشآت نشطة"
-                  value={(stats?.active || 0).toLocaleString("en-US")}
+                  title="Établissements actifs"
+                  value={(stats?.active || 0).toLocaleString("fr-FR")}
                   icon={CheckCircle}
                   variant="success"
                 />
                 <StatsCard
-                  title="قيد المراجعة"
-                  value={(stats?.pending || 0).toLocaleString("en-US")}
+                  title="En cours de révision"
+                  value={(stats?.pending || 0).toLocaleString("fr-FR")}
                   icon={AlertTriangle}
                   variant="warning"
                 />
                 <StatsCard
-                  title="غير نشطة"
-                  value={(stats?.inactive || 0).toLocaleString("en-US")}
+                  title="Inactifs"
+                  value={(stats?.inactive || 0).toLocaleString("fr-FR")}
                   icon={XCircle}
                   variant="critical"
                 />
@@ -132,9 +154,9 @@ const Index = () => {
           {/* Sectors Grid */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-foreground">القطاعات</h2>
+              <h2 className="text-xl font-bold text-foreground">Secteurs</h2>
               <button className="text-primary hover:underline text-sm font-medium">
-                عرض الكل
+                Voir tout
               </button>
             </div>
             {statsLoading ? (
@@ -148,7 +170,7 @@ const Index = () => {
                 {allSectors.slice(0, 10).map((sector) => (
                   <SectorCard
                     key={sector}
-                    name={sector}
+                    name={sectorLabels[sector]}
                     icon={sectorIcons[sector]}
                     count={stats?.sectorCounts[sector] || 0}
                   />
@@ -160,9 +182,9 @@ const Index = () => {
           {/* Recent Facilities */}
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-foreground">آخر المنشآت</h2>
+              <h2 className="text-xl font-bold text-foreground">Derniers établissements</h2>
               <button className="text-primary hover:underline text-sm font-medium">
-                عرض الكل
+                Voir tout
               </button>
             </div>
             {facilitiesLoading ? (
@@ -187,8 +209,8 @@ const Index = () => {
             ) : (
               <div className="card-institutional text-center py-12">
                 <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-foreground mb-2">لا توجد منشآت بعد</h3>
-                <p className="text-muted-foreground">ابدأ بإضافة منشأة جديدة</p>
+                <h3 className="text-lg font-semibold text-foreground mb-2">Aucun établissement</h3>
+                <p className="text-muted-foreground">Commencez par ajouter un nouvel établissement</p>
               </div>
             )}
           </div>
@@ -196,7 +218,7 @@ const Index = () => {
           {/* Footer */}
           <footer className="mt-12 pt-6 border-t border-border text-center">
             <p className="text-muted-foreground text-sm">
-              © {new Date().getFullYear()} جهتي - منصة سيادية لإدارة البيانات المؤسساتية
+              © {new Date().getFullYear()} Jihety - Plateforme souveraine de gestion des données institutionnelles
             </p>
           </footer>
         </main>

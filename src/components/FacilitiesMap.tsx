@@ -150,7 +150,7 @@ const FacilitiesMap = ({ height = "400px", showLegend = true }: FacilitiesMapPro
       >
         <div className="text-center">
           <MapPin className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
-          <p className="text-muted-foreground">جاري تحميل الخريطة...</p>
+          <p className="text-muted-foreground">Chargement de la carte...</p>
         </div>
       </div>
     );
@@ -166,21 +166,21 @@ const FacilitiesMap = ({ height = "400px", showLegend = true }: FacilitiesMapPro
 
       {showLegend && (
         <div className="flex flex-wrap items-center gap-4 text-sm">
-          <span className="font-medium text-foreground">دليل الألوان:</span>
+          <span className="font-medium text-foreground">Légende:</span>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded-full bg-success border-2 border-white shadow" />
-            <span className="text-muted-foreground">نشط</span>
+            <span className="text-muted-foreground">Actif</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded-full bg-warning border-2 border-white shadow" />
-            <span className="text-muted-foreground">قيد المراجعة</span>
+            <span className="text-muted-foreground">En révision</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded-full bg-critical border-2 border-white shadow" />
-            <span className="text-muted-foreground">غير نشط</span>
+            <span className="text-muted-foreground">Inactif</span>
           </div>
           <span className="text-muted-foreground mr-auto">
-            {facilitiesWithCoords.length} منشأة على الخريطة
+            {facilitiesWithCoords.length} établissement(s) sur la carte
           </span>
         </div>
       )}
@@ -188,8 +188,8 @@ const FacilitiesMap = ({ height = "400px", showLegend = true }: FacilitiesMapPro
       {facilitiesWithCoords.length === 0 && !isLoading && (
         <div className="text-center py-4 text-muted-foreground">
           <MapPin className="w-8 h-8 mx-auto mb-2 opacity-50" />
-          <p>لا توجد منشآت بإحداثيات GPS حتى الآن</p>
-          <p className="text-sm">أضف إحداثيات GPS عند إضافة منشأة جديدة</p>
+          <p>Aucun établissement avec coordonnées GPS</p>
+          <p className="text-sm">Ajoutez des coordonnées GPS lors de la création</p>
         </div>
       )}
     </div>

@@ -23,7 +23,7 @@ const LoginPage = () => {
     const { data, error } = await signIn(email, password);
 
     if (error) {
-      toast.error("فشل تسجيل الدخول: " + error.message);
+      toast.error("Échec de la connexion: " + error.message);
       setLoading(false);
       return;
     }
@@ -41,37 +41,36 @@ const LoginPage = () => {
       });
     }
     
-    toast.success("تم تسجيل الدخول بنجاح");
+    toast.success("Connexion réussie");
     navigate("/");
     setLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4" dir="rtl">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
             <Building2 className="w-6 h-6 text-primary" />
           </div>
-          <CardTitle className="text-2xl">تسجيل الدخول</CardTitle>
-          <CardDescription>أدخل بياناتك للوصول إلى النظام</CardDescription>
+          <CardTitle className="text-2xl">Connexion</CardTitle>
+          <CardDescription>Entrez vos identifiants pour accéder au système</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">البريد الإلكتروني</Label>
+              <Label htmlFor="email">E-mail</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="example@email.com"
+                placeholder="exemple@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                dir="ltr"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">كلمة المرور</Label>
+              <Label htmlFor="password">Mot de passe</Label>
               <Input
                 id="password"
                 type="password"
@@ -79,16 +78,15 @@ const LoginPage = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                dir="ltr"
               />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading && <Loader2 className="w-4 h-4 ml-2 animate-spin" />}
-              تسجيل الدخول
+              {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Se connecter
             </Button>
           </form>
           <p className="mt-4 text-center text-sm text-muted-foreground">
-            للحصول على حساب، تواصل مع مدير النظام
+            Pour obtenir un compte, contactez l'administrateur système
           </p>
         </CardContent>
       </Card>

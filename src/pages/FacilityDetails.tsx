@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import FacilityImageUpload from "@/components/FacilityImageUpload";
 import FacilityLocationMap from "@/components/FacilityLocationMap";
+import FacilityLocationEditor from "@/components/FacilityLocationEditor";
 import { useFacility, useUpdateFacility, type Facility, type FacilitySector, type OwnershipType, type LegalDomain, type JurisdictionType, type FacilityStatus } from "@/hooks/useFacilities";
 import { useFacilityLicenses } from "@/hooks/useLicenses";
 import { 
@@ -512,11 +513,19 @@ const FacilityDetails = () => {
                 {/* Map */}
                 <div className="card-institutional">
                   <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3 mb-4">الخريطة</h2>
-                  <FacilityLocationMap 
-                    coordinates={facility.gps_coordinates} 
-                    facilityName={facility.name}
-                    address={facility.address}
-                  />
+                  {isEditing ? (
+                    <FacilityLocationEditor
+                      coordinates={editedFacility.gps_coordinates || null}
+                      onCoordinatesChange={(coords) => setEditedFacility({...editedFacility, gps_coordinates: coords})}
+                      facilityName={editedFacility.name}
+                    />
+                  ) : (
+                    <FacilityLocationMap 
+                      coordinates={facility.gps_coordinates} 
+                      facilityName={facility.name}
+                      address={facility.address}
+                    />
+                  )}
                 </div>
               </div>
             </TabsContent>

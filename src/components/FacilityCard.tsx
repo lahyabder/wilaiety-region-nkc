@@ -1,4 +1,4 @@
-import { MapPin, Calendar, Building2 } from "lucide-react";
+import { MapPin, Calendar, Building2, ExternalLink } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { useNavigate } from "react-router-dom";
 
@@ -9,9 +9,10 @@ interface FacilityCardProps {
   location: string;
   status: "active" | "pending" | "expired";
   licenseExpiry?: string;
+  websiteUrl?: string | null;
 }
 
-const FacilityCard = ({ id = "1", name, sector, location, status, licenseExpiry }: FacilityCardProps) => {
+const FacilityCard = ({ id = "1", name, sector, location, status, licenseExpiry, websiteUrl }: FacilityCardProps) => {
   const navigate = useNavigate();
   
   const statusConfig = {
@@ -59,6 +60,18 @@ const FacilityCard = ({ id = "1", name, sector, location, status, licenseExpiry 
             <Calendar className="w-4 h-4" />
             <span>انتهاء الترخيص: {licenseExpiry}</span>
           </div>
+        )}
+        {websiteUrl && (
+          <a 
+            href={websiteUrl} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
+          >
+            <ExternalLink className="w-4 h-4" />
+            <span>زيارة الموقع</span>
+          </a>
         )}
       </div>
     </div>

@@ -83,6 +83,68 @@ const FitBounds = ({ facilities }: { facilities: Facility[] }) => {
   return null;
 };
 
+// Separate component for map content to avoid context issues
+interface MapContentProps {
+  facilities: Facility[];
+  getStatusBadge: (status: FacilityStatus) => string;
+  navigate: (path: string) => void;
+}
+
+const MapContent = ({ facilities, getStatusBadge, navigate }: MapContentProps) => {
+  return (
+    <>
+      <TileLayer
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
+      
+      {facilities.length > 0 && <FitBounds facilities={facilities} />}
+      
+      {facilities.map((facility) => {
+        const coords = parseGPS(facility.gps_coordinates);
+        if (!coords) return null;
+
+        return (
+          <Marker
+            key={facility.id}
+            position={coords}
+            icon={createCustomIcon(facility.status)}
+          >
+            <Popup>
+              <div className="p-2 min-w-[200px]" dir="rtl">
+                <div className="flex items-center gap-2 mb-2">
+                  <Building2 className="w-5 h-5 text-primary" />
+                  <h3 className="font-bold text-foreground">{facility.name}</h3>
+                </div>
+                <div className="space-y-1 text-sm mb-3">
+                  <p className="text-muted-foreground">
+                    <span className="font-medium">القطاع:</span> {facility.sector}
+                  </p>
+                  <p className="text-muted-foreground">
+                    <span className="font-medium">المنطقة:</span> {facility.region}
+                  </p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="font-medium text-muted-foreground">الحالة:</span>
+                    <Badge className={getStatusBadge(facility.status)}>
+                      {facility.status}
+                    </Badge>
+                  </div>
+                </div>
+                <button
+                  onClick={() => navigate(`/facility/${facility.id}`)}
+                  className="w-full px-3 py-1.5 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
+                >
+                  عرض التفاصيل
+                </button>
+              </div>
+            </Popup>
+          </Marker>
+        );
+      })}
+    </>
+  );
+};
+
 interface FacilitiesMapProps {
   height?: string;
   showLegend?: boolean;
@@ -133,54 +195,11 @@ const FacilitiesMap = ({ height = "400px", showLegend = true }: FacilitiesMapPro
           style={{ height: "100%", width: "100%" }}
           scrollWheelZoom={true}
         >
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          <MapContent 
+            facilities={facilitiesWithCoords} 
+            getStatusBadge={getStatusBadge}
+            navigate={navigate}
           />
-          
-          {facilitiesWithCoords.length > 0 && <FitBounds facilities={facilitiesWithCoords} />}
-          
-          {facilitiesWithCoords.map((facility) => {
-            const coords = parseGPS(facility.gps_coordinates);
-            if (!coords) return null;
-
-            return (
-              <Marker
-                key={facility.id}
-                position={coords}
-                icon={createCustomIcon(facility.status)}
-              >
-                <Popup>
-                  <div className="p-2 min-w-[200px]" dir="rtl">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Building2 className="w-5 h-5 text-primary" />
-                      <h3 className="font-bold text-foreground">{facility.name}</h3>
-                    </div>
-                    <div className="space-y-1 text-sm mb-3">
-                      <p className="text-muted-foreground">
-                        <span className="font-medium">القطاع:</span> {facility.sector}
-                      </p>
-                      <p className="text-muted-foreground">
-                        <span className="font-medium">المنطقة:</span> {facility.region}
-                      </p>
-                      <div className="flex items-center gap-2 mt-2">
-                        <span className="font-medium text-muted-foreground">الحالة:</span>
-                        <Badge className={getStatusBadge(facility.status)}>
-                          {facility.status}
-                        </Badge>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => navigate(`/facility/${facility.id}`)}
-                      className="w-full px-3 py-1.5 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
-                    >
-                      عرض التفاصيل
-                    </button>
-                  </div>
-                </Popup>
-              </Marker>
-            );
-          })}
         </MapContainer>
       </div>
 

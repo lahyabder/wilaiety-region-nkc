@@ -89,8 +89,8 @@ const FacilityLocationMap = ({ coordinates, facilityName, address }: FacilityLoc
     <div className="space-y-3">
       <div 
         ref={mapRef} 
-        className="aspect-video rounded-lg overflow-hidden border border-border"
-        style={{ minHeight: "300px" }}
+        className="rounded-lg overflow-hidden border border-border"
+        style={{ height: "350px" }}
       />
       <a 
         href={googleMapsUrl} 

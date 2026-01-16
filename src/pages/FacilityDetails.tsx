@@ -36,10 +36,64 @@ const sectors: FacilitySector[] = [
   "مالية", "كهربائية", "مائية", "تكنولوجية", "بيئية"
 ];
 
+const sectorLabels: Record<FacilitySector, string> = {
+  "صحية": "Santé",
+  "تعليمية": "Éducation",
+  "صناعية": "Industrie",
+  "زراعية": "Agriculture",
+  "رياضية": "Sport",
+  "ثقافية": "Culture",
+  "اجتماعية": "Social",
+  "دينية": "Religieux",
+  "نقل": "Transport",
+  "تجارة": "Commerce",
+  "سياحة": "Tourisme",
+  "إدارية": "Administratif",
+  "قضائية": "Judiciaire",
+  "سياسية": "Politique",
+  "مالية": "Finance",
+  "كهربائية": "Électricité",
+  "مائية": "Eau",
+  "تكنولوجية": "Technologie",
+  "بيئية": "Environnement"
+};
+
 const ownershipTypes: OwnershipType[] = ["ملكية كاملة", "إيجار", "شراكة", "مملوكة مع جهة أخرى"];
+const ownershipLabels: Record<OwnershipType, string> = {
+  "ملكية كاملة": "Pleine propriété",
+  "إيجار": "Location",
+  "شراكة": "Partenariat",
+  "مملوكة مع جهة أخرى": "Copropriété"
+};
+
 const legalDomains: LegalDomain[] = ["مجال عام للجهة", "مجال خاص للجهة", "خارج ملكية الجهة"];
+const legalDomainLabels: Record<LegalDomain, string> = {
+  "مجال عام للجهة": "Domaine public",
+  "مجال خاص للجهة": "Domaine privé",
+  "خارج ملكية الجهة": "Hors propriété"
+};
+
 const jurisdictionTypes: JurisdictionType[] = ["خاص", "محال", "تنسيق"];
+const jurisdictionLabels: Record<JurisdictionType, string> = {
+  "خاص": "Privé",
+  "محال": "Délégué",
+  "تنسيق": "Coordination"
+};
+
 const statusOptions: FacilityStatus[] = ["نشط", "غير نشط", "قيد الإنشاء", "معلق"];
+const statusLabels: Record<FacilityStatus, string> = {
+  "نشط": "Actif",
+  "غير نشط": "Inactif",
+  "قيد الإنشاء": "En construction",
+  "معلق": "Suspendu"
+};
+
+const licenseStatusLabels: Record<string, string> = {
+  "ساري": "Valide",
+  "قريب الانتهاء": "Expire bientôt",
+  "منتهي": "Expiré",
+  "ملغى": "Annulé"
+};
 
 const FacilityDetails = () => {
   const { id } = useParams();
@@ -131,9 +185,9 @@ const FacilityDetails = () => {
           <main className="flex-1 p-6">
             <div className="card-institutional text-center py-12">
               <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">لم يتم العثور على المنشأة</h3>
-              <p className="text-muted-foreground mb-4">المنشأة المطلوبة غير موجودة أو تم حذفها</p>
-              <Button onClick={() => navigate("/")}>العودة للرئيسية</Button>
+              <h3 className="text-lg font-semibold text-foreground mb-2">Établissement non trouvé</h3>
+              <p className="text-muted-foreground mb-4">L'établissement demandé n'existe pas ou a été supprimé</p>
+              <Button onClick={() => navigate("/")}>Retour à l'accueil</Button>
             </div>
           </main>
         </div>
@@ -154,13 +208,13 @@ const FacilityDetails = () => {
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
             <button onClick={() => navigate("/")} className="hover:text-primary transition-colors">
-              لوحة التحكم
+              Tableau de bord
             </button>
-            <ArrowRight className="w-4 h-4 rotate-180" />
+            <ArrowRight className="w-4 h-4" />
             <button onClick={() => navigate("/")} className="hover:text-primary transition-colors">
-              المنشآت
+              Établissements
             </button>
-            <ArrowRight className="w-4 h-4 rotate-180" />
+            <ArrowRight className="w-4 h-4" />
             <span className="text-foreground">{facility.name}</span>
           </div>
 
@@ -177,9 +231,9 @@ const FacilityDetails = () => {
               <div>
                 <div className="flex items-center gap-3">
                   <h1 className="text-2xl font-bold text-foreground">{facility.name}</h1>
-                  <Badge className={getStatusBadge(facility.status)}>{facility.status}</Badge>
+                  <Badge className={getStatusBadge(facility.status)}>{statusLabels[facility.status] || facility.status}</Badge>
                 </div>
-                <p className="text-muted-foreground">{facility.short_name} • {facility.sector}</p>
+                <p className="text-muted-foreground">{facility.short_name} • {sectorLabels[facility.sector] || facility.sector}</p>
               </div>
             </div>
             
@@ -188,17 +242,17 @@ const FacilityDetails = () => {
                 <>
                   <Button variant="outline" onClick={handleCancel} className="gap-2" disabled={updateFacility.isPending}>
                     <X className="w-4 h-4" />
-                    إلغاء
+                    Annuler
                   </Button>
                   <Button onClick={handleSave} className="gap-2" disabled={updateFacility.isPending}>
                     <Save className="w-4 h-4" />
-                    {updateFacility.isPending ? "جاري الحفظ..." : "حفظ التغييرات"}
+                    {updateFacility.isPending ? "Enregistrement..." : "Enregistrer"}
                   </Button>
                 </>
               ) : (
                 <Button onClick={() => setIsEditing(true)} className="gap-2">
                   <Edit3 className="w-4 h-4" />
-                  تعديل البيانات
+                  Modifier
                 </Button>
               )}
             </div>
@@ -209,19 +263,19 @@ const FacilityDetails = () => {
             <TabsList className="bg-muted p-1 rounded-lg">
               <TabsTrigger value="basic" className="gap-2 data-[state=active]:bg-card">
                 <FileText className="w-4 h-4" />
-                البيانات الأساسية
+                Informations de base
               </TabsTrigger>
               <TabsTrigger value="location" className="gap-2 data-[state=active]:bg-card">
                 <MapPin className="w-4 h-4" />
-                الموقع الجغرافي
+                Localisation
               </TabsTrigger>
               <TabsTrigger value="legal" className="gap-2 data-[state=active]:bg-card">
                 <Calendar className="w-4 h-4" />
-                الوضع القانوني
+                Statut juridique
               </TabsTrigger>
               <TabsTrigger value="history" className="gap-2 data-[state=active]:bg-card">
                 <History className="w-4 h-4" />
-                سجل التعديلات
+                Historique
               </TabsTrigger>
             </TabsList>
 
@@ -230,11 +284,11 @@ const FacilityDetails = () => {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Main Info Card */}
                 <div className="card-institutional space-y-5">
-                  <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3">معلومات المنشأة</h2>
+                  <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3">Informations de l'établissement</h2>
                   
                   <div className="space-y-4">
                     <div>
-                      <Label className="text-muted-foreground text-sm">اسم المنشأة</Label>
+                      <Label className="text-muted-foreground text-sm">Nom de l'établissement</Label>
                       {isEditing ? (
                         <Input 
                           value={editedFacility.name || ""}
@@ -248,7 +302,7 @@ const FacilityDetails = () => {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label className="text-muted-foreground text-sm">اختصار الاسم</Label>
+                        <Label className="text-muted-foreground text-sm">Abréviation</Label>
                         {isEditing ? (
                           <Input 
                             value={editedFacility.short_name || ""}
@@ -260,7 +314,7 @@ const FacilityDetails = () => {
                         )}
                       </div>
                       <div>
-                        <Label className="text-muted-foreground text-sm">تاريخ الإنشاء</Label>
+                        <Label className="text-muted-foreground text-sm">Date de création</Label>
                         {isEditing ? (
                           <Input 
                             type="date"
@@ -275,7 +329,7 @@ const FacilityDetails = () => {
                     </div>
 
                     <div>
-                      <Label className="text-muted-foreground text-sm">الاسم القانوني</Label>
+                      <Label className="text-muted-foreground text-sm">Nom légal</Label>
                       {isEditing ? (
                         <Input 
                           value={editedFacility.legal_name || ""}
@@ -288,7 +342,7 @@ const FacilityDetails = () => {
                     </div>
 
                     <div>
-                      <Label className="text-muted-foreground text-sm">الوصف العام</Label>
+                      <Label className="text-muted-foreground text-sm">Description</Label>
                       {isEditing ? (
                         <Textarea 
                           value={editedFacility.description || ""}
@@ -296,12 +350,12 @@ const FacilityDetails = () => {
                           className="mt-1 min-h-[100px]"
                         />
                       ) : (
-                        <p className="text-foreground mt-1 leading-relaxed">{facility.description || "لا يوجد وصف"}</p>
+                        <p className="text-foreground mt-1 leading-relaxed">{facility.description || "Aucune description"}</p>
                       )}
                     </div>
 
                     <div>
-                      <Label className="text-muted-foreground text-sm">رابط الموقع</Label>
+                      <Label className="text-muted-foreground text-sm">Site web</Label>
                       {isEditing ? (
                         <Input 
                           type="url"
@@ -309,7 +363,6 @@ const FacilityDetails = () => {
                           onChange={(e) => setEditedFacility({...editedFacility, website_url: e.target.value})}
                           className="mt-1"
                           placeholder="https://example.com"
-                          dir="ltr"
                         />
                       ) : facility.website_url ? (
                         <a 
@@ -319,10 +372,10 @@ const FacilityDetails = () => {
                           className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors mt-1"
                         >
                           <ExternalLink className="w-4 h-4" />
-                          <span>زيارة الموقع</span>
+                          <span>Visiter le site</span>
                         </a>
                       ) : (
-                        <p className="text-muted-foreground mt-1">لا يوجد رابط</p>
+                        <p className="text-muted-foreground mt-1">Aucun lien</p>
                       )}
                     </div>
                   </div>
@@ -330,11 +383,11 @@ const FacilityDetails = () => {
 
                 {/* Classification Card */}
                 <div className="card-institutional space-y-5">
-                  <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3">التصنيف والنشاط</h2>
+                  <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3">Classification et activité</h2>
                   
                   <div className="space-y-4">
                     <div>
-                      <Label className="text-muted-foreground text-sm">القطاع</Label>
+                      <Label className="text-muted-foreground text-sm">Secteur</Label>
                       {isEditing ? (
                         <Select 
                           value={editedFacility.sector}
@@ -345,17 +398,17 @@ const FacilityDetails = () => {
                           </SelectTrigger>
                           <SelectContent>
                             {sectors.map((sector) => (
-                              <SelectItem key={sector} value={sector}>{sector}</SelectItem>
+                              <SelectItem key={sector} value={sector}>{sectorLabels[sector]}</SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       ) : (
-                        <p className="font-medium text-foreground mt-1">{facility.sector}</p>
+                        <p className="font-medium text-foreground mt-1">{sectorLabels[facility.sector] || facility.sector}</p>
                       )}
                     </div>
 
                     <div>
-                      <Label className="text-muted-foreground text-sm">نوع النشاط</Label>
+                      <Label className="text-muted-foreground text-sm">Type d'activité</Label>
                       {isEditing ? (
                         <Input 
                           value={editedFacility.activity_type || ""}
@@ -368,7 +421,7 @@ const FacilityDetails = () => {
                     </div>
 
                     <div>
-                      <Label className="text-muted-foreground text-sm">صفة المنشأة</Label>
+                      <Label className="text-muted-foreground text-sm">Type d'établissement</Label>
                       {isEditing ? (
                         <Input 
                           value={editedFacility.facility_type || ""}
@@ -381,7 +434,7 @@ const FacilityDetails = () => {
                     </div>
 
                     <div>
-                      <Label className="text-muted-foreground text-sm">نوع الاختصاص</Label>
+                      <Label className="text-muted-foreground text-sm">Type de juridiction</Label>
                       {isEditing ? (
                         <Select 
                           value={editedFacility.jurisdiction_type}
@@ -392,17 +445,17 @@ const FacilityDetails = () => {
                           </SelectTrigger>
                           <SelectContent>
                             {jurisdictionTypes.map((type) => (
-                              <SelectItem key={type} value={type}>{type}</SelectItem>
+                              <SelectItem key={type} value={type}>{jurisdictionLabels[type]}</SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       ) : (
-                        <p className="font-medium text-foreground mt-1">{facility.jurisdiction_type}</p>
+                        <p className="font-medium text-foreground mt-1">{jurisdictionLabels[facility.jurisdiction_type] || facility.jurisdiction_type}</p>
                       )}
                     </div>
 
                     <div>
-                      <Label className="text-muted-foreground text-sm">الحالة</Label>
+                      <Label className="text-muted-foreground text-sm">Statut</Label>
                       {isEditing ? (
                         <Select 
                           value={editedFacility.status}
@@ -413,12 +466,12 @@ const FacilityDetails = () => {
                           </SelectTrigger>
                           <SelectContent>
                             {statusOptions.map((status) => (
-                              <SelectItem key={status} value={status}>{status}</SelectItem>
+                              <SelectItem key={status} value={status}>{statusLabels[status]}</SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       ) : (
-                        <Badge className={getStatusBadge(facility.status)}>{facility.status}</Badge>
+                        <Badge className={getStatusBadge(facility.status)}>{statusLabels[facility.status] || facility.status}</Badge>
                       )}
                     </div>
                   </div>
@@ -426,7 +479,7 @@ const FacilityDetails = () => {
 
                 {/* Images Card */}
                 <div className="card-institutional lg:col-span-2">
-                  <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3 mb-4">صورة المنشأة</h2>
+                  <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3 mb-4">Image de l'établissement</h2>
                   <FacilityImageUpload
                     facilityId={facility.id}
                     currentImageUrl={isEditing ? editedFacility.image_url : facility.image_url}
@@ -441,25 +494,25 @@ const FacilityDetails = () => {
             <TabsContent value="location" className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="card-institutional space-y-5">
-                  <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3">إحداثيات GPS</h2>
+                  <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3">Coordonnées GPS</h2>
                   
                   <div className="space-y-4">
                     <div>
-                      <Label className="text-muted-foreground text-sm">الإحداثيات</Label>
+                      <Label className="text-muted-foreground text-sm">Coordonnées</Label>
                       {isEditing ? (
                         <Input 
                           value={editedFacility.gps_coordinates || ""}
                           onChange={(e) => setEditedFacility({...editedFacility, gps_coordinates: e.target.value})}
                           className="mt-1"
-                          placeholder="خط العرض، خط الطول"
+                          placeholder="Latitude, Longitude"
                         />
                       ) : (
-                        <p className="font-medium text-foreground mt-1 font-mono">{facility.gps_coordinates || "غير محدد"}</p>
+                        <p className="font-medium text-foreground mt-1 font-mono">{facility.gps_coordinates || "Non défini"}</p>
                       )}
                     </div>
 
                     <div>
-                      <Label className="text-muted-foreground text-sm">دقة الموقع</Label>
+                      <Label className="text-muted-foreground text-sm">Précision de la localisation</Label>
                       {isEditing ? (
                         <Select 
                           value={editedFacility.location_accuracy || "متوسطة"}
@@ -469,21 +522,25 @@ const FacilityDetails = () => {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="عالية">عالية</SelectItem>
-                            <SelectItem value="متوسطة">متوسطة</SelectItem>
-                            <SelectItem value="منخفضة">منخفضة</SelectItem>
+                            <SelectItem value="عالية">Haute</SelectItem>
+                            <SelectItem value="متوسطة">Moyenne</SelectItem>
+                            <SelectItem value="منخفضة">Basse</SelectItem>
                           </SelectContent>
                         </Select>
                       ) : (
                         <div className="flex items-center gap-2 mt-1">
                           <CheckCircle className="w-4 h-4 text-success" />
-                          <span className="font-medium text-foreground">{facility.location_accuracy || "متوسطة"}</span>
+                          <span className="font-medium text-foreground">
+                            {facility.location_accuracy === "عالية" ? "Haute" : 
+                             facility.location_accuracy === "متوسطة" ? "Moyenne" : 
+                             facility.location_accuracy === "منخفضة" ? "Basse" : "Moyenne"}
+                          </span>
                         </div>
                       )}
                     </div>
 
                     <div>
-                      <Label className="text-muted-foreground text-sm">المنطقة</Label>
+                      <Label className="text-muted-foreground text-sm">Région</Label>
                       {isEditing ? (
                         <Input 
                           value={editedFacility.region || ""}
@@ -496,7 +553,7 @@ const FacilityDetails = () => {
                     </div>
 
                     <div>
-                      <Label className="text-muted-foreground text-sm">العنوان التفصيلي</Label>
+                      <Label className="text-muted-foreground text-sm">Adresse détaillée</Label>
                       {isEditing ? (
                         <Textarea 
                           value={editedFacility.address || ""}
@@ -512,7 +569,7 @@ const FacilityDetails = () => {
 
                 {/* Map */}
                 <div className="card-institutional">
-                  <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3 mb-4">الخريطة</h2>
+                  <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3 mb-4">Carte</h2>
                   {isEditing ? (
                     <FacilityLocationEditor
                       coordinates={editedFacility.gps_coordinates || null}
@@ -535,11 +592,11 @@ const FacilityDetails = () => {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Ownership Card */}
                 <div className="card-institutional space-y-5">
-                  <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3">وضعية الملكية</h2>
+                  <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3">Statut de propriété</h2>
                   
                   <div className="space-y-4">
                     <div>
-                      <Label className="text-muted-foreground text-sm">نوع الملكية</Label>
+                      <Label className="text-muted-foreground text-sm">Type de propriété</Label>
                       {isEditing ? (
                         <Select 
                           value={editedFacility.ownership}
@@ -550,17 +607,17 @@ const FacilityDetails = () => {
                           </SelectTrigger>
                           <SelectContent>
                             {ownershipTypes.map((type) => (
-                              <SelectItem key={type} value={type}>{type}</SelectItem>
+                              <SelectItem key={type} value={type}>{ownershipLabels[type]}</SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       ) : (
-                        <p className="font-medium text-foreground mt-1">{facility.ownership}</p>
+                        <p className="font-medium text-foreground mt-1">{ownershipLabels[facility.ownership] || facility.ownership}</p>
                       )}
                     </div>
 
                     <div>
-                      <Label className="text-muted-foreground text-sm">المجال القانوني</Label>
+                      <Label className="text-muted-foreground text-sm">Domaine juridique</Label>
                       {isEditing ? (
                         <Select 
                           value={editedFacility.legal_domain}
@@ -571,12 +628,12 @@ const FacilityDetails = () => {
                           </SelectTrigger>
                           <SelectContent>
                             {legalDomains.map((domain) => (
-                              <SelectItem key={domain} value={domain}>{domain}</SelectItem>
+                              <SelectItem key={domain} value={domain}>{legalDomainLabels[domain]}</SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       ) : (
-                        <p className="font-medium text-foreground mt-1">{facility.legal_domain}</p>
+                        <p className="font-medium text-foreground mt-1">{legalDomainLabels[facility.legal_domain] || facility.legal_domain}</p>
                       )}
                     </div>
 
@@ -584,7 +641,7 @@ const FacilityDetails = () => {
                       <div className="p-3 bg-warning/10 border border-warning/30 rounded-lg">
                         <div className="flex items-center gap-2 text-warning-foreground">
                           <AlertTriangle className="w-4 h-4" />
-                          <span className="text-sm font-medium">مستندات إضافية مطلوبة</span>
+                          <span className="text-sm font-medium">Documents supplémentaires requis</span>
                         </div>
                       </div>
                     )}
@@ -593,38 +650,38 @@ const FacilityDetails = () => {
 
                 {/* License Card */}
                 <div className="card-institutional space-y-5">
-                  <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3">بيانات الترخيص</h2>
+                  <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3">Informations de licence</h2>
                   
                   {currentLicense ? (
                     <div className="space-y-4">
                       <div>
-                        <Label className="text-muted-foreground text-sm">رقم الترخيص</Label>
+                        <Label className="text-muted-foreground text-sm">Numéro de licence</Label>
                         <p className="font-medium text-foreground mt-1 font-mono">{currentLicense.license_number}</p>
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label className="text-muted-foreground text-sm">تاريخ الإصدار</Label>
+                          <Label className="text-muted-foreground text-sm">Date d'émission</Label>
                           <p className="font-medium text-foreground mt-1">{currentLicense.issue_date}</p>
                         </div>
                         <div>
-                          <Label className="text-muted-foreground text-sm">تاريخ الانتهاء</Label>
+                          <Label className="text-muted-foreground text-sm">Date d'expiration</Label>
                           <p className="font-medium text-foreground mt-1">{currentLicense.expiry_date}</p>
                         </div>
                       </div>
 
                       <div>
-                        <Label className="text-muted-foreground text-sm">حالة الترخيص</Label>
+                        <Label className="text-muted-foreground text-sm">Statut de la licence</Label>
                         <div className="mt-1">
                           <Badge className={getStatusBadge(currentLicense.status)}>
-                            {currentLicense.status}
+                            {licenseStatusLabels[currentLicense.status] || currentLicense.status}
                           </Badge>
                         </div>
                       </div>
                     </div>
                   ) : (
                     <div className="text-center py-4 text-muted-foreground">
-                      <p>لا يوجد ترخيص مسجل لهذه المنشأة</p>
+                      <p>Aucune licence enregistrée pour cet établissement</p>
                     </div>
                   )}
                 </div>
@@ -634,13 +691,13 @@ const FacilityDetails = () => {
             {/* History Tab */}
             <TabsContent value="history">
               <div className="card-institutional">
-                <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3 mb-4">سجل التعديلات</h2>
+                <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3 mb-4">Historique des modifications</h2>
                 <div className="space-y-4">
                   <div className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg">
                     <div className="w-2 h-2 rounded-full bg-primary" />
                     <div className="flex-1">
-                      <p className="font-medium text-foreground">إنشاء السجل</p>
-                      <p className="text-sm text-muted-foreground">تم إنشاء المنشأة</p>
+                      <p className="font-medium text-foreground">Création de l'enregistrement</p>
+                      <p className="text-sm text-muted-foreground">L'établissement a été créé</p>
                     </div>
                     <span className="text-sm text-muted-foreground font-mono">{facility.created_at?.split("T")[0]}</span>
                   </div>
@@ -648,8 +705,8 @@ const FacilityDetails = () => {
                     <div className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg">
                       <div className="w-2 h-2 rounded-full bg-primary" />
                       <div className="flex-1">
-                        <p className="font-medium text-foreground">آخر تحديث</p>
-                        <p className="text-sm text-muted-foreground">تم تحديث البيانات</p>
+                        <p className="font-medium text-foreground">Dernière mise à jour</p>
+                        <p className="text-sm text-muted-foreground">Les données ont été mises à jour</p>
                       </div>
                       <span className="text-sm text-muted-foreground font-mono">{facility.updated_at?.split("T")[0]}</span>
                     </div>

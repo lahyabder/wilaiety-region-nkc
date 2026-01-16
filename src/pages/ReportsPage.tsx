@@ -39,16 +39,25 @@ import { toast } from "sonner";
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
 const sectorLabels: Record<string, string> = {
-  health: "الصحة",
-  education: "التعليم",
-  commerce: "التجارة",
-  industry: "الصناعة",
-  agriculture: "الزراعة",
-  tourism: "السياحة",
-  transport: "النقل",
-  technology: "التقنية",
-  energy: "الطاقة",
-  construction: "البناء",
+  "صحية": "Santé",
+  "تعليمية": "Éducation",
+  "صناعية": "Industrie",
+  "زراعية": "Agriculture",
+  "رياضية": "Sport",
+  "ثقافية": "Culture",
+  "اجتماعية": "Social",
+  "دينية": "Religieux",
+  "نقل": "Transport",
+  "تجارة": "Commerce",
+  "سياحة": "Tourisme",
+  "إدارية": "Administratif",
+  "قضائية": "Judiciaire",
+  "سياسية": "Politique",
+  "مالية": "Finance",
+  "كهربائية": "Électricité",
+  "مائية": "Eau",
+  "تكنولوجية": "Technologie",
+  "بيئية": "Environnement",
 };
 
 const ReportsPage = () => {
@@ -63,27 +72,26 @@ const ReportsPage = () => {
   const exportToPDF = () => {
     const doc = new jsPDF();
     
-    // Add Arabic font support note - jsPDF has limited Arabic support
     doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
-    doc.text("Facilities & Licenses Report", 14, 22);
+    doc.text("Rapport des établissements et licences", 14, 22);
     
     doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
-    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 32);
+    doc.text(`Généré le: ${new Date().toLocaleDateString("fr-FR")}`, 14, 32);
     
     // Facilities Summary
     doc.setFont("helvetica", "bold");
-    doc.text("Facilities Summary", 14, 45);
+    doc.text("Résumé des établissements", 14, 45);
     
     autoTable(doc, {
       startY: 50,
-      head: [["Category", "Count"]],
+      head: [["Catégorie", "Nombre"]],
       body: [
-        ["Total Facilities", String(facilityStats?.total || 0)],
-        ["Active", String(facilityStats?.active || 0)],
-        ["Pending", String(facilityStats?.pending || 0)],
-        ["Inactive", String(facilityStats?.inactive || 0)],
+        ["Total des établissements", String(facilityStats?.total || 0)],
+        ["Actifs", String(facilityStats?.active || 0)],
+        ["En attente", String(facilityStats?.pending || 0)],
+        ["Inactifs", String(facilityStats?.inactive || 0)],
       ],
       theme: "striped",
       headStyles: { fillColor: [59, 130, 246] },
@@ -92,16 +100,16 @@ const ReportsPage = () => {
     // Licenses Summary
     const finalY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
     doc.setFont("helvetica", "bold");
-    doc.text("Licenses Summary", 14, finalY + 15);
+    doc.text("Résumé des licences", 14, finalY + 15);
     
     autoTable(doc, {
       startY: finalY + 20,
-      head: [["Category", "Count"]],
+      head: [["Catégorie", "Nombre"]],
       body: [
-        ["Total Licenses", String(licenseStats?.total || 0)],
-        ["Active", String(licenseStats?.active || 0)],
-        ["Expiring Soon", String(licenseStats?.expiringSoon || 0)],
-        ["Expired", String(licenseStats?.expired || 0)],
+        ["Total des licences", String(licenseStats?.total || 0)],
+        ["Valides", String(licenseStats?.active || 0)],
+        ["Expirent bientôt", String(licenseStats?.expiringSoon || 0)],
+        ["Expirées", String(licenseStats?.expired || 0)],
       ],
       theme: "striped",
       headStyles: { fillColor: [34, 197, 94] },
@@ -110,7 +118,7 @@ const ReportsPage = () => {
     // Sector Distribution
     const finalY2 = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
     doc.setFont("helvetica", "bold");
-    doc.text("Sector Distribution", 14, finalY2 + 15);
+    doc.text("Répartition par secteur", 14, finalY2 + 15);
     
     const sectorRows = Object.entries(facilityStats?.sectorCounts || {})
       .filter(([_, count]) => (count as number) > 0)
@@ -119,15 +127,15 @@ const ReportsPage = () => {
     if (sectorRows.length > 0) {
       autoTable(doc, {
         startY: finalY2 + 20,
-        head: [["Sector", "Count"]],
+        head: [["Secteur", "Nombre"]],
         body: sectorRows,
         theme: "striped",
         headStyles: { fillColor: [168, 85, 247] },
       });
     }
     
-    doc.save("facilities-report.pdf");
-    toast.success("تم تصدير التقرير بنجاح");
+    doc.save("rapport-etablissements.pdf");
+    toast.success("Rapport exporté avec succès");
   };
 
   // Export to Excel
@@ -136,71 +144,71 @@ const ReportsPage = () => {
     
     // Facilities Summary Sheet
     const facilitiesSummary = [
-      ["إحصائيات المنشآت", ""],
-      ["الإجمالي", facilityStats?.total || 0],
-      ["نشطة", facilityStats?.active || 0],
-      ["قيد المراجعة", facilityStats?.pending || 0],
-      ["غير نشطة", facilityStats?.inactive || 0],
+      ["Statistiques des établissements", ""],
+      ["Total", facilityStats?.total || 0],
+      ["Actifs", facilityStats?.active || 0],
+      ["En attente", facilityStats?.pending || 0],
+      ["Inactifs", facilityStats?.inactive || 0],
     ];
     const ws1 = XLSX.utils.aoa_to_sheet(facilitiesSummary);
-    XLSX.utils.book_append_sheet(workbook, ws1, "المنشآت");
+    XLSX.utils.book_append_sheet(workbook, ws1, "Établissements");
     
     // Licenses Summary Sheet
     const licensesSummary = [
-      ["إحصائيات التراخيص", ""],
-      ["الإجمالي", licenseStats?.total || 0],
-      ["سارية", licenseStats?.active || 0],
-      ["قريبة الانتهاء", licenseStats?.expiringSoon || 0],
-      ["منتهية", licenseStats?.expired || 0],
+      ["Statistiques des licences", ""],
+      ["Total", licenseStats?.total || 0],
+      ["Valides", licenseStats?.active || 0],
+      ["Expirent bientôt", licenseStats?.expiringSoon || 0],
+      ["Expirées", licenseStats?.expired || 0],
     ];
     const ws2 = XLSX.utils.aoa_to_sheet(licensesSummary);
-    XLSX.utils.book_append_sheet(workbook, ws2, "التراخيص");
+    XLSX.utils.book_append_sheet(workbook, ws2, "Licences");
     
     // Sector Distribution Sheet
-    const sectorData = [["القطاع", "العدد"]];
+    const sectorData = [["Secteur", "Nombre"]];
     Object.entries(facilityStats?.sectorCounts || {}).forEach(([sector, count]) => {
       if ((count as number) > 0) {
         sectorData.push([sectorLabels[sector] || sector, count as unknown as string]);
       }
     });
     const ws3 = XLSX.utils.aoa_to_sheet(sectorData);
-    XLSX.utils.book_append_sheet(workbook, ws3, "القطاعات");
+    XLSX.utils.book_append_sheet(workbook, ws3, "Secteurs");
     
     // Facilities List Sheet
     if (facilities && facilities.length > 0) {
-      const facilitiesData = [["الاسم", "القطاع", "المنطقة", "الحالة", "تاريخ الإنشاء"]];
+      const facilitiesData = [["Nom", "Secteur", "Région", "Statut", "Date de création"]];
       facilities.forEach((f) => {
         facilitiesData.push([
           f.name,
           sectorLabels[f.sector] || f.sector,
           f.region,
           f.status,
-          new Date(f.created_at).toLocaleDateString("ar"),
+          new Date(f.created_at).toLocaleDateString("fr-FR"),
         ]);
       });
       const ws4 = XLSX.utils.aoa_to_sheet(facilitiesData);
-      XLSX.utils.book_append_sheet(workbook, ws4, "قائمة المنشآت");
+      XLSX.utils.book_append_sheet(workbook, ws4, "Liste des établissements");
     }
     
     // Licenses List Sheet
     if (licenses && licenses.length > 0) {
-      const licensesData = [["رقم الترخيص", "النوع", "جهة الإصدار", "تاريخ الإصدار", "تاريخ الانتهاء", "الحالة"]];
+      const licensesData = [["Numéro de licence", "Type", "Autorité émettrice", "Date d'émission", "Date d'expiration", "Statut"]];
       licenses.forEach((l) => {
         licensesData.push([
           l.license_number,
           l.license_type,
           l.issuing_authority,
-          new Date(l.issue_date).toLocaleDateString("ar"),
-          new Date(l.expiry_date).toLocaleDateString("ar"),
+          new Date(l.issue_date).toLocaleDateString("fr-FR"),
+          new Date(l.expiry_date).toLocaleDateString("fr-FR"),
           l.status,
         ]);
       });
       const ws5 = XLSX.utils.aoa_to_sheet(licensesData);
-      XLSX.utils.book_append_sheet(workbook, ws5, "قائمة التراخيص");
+      XLSX.utils.book_append_sheet(workbook, ws5, "Liste des licences");
     }
     
-    XLSX.writeFile(workbook, "facilities-report.xlsx");
-    toast.success("تم تصدير التقرير بنجاح");
+    XLSX.writeFile(workbook, "rapport-etablissements.xlsx");
+    toast.success("Rapport exporté avec succès");
   };
 
   // Prepare sector data for charts
@@ -215,58 +223,58 @@ const ReportsPage = () => {
 
   // Prepare facility status data
   const facilityStatusData = [
-    { name: "نشط", value: facilityStats?.active || 0, color: "hsl(var(--chart-2))" },
-    { name: "قيد المراجعة", value: facilityStats?.pending || 0, color: "hsl(var(--chart-4))" },
-    { name: "غير نشط", value: facilityStats?.inactive || 0, color: "hsl(var(--chart-5))" },
+    { name: "Actif", value: facilityStats?.active || 0, color: "hsl(var(--chart-2))" },
+    { name: "En attente", value: facilityStats?.pending || 0, color: "hsl(var(--chart-4))" },
+    { name: "Inactif", value: facilityStats?.inactive || 0, color: "hsl(var(--chart-5))" },
   ].filter(item => item.value > 0);
 
   // Prepare license status data
   const licenseStatusData = [
-    { name: "ساري", value: licenseStats?.active || 0, color: "hsl(var(--chart-2))" },
-    { name: "قريب الانتهاء", value: licenseStats?.expiringSoon || 0, color: "hsl(var(--chart-4))" },
-    { name: "منتهي", value: licenseStats?.expired || 0, color: "hsl(var(--chart-5))" },
+    { name: "Valide", value: licenseStats?.active || 0, color: "hsl(var(--chart-2))" },
+    { name: "Expire bientôt", value: licenseStats?.expiringSoon || 0, color: "hsl(var(--chart-4))" },
+    { name: "Expiré", value: licenseStats?.expired || 0, color: "hsl(var(--chart-5))" },
   ].filter(item => item.value > 0);
 
   // Monthly trends (mock data based on actual counts)
   const monthlyData = [
-    { month: "يناير", facilities: Math.floor((facilityStats?.total || 0) * 0.6), licenses: Math.floor((licenseStats?.total || 0) * 0.5) },
-    { month: "فبراير", facilities: Math.floor((facilityStats?.total || 0) * 0.7), licenses: Math.floor((licenseStats?.total || 0) * 0.6) },
-    { month: "مارس", facilities: Math.floor((facilityStats?.total || 0) * 0.75), licenses: Math.floor((licenseStats?.total || 0) * 0.7) },
-    { month: "أبريل", facilities: Math.floor((facilityStats?.total || 0) * 0.8), licenses: Math.floor((licenseStats?.total || 0) * 0.75) },
-    { month: "مايو", facilities: Math.floor((facilityStats?.total || 0) * 0.9), licenses: Math.floor((licenseStats?.total || 0) * 0.85) },
-    { month: "يونيو", facilities: facilityStats?.total || 0, licenses: licenseStats?.total || 0 },
+    { month: "Janvier", facilities: Math.floor((facilityStats?.total || 0) * 0.6), licenses: Math.floor((licenseStats?.total || 0) * 0.5) },
+    { month: "Février", facilities: Math.floor((facilityStats?.total || 0) * 0.7), licenses: Math.floor((licenseStats?.total || 0) * 0.6) },
+    { month: "Mars", facilities: Math.floor((facilityStats?.total || 0) * 0.75), licenses: Math.floor((licenseStats?.total || 0) * 0.7) },
+    { month: "Avril", facilities: Math.floor((facilityStats?.total || 0) * 0.8), licenses: Math.floor((licenseStats?.total || 0) * 0.75) },
+    { month: "Mai", facilities: Math.floor((facilityStats?.total || 0) * 0.9), licenses: Math.floor((licenseStats?.total || 0) * 0.85) },
+    { month: "Juin", facilities: facilityStats?.total || 0, licenses: licenseStats?.total || 0 },
   ];
 
   const chartConfig = {
     facilities: {
-      label: "المنشآت",
+      label: "Établissements",
       color: "hsl(var(--primary))",
     },
     licenses: {
-      label: "التراخيص",
+      label: "Licences",
       color: "hsl(var(--chart-2))",
     },
   };
 
   return (
-    <div className="min-h-screen bg-background" dir="rtl">
+    <div className="min-h-screen bg-background">
       <Header />
       <div className="flex">
         <Sidebar />
         <main className="flex-1 p-6">
           <div className="mb-6 flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">التقارير والإحصائيات</h1>
-              <p className="text-muted-foreground">نظرة شاملة على بيانات المنشآت والتراخيص</p>
+              <h1 className="text-2xl font-bold text-foreground">Rapports et statistiques</h1>
+              <p className="text-muted-foreground">Vue d'ensemble des établissements et des licences</p>
             </div>
             <div className="flex gap-2">
               <Button onClick={exportToPDF} variant="outline" className="gap-2">
                 <Download className="w-4 h-4" />
-                تصدير PDF
+                Exporter PDF
               </Button>
               <Button onClick={exportToExcel} variant="outline" className="gap-2">
                 <FileSpreadsheet className="w-4 h-4" />
-                تصدير Excel
+                Exporter Excel
               </Button>
             </div>
           </div>
@@ -285,7 +293,7 @@ const ReportsPage = () => {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">إجمالي المنشآت</p>
+                        <p className="text-sm text-muted-foreground">Total des établissements</p>
                         <p className="text-3xl font-bold text-foreground">{facilityStats?.total || 0}</p>
                       </div>
                       <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
@@ -299,7 +307,7 @@ const ReportsPage = () => {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">إجمالي التراخيص</p>
+                        <p className="text-sm text-muted-foreground">Total des licences</p>
                         <p className="text-3xl font-bold text-foreground">{licenseStats?.total || 0}</p>
                       </div>
                       <div className="w-12 h-12 bg-chart-2/10 rounded-full flex items-center justify-center">
@@ -313,7 +321,7 @@ const ReportsPage = () => {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">تراخيص قريبة الانتهاء</p>
+                        <p className="text-sm text-muted-foreground">Licences expirent bientôt</p>
                         <p className="text-3xl font-bold text-chart-4">{licenseStats?.expiringSoon || 0}</p>
                       </div>
                       <div className="w-12 h-12 bg-chart-4/10 rounded-full flex items-center justify-center">
@@ -327,7 +335,7 @@ const ReportsPage = () => {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">تراخيص منتهية</p>
+                        <p className="text-sm text-muted-foreground">Licences expirées</p>
                         <p className="text-3xl font-bold text-destructive">{licenseStats?.expired || 0}</p>
                       </div>
                       <div className="w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center">
@@ -343,7 +351,7 @@ const ReportsPage = () => {
                 {/* Sector Distribution */}
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg">توزيع المنشآت حسب القطاع</CardTitle>
+                    <CardTitle className="text-lg">Répartition par secteur</CardTitle>
                   </CardHeader>
                   <CardContent>
                     {sectorData.length > 0 ? (
@@ -352,7 +360,7 @@ const ReportsPage = () => {
                           <BarChart data={sectorData} layout="vertical">
                             <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
                             <XAxis type="number" />
-                            <YAxis dataKey="name" type="category" width={80} />
+                            <YAxis dataKey="name" type="category" width={100} />
                             <ChartTooltip content={<ChartTooltipContent />} />
                             <Bar dataKey="value" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
                           </BarChart>
@@ -360,7 +368,7 @@ const ReportsPage = () => {
                       </ChartContainer>
                     ) : (
                       <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                        لا توجد بيانات
+                        Aucune donnée disponible
                       </div>
                     )}
                   </CardContent>
@@ -369,7 +377,7 @@ const ReportsPage = () => {
                 {/* Facility Status Pie Chart */}
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg">حالة المنشآت</CardTitle>
+                    <CardTitle className="text-lg">Statut des établissements</CardTitle>
                   </CardHeader>
                   <CardContent>
                     {facilityStatusData.length > 0 ? (
@@ -396,7 +404,7 @@ const ReportsPage = () => {
                       </ChartContainer>
                     ) : (
                       <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                        لا توجد بيانات
+                        Aucune donnée disponible
                       </div>
                     )}
                   </CardContent>
@@ -408,7 +416,7 @@ const ReportsPage = () => {
                 {/* License Status Pie Chart */}
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg">حالة التراخيص</CardTitle>
+                    <CardTitle className="text-lg">Statut des licences</CardTitle>
                   </CardHeader>
                   <CardContent>
                     {licenseStatusData.length > 0 ? (
@@ -435,7 +443,7 @@ const ReportsPage = () => {
                       </ChartContainer>
                     ) : (
                       <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                        لا توجد بيانات
+                        Aucune donnée disponible
                       </div>
                     )}
                   </CardContent>
@@ -444,7 +452,7 @@ const ReportsPage = () => {
                 {/* Monthly Trend Line Chart */}
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg">النمو الشهري</CardTitle>
+                    <CardTitle className="text-lg">Croissance mensuelle</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <ChartContainer config={chartConfig} className="h-[300px]">
@@ -460,14 +468,14 @@ const ReportsPage = () => {
                             dataKey="facilities" 
                             stroke="hsl(var(--primary))" 
                             strokeWidth={2}
-                            name="المنشآت"
+                            name="Établissements"
                           />
                           <Line 
                             type="monotone" 
                             dataKey="licenses" 
                             stroke="hsl(var(--chart-2))" 
                             strokeWidth={2}
-                            name="التراخيص"
+                            name="Licences"
                           />
                         </LineChart>
                       </ResponsiveContainer>
@@ -479,34 +487,34 @@ const ReportsPage = () => {
               {/* Detailed Stats Table */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">ملخص تفصيلي</CardTitle>
+                  <CardTitle className="text-lg">Résumé détaillé</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="space-y-4">
                       <h3 className="font-semibold text-foreground flex items-center gap-2">
                         <Building2 className="w-5 h-5" />
-                        المنشآت
+                        Établissements
                       </h3>
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
                           <span className="text-muted-foreground flex items-center gap-2">
                             <CheckCircle className="w-4 h-4 text-chart-2" />
-                            نشطة
+                            Actifs
                           </span>
                           <span className="font-medium">{facilityStats?.active || 0}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-muted-foreground flex items-center gap-2">
                             <Clock className="w-4 h-4 text-chart-4" />
-                            قيد المراجعة
+                            En attente
                           </span>
                           <span className="font-medium">{facilityStats?.pending || 0}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-muted-foreground flex items-center gap-2">
                             <XCircle className="w-4 h-4 text-destructive" />
-                            غير نشطة
+                            Inactifs
                           </span>
                           <span className="font-medium">{facilityStats?.inactive || 0}</span>
                         </div>
@@ -516,27 +524,27 @@ const ReportsPage = () => {
                     <div className="space-y-4">
                       <h3 className="font-semibold text-foreground flex items-center gap-2">
                         <FileText className="w-5 h-5" />
-                        التراخيص
+                        Licences
                       </h3>
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
                           <span className="text-muted-foreground flex items-center gap-2">
                             <CheckCircle className="w-4 h-4 text-chart-2" />
-                            سارية
+                            Valides
                           </span>
                           <span className="font-medium">{licenseStats?.active || 0}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-muted-foreground flex items-center gap-2">
                             <AlertTriangle className="w-4 h-4 text-chart-4" />
-                            قريبة الانتهاء
+                            Expirent bientôt
                           </span>
                           <span className="font-medium">{licenseStats?.expiringSoon || 0}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-muted-foreground flex items-center gap-2">
                             <XCircle className="w-4 h-4 text-destructive" />
-                            منتهية
+                            Expirées
                           </span>
                           <span className="font-medium">{licenseStats?.expired || 0}</span>
                         </div>
@@ -546,11 +554,11 @@ const ReportsPage = () => {
                     <div className="space-y-4">
                       <h3 className="font-semibold text-foreground flex items-center gap-2">
                         <TrendingUp className="w-5 h-5" />
-                        مؤشرات الأداء
+                        Indicateurs de performance
                       </h3>
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                          <span className="text-muted-foreground">نسبة المنشآت النشطة</span>
+                          <span className="text-muted-foreground">Taux d'établissements actifs</span>
                           <span className="font-medium text-chart-2">
                             {facilityStats?.total 
                               ? Math.round((facilityStats.active / facilityStats.total) * 100) 
@@ -558,7 +566,7 @@ const ReportsPage = () => {
                           </span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-muted-foreground">نسبة التراخيص السارية</span>
+                          <span className="text-muted-foreground">Taux de licences valides</span>
                           <span className="font-medium text-chart-2">
                             {licenseStats?.total 
                               ? Math.round((licenseStats.active / licenseStats.total) * 100) 
@@ -566,7 +574,7 @@ const ReportsPage = () => {
                           </span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-muted-foreground">معدل الترخيص لكل منشأة</span>
+                          <span className="text-muted-foreground">Ratio licence/établissement</span>
                           <span className="font-medium">
                             {facilityStats?.total 
                               ? ((licenseStats?.total || 0) / facilityStats.total).toFixed(1) 

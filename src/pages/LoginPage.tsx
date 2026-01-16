@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -71,12 +71,9 @@ const LoginPage = () => {
               تسجيل الدخول
             </Button>
           </form>
-          <div className="mt-4 text-center text-sm text-muted-foreground">
-            ليس لديك حساب؟{" "}
-            <Link to="/signup" className="text-primary hover:underline">
-              إنشاء حساب جديد
-            </Link>
-          </div>
+          <p className="mt-4 text-center text-sm text-muted-foreground">
+            للحصول على حساب، تواصل مع مدير النظام
+          </p>
         </CardContent>
       </Card>
     </div>

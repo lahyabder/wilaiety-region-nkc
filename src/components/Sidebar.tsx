@@ -17,7 +17,7 @@ const menuItems = [
   { icon: MapPin, label: "الخريطة", path: "/map" },
   { icon: FileText, label: "التراخيص", path: "/licenses" },
   { icon: BarChart3, label: "التقارير", path: "/reports" },
-  { icon: Users, label: "المستخدمون", path: "/" },
+  { icon: Users, label: "المستخدمون", path: "/users" },
   { icon: Settings, label: "الإعدادات", path: "/" },
 ];
 
@@ -31,6 +31,7 @@ const Sidebar = () => {
     if (label === "الخريطة" && location.pathname === "/map") return true;
     if (label === "التراخيص" && location.pathname === "/licenses") return true;
     if (label === "التقارير" && location.pathname === "/reports") return true;
+    if (label === "المستخدمون" && location.pathname === "/users") return true;
     return false;
   };
 

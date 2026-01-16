@@ -105,24 +105,24 @@ const Index = () => {
       <div className="flex w-full">
         <Sidebar />
         
-        <main className="flex-1 p-6 min-w-0">
+        <main className="flex-1 p-3 sm:p-4 md:p-6 min-w-0">
           {/* Page Title */}
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-foreground">{t("Tableau de bord", "لوحة التحكم")}</h1>
-            <p className="text-muted-foreground">{t("Aperçu des établissements de la région", "نظرة عامة على منشآت المنطقة")}</p>
+          <div className="mb-4 sm:mb-6">
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">{t("Tableau de bord", "لوحة التحكم")}</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">{t("Aperçu des établissements de la région", "نظرة عامة على منشآت المنطقة")}</p>
           </div>
 
           {/* Quick Actions */}
-          <div className="mb-8">
+          <div className="mb-6 sm:mb-8">
             <QuickActions />
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
             {statsLoading ? (
               <>
                 {[...Array(4)].map((_, i) => (
-                  <Skeleton key={i} className="h-32 rounded-xl" />
+                  <Skeleton key={i} className="h-24 sm:h-32 rounded-xl" />
                 ))}
               </>
             ) : (
@@ -155,21 +155,21 @@ const Index = () => {
           </div>
 
           {/* Sectors Grid */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-foreground">{t("Secteurs", "القطاعات")}</h2>
-              <button className="text-primary hover:underline text-sm font-medium">
+          <div className="mb-6 sm:mb-8">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <h2 className="text-lg sm:text-xl font-bold text-foreground">{t("Secteurs", "القطاعات")}</h2>
+              <button className="text-primary hover:underline text-xs sm:text-sm font-medium">
                 {t("Voir tout", "عرض الكل")}
               </button>
             </div>
             {statsLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
                 {[...Array(10)].map((_, i) => (
-                  <Skeleton key={i} className="h-24 rounded-xl" />
+                  <Skeleton key={i} className="h-20 sm:h-24 rounded-xl" />
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
                 {allSectors.slice(0, 10).map((sector) => (
                   <SectorCard
                     key={sector}
@@ -185,20 +185,20 @@ const Index = () => {
 
           {/* Recent Facilities */}
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-foreground">{t("Derniers établissements", "أحدث المنشآت")}</h2>
-              <button className="text-primary hover:underline text-sm font-medium">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <h2 className="text-lg sm:text-xl font-bold text-foreground">{t("Derniers établissements", "أحدث المنشآت")}</h2>
+              <button className="text-primary hover:underline text-xs sm:text-sm font-medium">
                 {t("Voir tout", "عرض الكل")}
               </button>
             </div>
             {facilitiesLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 {[...Array(4)].map((_, i) => (
-                  <Skeleton key={i} className="h-32 rounded-xl" />
+                  <Skeleton key={i} className="h-28 sm:h-32 rounded-xl" />
                 ))}
               </div>
             ) : facilities && facilities.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 {facilities.slice(0, 4).map((facility) => (
                   <FacilityCard
                     key={facility.id}
@@ -211,10 +211,10 @@ const Index = () => {
                 ))}
               </div>
             ) : (
-              <div className="card-institutional text-center py-12">
-                <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-foreground mb-2">{t("Aucun établissement", "لا توجد منشآت")}</h3>
-                <p className="text-muted-foreground">{t("Commencez par ajouter un nouvel établissement", "ابدأ بإضافة منشأة جديدة")}</p>
+              <div className="card-institutional text-center py-8 sm:py-12">
+                <Building2 className="w-10 h-10 sm:w-12 sm:h-12 text-muted-foreground mx-auto mb-3 sm:mb-4" />
+                <h3 className="text-base sm:text-lg font-semibold text-foreground mb-2">{t("Aucun établissement", "لا توجد منشآت")}</h3>
+                <p className="text-sm sm:text-base text-muted-foreground">{t("Commencez par ajouter un nouvel établissement", "ابدأ بإضافة منشأة جديدة")}</p>
               </div>
             )}
           </div>

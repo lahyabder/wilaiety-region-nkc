@@ -26,6 +26,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useCreateFacility, type FacilitySector, type OwnershipType, type LegalDomain, type JurisdictionType, type FacilityStatus } from "@/hooks/useFacilities";
+import { useAdministrativeDivisions } from "@/hooks/useAdministrativeDivisions";
 import { 
   ArrowLeft, 
   Building2, 
@@ -34,7 +35,8 @@ import {
   X,
   FileText,
   Scale,
-  Upload
+  Upload,
+  Loader2
 } from "lucide-react";
 
 const sectors: FacilitySector[] = [
@@ -95,16 +97,6 @@ const statusLabels: Record<FacilityStatus, string> = {
   "معلق": "Suspendu",
 };
 
-// Administrative divisions for Dakhlet Nouadhibou
-const administrativeDivisions = [
-  { value: "ولاية داخلت نواذيبو", label: "ولاية داخلت نواذيبو", labelFr: "Wilaya de Dakhlet Nouadhibou" },
-  { value: "بلدية نواذيبو", label: "بلدية نواذيبو", labelFr: "Commune de Nouadhibou" },
-  { value: "بلدية بولنوار", label: "بلدية بولنوار", labelFr: "Commune de Boulanoir" },
-  { value: "بلدية الشامي", label: "بلدية الشامي", labelFr: "Commune de Chami" },
-  { value: "مقاطعة نواذيبو", label: "مقاطعة نواذيبو", labelFr: "Moughataa de Nouadhibou" },
-  { value: "مقاطعة بولنوار", label: "مقاطعة بولنوار", labelFr: "Moughataa de Boulanoir" },
-  { value: "سلطة منطقة نواذيبو الحرة", label: "سلطة منطقة نواذيبو الحرة", labelFr: "Autorité de la Zone Franche de Nouadhibou" },
-];
 
 // Zod validation schema
 const facilitySchema = z.object({
@@ -187,6 +179,16 @@ const AddFacility = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const createFacility = useCreateFacility();
+  const { data: administrativeDivisions, isLoading: divisionsLoading } = useAdministrativeDivisions();
+
+  // Handle division change to auto-fill GPS coordinates
+  const handleDivisionChange = (value: string, onChange: (value: string) => void) => {
+    onChange(value);
+    const selectedDivision = administrativeDivisions?.find(d => d.name === value);
+    if (selectedDivision?.gps_coordinates) {
+      form.setValue("gps", selectedDivision.gps_coordinates);
+    }
+  };
 
   const form = useForm<FacilityFormData>({
     resolver: zodResolver(facilitySchema),
@@ -622,20 +624,32 @@ const AddFacility = () => {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>{t("Division administrative", "التقسيم الإداري")} *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select 
+                            onValueChange={(value) => handleDivisionChange(value, field.onChange)} 
+                            defaultValue={field.value}
+                          >
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder={t("Sélectionner la division administrative", "اختر التقسيم الإداري")} />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent>
-                              {administrativeDivisions.map((division) => (
-                                <SelectItem key={division.value} value={division.value}>
-                                  {t(division.labelFr, division.label)}
-                                </SelectItem>
-                              ))}
+                            <SelectContent className="bg-background">
+                              {divisionsLoading ? (
+                                <div className="flex items-center justify-center py-4">
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                </div>
+                              ) : (
+                                administrativeDivisions?.map((division) => (
+                                  <SelectItem key={division.id} value={division.name}>
+                                    {t(division.name_fr, division.name)}
+                                  </SelectItem>
+                                ))
+                              )}
                             </SelectContent>
                           </Select>
+                          <FormDescription>
+                            {t("Les coordonnées GPS seront remplies automatiquement", "سيتم ملء إحداثيات GPS تلقائياً")}
+                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}

@@ -47,6 +47,50 @@ export type Database = {
         }
         Relationships: []
       }
+      administrative_divisions: {
+        Row: {
+          created_at: string
+          division_type: string
+          gps_coordinates: string | null
+          id: string
+          is_active: boolean
+          name: string
+          name_fr: string
+          parent_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          division_type?: string
+          gps_coordinates?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          name_fr: string
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          division_type?: string
+          gps_coordinates?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          name_fr?: string
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "administrative_divisions_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "administrative_divisions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       facilities: {
         Row: {
           activity_type: string

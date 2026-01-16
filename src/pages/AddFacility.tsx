@@ -95,6 +95,17 @@ const statusLabels: Record<FacilityStatus, string> = {
   "معلق": "Suspendu",
 };
 
+// Administrative divisions for Dakhlet Nouadhibou
+const administrativeDivisions = [
+  { value: "ولاية داخلت نواذيبو", label: "ولاية داخلت نواذيبو", labelFr: "Wilaya de Dakhlet Nouadhibou" },
+  { value: "بلدية نواذيبو", label: "بلدية نواذيبو", labelFr: "Commune de Nouadhibou" },
+  { value: "بلدية بولنوار", label: "بلدية بولنوار", labelFr: "Commune de Boulanoir" },
+  { value: "بلدية الشامي", label: "بلدية الشامي", labelFr: "Commune de Chami" },
+  { value: "مقاطعة نواذيبو", label: "مقاطعة نواذيبو", labelFr: "Moughataa de Nouadhibou" },
+  { value: "مقاطعة بولنوار", label: "مقاطعة بولنوار", labelFr: "Moughataa de Boulanoir" },
+  { value: "سلطة منطقة نواذيبو الحرة", label: "سلطة منطقة نواذيبو الحرة", labelFr: "Autorité de la Zone Franche de Nouadhibou" },
+];
+
 // Zod validation schema
 const facilitySchema = z.object({
   name: z.string()
@@ -610,10 +621,21 @@ const AddFacility = () => {
                       name="region"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>{t("Région", "المنطقة")} *</FormLabel>
-                          <FormControl>
-                            <Input placeholder={t("Ex: Région Nord", "مثال: المنطقة الشمالية")} {...field} />
-                          </FormControl>
+                          <FormLabel>{t("Division administrative", "التقسيم الإداري")} *</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder={t("Sélectionner la division administrative", "اختر التقسيم الإداري")} />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {administrativeDivisions.map((division) => (
+                                <SelectItem key={division.value} value={division.value}>
+                                  {t(division.labelFr, division.label)}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}

@@ -55,8 +55,8 @@ const SettingsPage = () => {
     // Validate file type
     if (!file.type.startsWith("image/")) {
       toast({
-        title: "خطأ",
-        description: "يرجى اختيار ملف صورة صالح",
+        title: "Erreur",
+        description: "Veuillez sélectionner un fichier image valide",
         variant: "destructive",
       });
       return;
@@ -65,8 +65,8 @@ const SettingsPage = () => {
     // Validate file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
       toast({
-        title: "خطأ",
-        description: "حجم الصورة يجب أن يكون أقل من 2 ميجابايت",
+        title: "Erreur",
+        description: "La taille de l'image doit être inférieure à 2 Mo",
         variant: "destructive",
       });
       return;
@@ -102,13 +102,13 @@ const SettingsPage = () => {
 
       setAvatarUrl(publicUrl);
       toast({
-        title: "تم الرفع",
-        description: "تم تحديث الصورة الشخصية بنجاح",
+        title: "Téléchargé",
+        description: "La photo de profil a été mise à jour avec succès",
       });
     } catch (error: any) {
       toast({
-        title: "خطأ",
-        description: error.message || "حدث خطأ أثناء رفع الصورة",
+        title: "Erreur",
+        description: error.message || "Une erreur s'est produite lors du téléchargement de l'image",
         variant: "destructive",
       });
     } finally {
@@ -139,13 +139,13 @@ const SettingsPage = () => {
 
       setAvatarUrl(null);
       toast({
-        title: "تم الحذف",
-        description: "تم حذف الصورة الشخصية",
+        title: "Supprimé",
+        description: "La photo de profil a été supprimée",
       });
     } catch (error: any) {
       toast({
-        title: "خطأ",
-        description: error.message || "حدث خطأ أثناء حذف الصورة",
+        title: "Erreur",
+        description: error.message || "Une erreur s'est produite lors de la suppression de l'image",
         variant: "destructive",
       });
     } finally {
@@ -169,13 +169,13 @@ const SettingsPage = () => {
       if (error) throw error;
 
       toast({
-        title: "تم الحفظ",
-        description: "تم تحديث بيانات الملف الشخصي بنجاح",
+        title: "Enregistré",
+        description: "Les données du profil ont été mises à jour avec succès",
       });
     } catch (error: any) {
       toast({
-        title: "خطأ",
-        description: error.message || "حدث خطأ أثناء تحديث البيانات",
+        title: "Erreur",
+        description: error.message || "Une erreur s'est produite lors de la mise à jour des données",
         variant: "destructive",
       });
     } finally {
@@ -186,8 +186,8 @@ const SettingsPage = () => {
   const handlePasswordChange = async () => {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       toast({
-        title: "خطأ",
-        description: "كلمة المرور الجديدة غير متطابقة",
+        title: "Erreur",
+        description: "Le nouveau mot de passe ne correspond pas",
         variant: "destructive",
       });
       return;
@@ -195,8 +195,8 @@ const SettingsPage = () => {
 
     if (passwordData.newPassword.length < 6) {
       toast({
-        title: "خطأ",
-        description: "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
+        title: "Erreur",
+        description: "Le mot de passe doit contenir au moins 6 caractères",
         variant: "destructive",
       });
       return;
@@ -211,8 +211,8 @@ const SettingsPage = () => {
       if (error) throw error;
 
       toast({
-        title: "تم الحفظ",
-        description: "تم تغيير كلمة المرور بنجاح",
+        title: "Enregistré",
+        description: "Le mot de passe a été changé avec succès",
       });
       setPasswordData({
         currentPassword: "",
@@ -221,8 +221,8 @@ const SettingsPage = () => {
       });
     } catch (error: any) {
       toast({
-        title: "خطأ",
-        description: error.message || "حدث خطأ أثناء تغيير كلمة المرور",
+        title: "Erreur",
+        description: error.message || "Une erreur s'est produite lors du changement de mot de passe",
         variant: "destructive",
       });
     } finally {
@@ -244,7 +244,7 @@ const SettingsPage = () => {
   }
 
   const getInitials = (name: string | null) => {
-    if (!name) return "؟";
+    if (!name) return "?";
     return name.split(" ").map(n => n[0]).join("").slice(0, 2);
   };
 
@@ -255,30 +255,30 @@ const SettingsPage = () => {
         <Sidebar />
         <main className="flex-1 p-6">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-2xl font-bold mb-6">الإعدادات</h1>
+            <h1 className="text-2xl font-bold mb-6">Paramètres</h1>
 
             <Tabs defaultValue="profile" className="space-y-6">
               <TabsList className="grid w-full grid-cols-3 lg:w-[400px]">
                 <TabsTrigger value="profile" className="gap-2">
                   <User className="w-4 h-4" />
-                  الملف الشخصي
+                  Profil
                 </TabsTrigger>
                 <TabsTrigger value="security" className="gap-2">
                   <Lock className="w-4 h-4" />
-                  الأمان
+                  Sécurité
                 </TabsTrigger>
                 <TabsTrigger value="notifications" className="gap-2">
                   <Bell className="w-4 h-4" />
-                  الإشعارات
+                  Notifications
                 </TabsTrigger>
               </TabsList>
 
               <TabsContent value="profile">
                 <Card>
                   <CardHeader>
-                    <CardTitle>الملف الشخصي</CardTitle>
+                    <CardTitle>Profil</CardTitle>
                     <CardDescription>
-                      إدارة معلومات حسابك الشخصية
+                      Gérer les informations de votre compte personnel
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
@@ -297,7 +297,7 @@ const SettingsPage = () => {
                         )}
                       </div>
                       <div className="space-y-2">
-                        <h3 className="font-medium">{profile?.full_name || "مستخدم"}</h3>
+                        <h3 className="font-medium">{profile?.full_name || "Utilisateur"}</h3>
                         <p className="text-sm text-muted-foreground">{user?.email}</p>
                         <div className="flex gap-2">
                           <input
@@ -314,7 +314,7 @@ const SettingsPage = () => {
                             disabled={uploadingAvatar}
                           >
                             <Camera className="w-4 h-4 ml-2" />
-                            تغيير الصورة
+                            Changer la photo
                           </Button>
                           {avatarUrl && (
                             <Button
@@ -325,51 +325,51 @@ const SettingsPage = () => {
                               className="text-destructive hover:text-destructive"
                             >
                               <Trash2 className="w-4 h-4 ml-2" />
-                              حذف
+                              Supprimer
                             </Button>
                           )}
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          الحد الأقصى: 2 ميجابايت (JPG, PNG, WebP)
+                          Maximum : 2 Mo (JPG, PNG, WebP)
                         </p>
                       </div>
                     </div>
 
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2">
-                        <Label htmlFor="full_name">الاسم الكامل</Label>
+                        <Label htmlFor="full_name">Nom complet</Label>
                         <Input
                           id="full_name"
                           value={formData.full_name}
                           onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                          placeholder="أدخل اسمك الكامل"
+                          placeholder="Entrez votre nom complet"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="phone">رقم الهاتف</Label>
+                        <Label htmlFor="phone">Numéro de téléphone</Label>
                         <Input
                           id="phone"
                           value={formData.phone}
                           onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                          placeholder="أدخل رقم الهاتف"
+                          placeholder="Entrez le numéro de téléphone"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="job_title">المسمى الوظيفي</Label>
+                        <Label htmlFor="job_title">Intitulé du poste</Label>
                         <Input
                           id="job_title"
                           value={formData.job_title}
                           onChange={(e) => setFormData({ ...formData, job_title: e.target.value })}
-                          placeholder="أدخل المسمى الوظيفي"
+                          placeholder="Entrez l'intitulé du poste"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="department">القسم</Label>
+                        <Label htmlFor="department">Département</Label>
                         <Input
                           id="department"
                           value={formData.department}
                           onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                          placeholder="أدخل اسم القسم"
+                          placeholder="Entrez le nom du département"
                         />
                       </div>
                     </div>
@@ -380,7 +380,7 @@ const SettingsPage = () => {
                       ) : (
                         <Save className="w-4 h-4 ml-2" />
                       )}
-                      حفظ التغييرات
+                      Enregistrer les modifications
                     </Button>
                   </CardContent>
                 </Card>
@@ -389,33 +389,33 @@ const SettingsPage = () => {
               <TabsContent value="security">
                 <Card>
                   <CardHeader>
-                    <CardTitle>الأمان</CardTitle>
+                    <CardTitle>Sécurité</CardTitle>
                     <CardDescription>
-                      إدارة كلمة المرور وإعدادات الأمان
+                      Gérer le mot de passe et les paramètres de sécurité
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div className="space-y-4">
-                      <h3 className="font-medium">تغيير كلمة المرور</h3>
+                      <h3 className="font-medium">Changer le mot de passe</h3>
                       <div className="grid gap-4 max-w-md">
                         <div className="space-y-2">
-                          <Label htmlFor="newPassword">كلمة المرور الجديدة</Label>
+                          <Label htmlFor="newPassword">Nouveau mot de passe</Label>
                           <Input
                             id="newPassword"
                             type="password"
                             value={passwordData.newPassword}
                             onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                            placeholder="أدخل كلمة المرور الجديدة"
+                            placeholder="Entrez le nouveau mot de passe"
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="confirmPassword">تأكيد كلمة المرور</Label>
+                          <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
                           <Input
                             id="confirmPassword"
                             type="password"
                             value={passwordData.confirmPassword}
                             onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                            placeholder="أعد إدخال كلمة المرور"
+                            placeholder="Réentrez le mot de passe"
                           />
                         </div>
                         <Button onClick={handlePasswordChange} disabled={saving} className="w-fit">
@@ -424,19 +424,19 @@ const SettingsPage = () => {
                           ) : (
                             <Lock className="w-4 h-4 ml-2" />
                           )}
-                          تغيير كلمة المرور
+                          Changer le mot de passe
                         </Button>
                       </div>
                     </div>
 
                     <div className="border-t pt-6">
-                      <h3 className="font-medium text-destructive mb-2">تسجيل الخروج</h3>
+                      <h3 className="font-medium text-destructive mb-2">Déconnexion</h3>
                       <p className="text-sm text-muted-foreground mb-4">
-                        سيتم تسجيل خروجك من جميع الأجهزة
+                        Vous serez déconnecté de tous les appareils
                       </p>
                       <Button variant="destructive" onClick={handleLogout}>
                         <LogOut className="w-4 h-4 ml-2" />
-                        تسجيل الخروج
+                        Se déconnecter
                       </Button>
                     </div>
                   </CardContent>
@@ -446,14 +446,14 @@ const SettingsPage = () => {
               <TabsContent value="notifications">
                 <Card>
                   <CardHeader>
-                    <CardTitle>الإشعارات</CardTitle>
+                    <CardTitle>Notifications</CardTitle>
                     <CardDescription>
-                      إدارة تفضيلات الإشعارات
+                      Gérer les préférences de notifications
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <p className="text-muted-foreground">
-                      إعدادات الإشعارات ستكون متاحة قريباً
+                      Les paramètres de notifications seront bientôt disponibles
                     </p>
                   </CardContent>
                 </Card>

@@ -259,9 +259,9 @@ const ReportsPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <div className="flex">
+      <div className="flex w-full">
         <Sidebar />
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-6 min-w-0">
           <div className="mb-6 flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-foreground">Rapports et statistiques</h1>

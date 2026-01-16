@@ -28,10 +28,10 @@ const SectorFacilitiesPage = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <div className="flex">
+      <div className="flex w-full">
         <Sidebar />
         
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-6 min-w-0">
           {/* Fil d'Ariane */}
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
             <button onClick={() => navigate("/")} className="hover:text-primary transition-colors">

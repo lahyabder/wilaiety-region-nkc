@@ -164,9 +164,9 @@ const FacilityDetails = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="flex">
+        <div className="flex w-full">
           <Sidebar />
-          <main className="flex-1 p-6">
+          <main className="flex-1 p-6 min-w-0">
             <Skeleton className="h-8 w-64 mb-6" />
             <Skeleton className="h-24 w-full mb-6" />
             <Skeleton className="h-96 w-full" />
@@ -180,9 +180,9 @@ const FacilityDetails = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="flex">
+        <div className="flex w-full">
           <Sidebar />
-          <main className="flex-1 p-6">
+          <main className="flex-1 p-6 min-w-0">
             <div className="card-institutional text-center py-12">
               <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-foreground mb-2">Établissement non trouvé</h3>
@@ -201,10 +201,10 @@ const FacilityDetails = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <div className="flex">
+      <div className="flex w-full">
         <Sidebar />
         
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-6 min-w-0">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
             <button onClick={() => navigate("/")} className="hover:text-primary transition-colors">

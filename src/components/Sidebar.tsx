@@ -15,7 +15,7 @@ const menuItems = [
   { icon: LayoutDashboard, label: "لوحة التحكم", path: "/" },
   { icon: Building2, label: "المنشآت", path: "/" },
   { icon: MapPin, label: "الخريطة", path: "/map" },
-  { icon: FileText, label: "التراخيص", path: "/" },
+  { icon: FileText, label: "التراخيص", path: "/licenses" },
   { icon: BarChart3, label: "التقارير", path: "/" },
   { icon: Users, label: "المستخدمون", path: "/" },
   { icon: Settings, label: "الإعدادات", path: "/" },
@@ -29,6 +29,7 @@ const Sidebar = () => {
   const isActive = (path: string, label: string) => {
     if (label === "لوحة التحكم" && location.pathname === "/") return true;
     if (label === "الخريطة" && location.pathname === "/map") return true;
+    if (label === "التراخيص" && location.pathname === "/licenses") return true;
     return false;
   };
 

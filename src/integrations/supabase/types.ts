@@ -80,6 +80,59 @@ export type Database = {
         }
         Relationships: []
       }
+      licenses: {
+        Row: {
+          created_at: string
+          document_url: string | null
+          expiry_date: string
+          facility_id: string
+          id: string
+          issue_date: string
+          issuing_authority: string
+          license_number: string
+          license_type: string
+          notes: string | null
+          status: Database["public"]["Enums"]["license_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          document_url?: string | null
+          expiry_date: string
+          facility_id: string
+          id?: string
+          issue_date: string
+          issuing_authority: string
+          license_number: string
+          license_type: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["license_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          document_url?: string | null
+          expiry_date?: string
+          facility_id?: string
+          id?: string
+          issue_date?: string
+          issuing_authority?: string
+          license_number?: string
+          license_type?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["license_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "licenses_facility_id_fkey"
+            columns: ["facility_id"]
+            isOneToOne: false
+            referencedRelation: "facilities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -111,6 +164,7 @@ export type Database = {
       facility_status: "نشط" | "غير نشط" | "قيد الإنشاء" | "معلق"
       jurisdiction_type: "خاص" | "محال" | "تنسيق"
       legal_domain: "مجال عام للجهة" | "مجال خاص للجهة" | "خارج ملكية الجهة"
+      license_status: "ساري" | "قريب الانتهاء" | "منتهي" | "ملغى"
       ownership_type: "ملكية كاملة" | "إيجار" | "شراكة" | "مملوكة مع جهة أخرى"
     }
     CompositeTypes: {
@@ -263,6 +317,7 @@ export const Constants = {
       facility_status: ["نشط", "غير نشط", "قيد الإنشاء", "معلق"],
       jurisdiction_type: ["خاص", "محال", "تنسيق"],
       legal_domain: ["مجال عام للجهة", "مجال خاص للجهة", "خارج ملكية الجهة"],
+      license_status: ["ساري", "قريب الانتهاء", "منتهي", "ملغى"],
       ownership_type: ["ملكية كاملة", "إيجار", "شراكة", "مملوكة مع جهة أخرى"],
     },
   },

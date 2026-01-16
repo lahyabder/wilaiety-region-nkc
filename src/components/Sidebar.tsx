@@ -6,7 +6,8 @@ import {
   Users, 
   Settings,
   ChevronLeft,
-  BarChart3
+  BarChart3,
+  Activity
 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -18,6 +19,7 @@ const menuItems = [
   { icon: FileText, label: "التراخيص", path: "/licenses" },
   { icon: BarChart3, label: "التقارير", path: "/reports" },
   { icon: Users, label: "المستخدمون", path: "/users" },
+  { icon: Activity, label: "سجل النشاطات", path: "/activity-logs" },
   { icon: Settings, label: "الإعدادات", path: "/settings" },
 ];
 
@@ -32,6 +34,7 @@ const Sidebar = () => {
     if (label === "التراخيص" && location.pathname === "/licenses") return true;
     if (label === "التقارير" && location.pathname === "/reports") return true;
     if (label === "المستخدمون" && location.pathname === "/users") return true;
+    if (label === "سجل النشاطات" && location.pathname === "/activity-logs") return true;
     if (label === "الإعدادات" && location.pathname === "/settings") return true;
     return false;
   };

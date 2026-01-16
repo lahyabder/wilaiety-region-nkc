@@ -51,7 +51,7 @@ import {
   RefreshCw
 } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
-import { ar } from "date-fns/locale";
+import { fr } from "date-fns/locale";
 
 const LicensesPage = () => {
   const navigate = useNavigate();
@@ -76,6 +76,13 @@ const LicensesPage = () => {
     notes: "",
   });
 
+  const statusLabels: Record<LicenseStatus, string> = {
+    "ساري": "Valide",
+    "قريب الانتهاء": "Expire bientôt",
+    "منتهي": "Expiré",
+    "ملغى": "Annulé",
+  };
+
   const getStatusBadge = (status: LicenseStatus) => {
     const config: Record<LicenseStatus, { className: string; icon: typeof CheckCircle }> = {
       "ساري": { className: "bg-success text-success-foreground", icon: CheckCircle },
@@ -87,17 +94,17 @@ const LicensesPage = () => {
     return (
       <Badge className={`${className} gap-1`}>
         <Icon className="w-3 h-3" />
-        {status}
+        {statusLabels[status]}
       </Badge>
     );
   };
 
   const getDaysRemaining = (expiryDate: string) => {
     const days = differenceInDays(new Date(expiryDate), new Date());
-    if (days < 0) return <span className="text-critical font-medium">منتهي منذ {Math.abs(days)} يوم</span>;
-    if (days === 0) return <span className="text-critical font-medium">ينتهي اليوم</span>;
-    if (days <= 30) return <span className="text-warning font-medium">{days} يوم متبقي</span>;
-    return <span className="text-success">{days} يوم متبقي</span>;
+    if (days < 0) return <span className="text-critical font-medium">Expiré depuis {Math.abs(days)} jours</span>;
+    if (days === 0) return <span className="text-critical font-medium">Expire aujourd'hui</span>;
+    if (days <= 30) return <span className="text-warning font-medium">{days} jours restants</span>;
+    return <span className="text-success">{days} jours restants</span>;
   };
 
   const filteredLicenses = licenses?.filter(license => {
@@ -150,10 +157,10 @@ const LicensesPage = () => {
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
             <button onClick={() => navigate("/")} className="hover:text-primary transition-colors">
-              لوحة التحكم
+              Tableau de bord
             </button>
-            <ArrowRight className="w-4 h-4 rotate-180" />
-            <span className="text-foreground">التراخيص</span>
+            <ArrowRight className="w-4 h-4" />
+            <span className="text-foreground">Licences</span>
           </div>
 
           {/* Header */}
@@ -163,8 +170,8 @@ const LicensesPage = () => {
                 <FileText className="w-7 h-7 text-primary" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">إدارة التراخيص</h1>
-                <p className="text-muted-foreground">متابعة وإدارة تراخيص المنشآت</p>
+                <h1 className="text-2xl font-bold text-foreground">Gestion des licences</h1>
+                <p className="text-muted-foreground">Suivi et gestion des licences des établissements</p>
               </div>
             </div>
             
@@ -172,26 +179,26 @@ const LicensesPage = () => {
               <DialogTrigger asChild>
                 <Button className="gap-2">
                   <Plus className="w-4 h-4" />
-                  إضافة ترخيص
+                  Ajouter une licence
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-lg">
                 <DialogHeader>
-                  <DialogTitle>إضافة ترخيص جديد</DialogTitle>
+                  <DialogTitle>Ajouter une nouvelle licence</DialogTitle>
                   <DialogDescription>
-                    أدخل بيانات الترخيص الجديد
+                    Entrez les informations de la nouvelle licence
                   </DialogDescription>
                 </DialogHeader>
                 
                 <div className="space-y-4 py-4">
                   <div>
-                    <Label>المنشأة *</Label>
+                    <Label>Établissement *</Label>
                     <Select 
                       value={formData.facility_id} 
                       onValueChange={(value) => setFormData({...formData, facility_id: value})}
                     >
                       <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="اختر المنشأة" />
+                        <SelectValue placeholder="Sélectionner l'établissement" />
                       </SelectTrigger>
                       <SelectContent>
                         {facilities?.map((facility) => (
@@ -205,7 +212,7 @@ const LicensesPage = () => {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label>رقم الترخيص *</Label>
+                      <Label>Numéro de licence *</Label>
                       <Input 
                         className="mt-1"
                         placeholder="LIC-2024-XXXXX"
@@ -214,10 +221,10 @@ const LicensesPage = () => {
                       />
                     </div>
                     <div>
-                      <Label>نوع الترخيص *</Label>
+                      <Label>Type de licence *</Label>
                       <Input 
                         className="mt-1"
-                        placeholder="ترخيص تشغيل"
+                        placeholder="Licence d'exploitation"
                         value={formData.license_type}
                         onChange={(e) => setFormData({...formData, license_type: e.target.value})}
                       />
@@ -225,10 +232,10 @@ const LicensesPage = () => {
                   </div>
 
                   <div>
-                    <Label>جهة الإصدار *</Label>
+                    <Label>Autorité émettrice *</Label>
                     <Input 
                       className="mt-1"
-                      placeholder="وزارة الصحة"
+                      placeholder="Ministère de la Santé"
                       value={formData.issuing_authority}
                       onChange={(e) => setFormData({...formData, issuing_authority: e.target.value})}
                     />
@@ -236,7 +243,7 @@ const LicensesPage = () => {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label>تاريخ الإصدار *</Label>
+                      <Label>Date d'émission *</Label>
                       <Input 
                         type="date"
                         className="mt-1"
@@ -245,7 +252,7 @@ const LicensesPage = () => {
                       />
                     </div>
                     <div>
-                      <Label>تاريخ الانتهاء *</Label>
+                      <Label>Date d'expiration *</Label>
                       <Input 
                         type="date"
                         className="mt-1"
@@ -256,10 +263,10 @@ const LicensesPage = () => {
                   </div>
 
                   <div>
-                    <Label>ملاحظات</Label>
+                    <Label>Notes</Label>
                     <Textarea 
                       className="mt-1"
-                      placeholder="ملاحظات إضافية..."
+                      placeholder="Notes supplémentaires..."
                       value={formData.notes}
                       onChange={(e) => setFormData({...formData, notes: e.target.value})}
                     />
@@ -268,13 +275,13 @@ const LicensesPage = () => {
 
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                    إلغاء
+                    Annuler
                   </Button>
                   <Button 
                     onClick={handleCreateLicense}
                     disabled={createLicense.isPending}
                   >
-                    {createLicense.isPending ? "جاري الحفظ..." : "حفظ الترخيص"}
+                    {createLicense.isPending ? "Enregistrement..." : "Enregistrer la licence"}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -288,25 +295,25 @@ const LicensesPage = () => {
             ) : (
               <>
                 <StatsCard
-                  title="إجمالي التراخيص"
-                  value={(stats?.total || 0).toLocaleString("ar-SA")}
+                  title="Total des licences"
+                  value={(stats?.total || 0).toLocaleString("fr-FR")}
                   icon={FileText}
                 />
                 <StatsCard
-                  title="تراخيص سارية"
-                  value={(stats?.active || 0).toLocaleString("ar-SA")}
+                  title="Licences valides"
+                  value={(stats?.active || 0).toLocaleString("fr-FR")}
                   icon={CheckCircle}
                   variant="success"
                 />
                 <StatsCard
-                  title="قريبة الانتهاء"
-                  value={(stats?.expiringSoon || 0).toLocaleString("ar-SA")}
+                  title="Expirent bientôt"
+                  value={(stats?.expiringSoon || 0).toLocaleString("fr-FR")}
                   icon={Clock}
                   variant="warning"
                 />
                 <StatsCard
-                  title="منتهية"
-                  value={(stats?.expired || 0).toLocaleString("ar-SA")}
+                  title="Expirées"
+                  value={(stats?.expired || 0).toLocaleString("fr-FR")}
                   icon={XCircle}
                   variant="critical"
                 />
@@ -319,10 +326,10 @@ const LicensesPage = () => {
             <div className="flex flex-wrap items-center gap-4">
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
-                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    placeholder="بحث عن ترخيص..."
-                    className="pr-10"
+                    placeholder="Rechercher une licence..."
+                    className="pl-10"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -331,20 +338,20 @@ const LicensesPage = () => {
               
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="حالة الترخيص" />
+                  <SelectValue placeholder="Statut de la licence" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">جميع الحالات</SelectItem>
-                  <SelectItem value="ساري">ساري</SelectItem>
-                  <SelectItem value="قريب الانتهاء">قريب الانتهاء</SelectItem>
-                  <SelectItem value="منتهي">منتهي</SelectItem>
-                  <SelectItem value="ملغى">ملغى</SelectItem>
+                  <SelectItem value="all">Tous les statuts</SelectItem>
+                  <SelectItem value="ساري">Valide</SelectItem>
+                  <SelectItem value="قريب الانتهاء">Expire bientôt</SelectItem>
+                  <SelectItem value="منتهي">Expiré</SelectItem>
+                  <SelectItem value="ملغى">Annulé</SelectItem>
                 </SelectContent>
               </Select>
 
               <Button variant="outline" className="gap-2">
                 <RefreshCw className="w-4 h-4" />
-                تحديث
+                Actualiser
               </Button>
             </div>
           </div>
@@ -361,14 +368,14 @@ const LicensesPage = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>رقم الترخيص</TableHead>
-                    <TableHead>المنشأة</TableHead>
-                    <TableHead>النوع</TableHead>
-                    <TableHead>جهة الإصدار</TableHead>
-                    <TableHead>تاريخ الانتهاء</TableHead>
-                    <TableHead>المدة المتبقية</TableHead>
-                    <TableHead>الحالة</TableHead>
-                    <TableHead>إجراءات</TableHead>
+                    <TableHead>Numéro de licence</TableHead>
+                    <TableHead>Établissement</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Autorité émettrice</TableHead>
+                    <TableHead>Date d'expiration</TableHead>
+                    <TableHead>Temps restant</TableHead>
+                    <TableHead>Statut</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -388,7 +395,7 @@ const LicensesPage = () => {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-muted-foreground" />
-                          {format(new Date(license.expiry_date), "dd MMM yyyy", { locale: ar })}
+                          {format(new Date(license.expiry_date), "dd MMM yyyy", { locale: fr })}
                         </div>
                       </TableCell>
                       <TableCell>{getDaysRemaining(license.expiry_date)}</TableCell>
@@ -419,11 +426,11 @@ const LicensesPage = () => {
             ) : (
               <div className="text-center py-12">
                 <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-foreground mb-2">لا توجد تراخيص</h3>
-                <p className="text-muted-foreground mb-4">ابدأ بإضافة ترخيص جديد</p>
+                <h3 className="text-lg font-semibold text-foreground mb-2">Aucune licence</h3>
+                <p className="text-muted-foreground mb-4">Commencez par ajouter une nouvelle licence</p>
                 <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
                   <Plus className="w-4 h-4" />
-                  إضافة ترخيص
+                  Ajouter une licence
                 </Button>
               </div>
             )}

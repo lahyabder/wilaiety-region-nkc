@@ -99,7 +99,7 @@ const UsersPage = () => {
       .order("created_at", { ascending: false });
 
     if (profilesError) {
-      toast.error("خطأ في جلب بيانات المستخدمين");
+      toast.error("Erreur lors du chargement des utilisateurs");
       setLoading(false);
       return;
     }
@@ -129,12 +129,12 @@ const UsersPage = () => {
   const handleCreateUser = async () => {
     if (!isAdmin) return;
     if (!createForm.email || !createForm.password || !createForm.full_name) {
-      toast.error("يرجى ملء جميع الحقول المطلوبة");
+      toast.error("Veuillez remplir tous les champs obligatoires");
       return;
     }
 
     if (createForm.password.length < 6) {
-      toast.error("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
+      toast.error("Le mot de passe doit contenir au moins 6 caractères");
       return;
     }
 
@@ -184,7 +184,7 @@ const UsersPage = () => {
           }
         }
 
-        toast.success("تم إنشاء المستخدم بنجاح");
+        toast.success("Utilisateur créé avec succès");
         setCreateDialogOpen(false);
         setCreateForm({
           email: "",
@@ -198,7 +198,7 @@ const UsersPage = () => {
         fetchUsers();
       }
     } catch (error: any) {
-      toast.error(error.message || "خطأ في إنشاء المستخدم");
+      toast.error(error.message || "Erreur lors de la création de l'utilisateur");
     } finally {
       setSaving(false);
     }
@@ -243,12 +243,12 @@ const UsersPage = () => {
 
       if (roleError) throw roleError;
 
-      toast.success("تم تحديث بيانات المستخدم بنجاح");
+      toast.success("Données de l'utilisateur mises à jour avec succès");
       setEditDialogOpen(false);
       setEditingUser(null);
       fetchUsers();
     } catch (error: any) {
-      toast.error(error.message || "خطأ في تحديث البيانات");
+      toast.error(error.message || "Erreur lors de la mise à jour des données");
     } finally {
       setSaving(false);
     }
@@ -259,7 +259,7 @@ const UsersPage = () => {
     
     // Prevent deleting self
     if (u.user_id === user?.id) {
-      toast.error("لا يمكنك حذف حسابك الحالي");
+      toast.error("Vous ne pouvez pas supprimer votre propre compte");
       return;
     }
 
@@ -272,10 +272,10 @@ const UsersPage = () => {
 
       if (error) throw error;
 
-      toast.success("تم حذف المستخدم بنجاح");
+      toast.success("Utilisateur supprimé avec succès");
       fetchUsers();
     } catch (error: any) {
-      toast.error(error.message || "خطأ في حذف المستخدم");
+      toast.error(error.message || "Erreur lors de la suppression de l'utilisateur");
     }
   };
 
@@ -283,7 +283,7 @@ const UsersPage = () => {
     if (!isAdmin || !resetPasswordUser || !newPassword) return;
 
     if (newPassword.length < 6) {
-      toast.error("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
+      toast.error("Le mot de passe doit contenir au moins 6 caractères");
       return;
     }
 
@@ -299,12 +299,12 @@ const UsersPage = () => {
       if (response.error) throw response.error;
       if (response.data?.error) throw new Error(response.data.error);
 
-      toast.success("تم إعادة تعيين كلمة المرور بنجاح");
+      toast.success("Mot de passe réinitialisé avec succès");
       setResetPasswordDialogOpen(false);
       setResetPasswordUser(null);
       setNewPassword("");
     } catch (error: any) {
-      toast.error(error.message || "خطأ في إعادة تعيين كلمة المرور");
+      toast.error(error.message || "Erreur lors de la réinitialisation du mot de passe");
     } finally {
       setSaving(false);
     }
@@ -324,7 +324,7 @@ const UsersPage = () => {
   );
 
   const getInitials = (name: string | null) => {
-    if (!name) return "؟";
+    if (!name) return "?";
     return name
       .split(" ")
       .map((n) => n[0])
@@ -337,94 +337,93 @@ const UsersPage = () => {
   const userCount = users.filter((u) => u.role === "user").length;
 
   return (
-    <div className="min-h-screen bg-background" dir="rtl">
+    <div className="min-h-screen bg-background">
       <Header />
       <div className="flex">
         <Sidebar />
         <main className="flex-1 p-6">
           <div className="mb-6 flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">إدارة المستخدمين</h1>
-              <p className="text-muted-foreground">عرض وإدارة المستخدمين وصلاحياتهم</p>
+              <h1 className="text-2xl font-bold text-foreground">Gestion des utilisateurs</h1>
+              <p className="text-muted-foreground">Afficher et gérer les utilisateurs et leurs permissions</p>
             </div>
             {isAdmin && (
               <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
                 <DialogTrigger asChild>
                   <Button>
-                    <UserPlus className="w-4 h-4 ml-2" />
-                    إضافة مستخدم
+                    <UserPlus className="w-4 h-4 mr-2" />
+                    Ajouter un utilisateur
                   </Button>
                 </DialogTrigger>
-                <DialogContent dir="rtl" className="max-w-md">
+                <DialogContent className="max-w-md">
                   <DialogHeader>
-                    <DialogTitle>إضافة مستخدم جديد</DialogTitle>
+                    <DialogTitle>Ajouter un nouvel utilisateur</DialogTitle>
                     <DialogDescription>
-                      أدخل بيانات المستخدم الجديد
+                      Entrez les informations du nouvel utilisateur
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
                     <div className="space-y-2">
-                      <Label htmlFor="create-email">البريد الإلكتروني *</Label>
+                      <Label htmlFor="create-email">Adresse e-mail *</Label>
                       <Input
                         id="create-email"
                         type="email"
                         value={createForm.email}
                         onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
-                        placeholder="example@email.com"
-                        dir="ltr"
+                        placeholder="exemple@email.com"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="create-password">كلمة المرور *</Label>
+                      <Label htmlFor="create-password">Mot de passe *</Label>
                       <Input
                         id="create-password"
                         type="password"
                         value={createForm.password}
                         onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
-                        placeholder="6 أحرف على الأقل"
+                        placeholder="6 caractères minimum"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="create-name">الاسم الكامل *</Label>
+                      <Label htmlFor="create-name">Nom complet *</Label>
                       <Input
                         id="create-name"
                         value={createForm.full_name}
                         onChange={(e) => setCreateForm({ ...createForm, full_name: e.target.value })}
-                        placeholder="أدخل الاسم الكامل"
+                        placeholder="Entrez le nom complet"
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="create-phone">رقم الهاتف</Label>
+                        <Label htmlFor="create-phone">Numéro de téléphone</Label>
                         <Input
                           id="create-phone"
                           value={createForm.phone}
                           onChange={(e) => setCreateForm({ ...createForm, phone: e.target.value })}
-                          placeholder="رقم الهاتف"
+                          placeholder="Numéro de téléphone"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="create-job">المسمى الوظيفي</Label>
+                        <Label htmlFor="create-job">Poste</Label>
                         <Input
                           id="create-job"
                           value={createForm.job_title}
                           onChange={(e) => setCreateForm({ ...createForm, job_title: e.target.value })}
-                          placeholder="المسمى الوظيفي"
+                          placeholder="Poste"
                         />
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="create-dept">القسم</Label>
+                        <Label htmlFor="create-dept">Département</Label>
                         <Input
                           id="create-dept"
                           value={createForm.department}
                           onChange={(e) => setCreateForm({ ...createForm, department: e.target.value })}
-                          placeholder="القسم"
+                          placeholder="Département"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>الصلاحية</Label>
+                        <Label>Rôle</Label>
                         <Select
                           value={createForm.role}
                           onValueChange={(v) => setCreateForm({ ...createForm, role: v as AppRole })}
@@ -433,8 +432,8 @@ const UsersPage = () => {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="user">مستخدم</SelectItem>
-                            <SelectItem value="admin">مدير</SelectItem>
+                            <SelectItem value="user">Utilisateur</SelectItem>
+                            <SelectItem value="admin">Administrateur</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -442,8 +441,8 @@ const UsersPage = () => {
                   </div>
                   <DialogFooter>
                     <Button onClick={handleCreateUser} disabled={saving}>
-                      {saving && <Loader2 className="w-4 h-4 ml-2 animate-spin" />}
-                      إنشاء المستخدم
+                      {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                      Créer l'utilisateur
                     </Button>
                   </DialogFooter>
                 </DialogContent>
@@ -457,7 +456,7 @@ const UsersPage = () => {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">إجمالي المستخدمين</p>
+                    <p className="text-sm text-muted-foreground">Total des utilisateurs</p>
                     <p className="text-3xl font-bold text-foreground">{totalUsers}</p>
                   </div>
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
@@ -471,7 +470,7 @@ const UsersPage = () => {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">المديرون</p>
+                    <p className="text-sm text-muted-foreground">Administrateurs</p>
                     <p className="text-3xl font-bold text-foreground">{adminCount}</p>
                   </div>
                   <div className="w-12 h-12 bg-chart-4/10 rounded-full flex items-center justify-center">
@@ -485,7 +484,7 @@ const UsersPage = () => {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">المستخدمون</p>
+                    <p className="text-sm text-muted-foreground">Utilisateurs</p>
                     <p className="text-3xl font-bold text-foreground">{userCount}</p>
                   </div>
                   <div className="w-12 h-12 bg-chart-2/10 rounded-full flex items-center justify-center">
@@ -500,12 +499,12 @@ const UsersPage = () => {
           <Card className="mb-6">
             <CardContent className="p-4">
               <div className="relative">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
-                  placeholder="بحث بالاسم أو المنصب أو القسم..."
+                  placeholder="Rechercher par nom, poste ou département..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pr-10"
+                  className="pl-10"
                 />
               </div>
             </CardContent>
@@ -514,7 +513,7 @@ const UsersPage = () => {
           {/* Users Table */}
           <Card>
             <CardHeader>
-              <CardTitle>قائمة المستخدمين</CardTitle>
+              <CardTitle>Liste des utilisateurs</CardTitle>
             </CardHeader>
             <CardContent>
               {loading || roleLoading ? (
@@ -526,18 +525,18 @@ const UsersPage = () => {
               ) : filteredUsers.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>لا يوجد مستخدمون</p>
+                  <p>Aucun utilisateur trouvé</p>
                 </div>
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="text-right">المستخدم</TableHead>
-                      <TableHead className="text-right">المنصب</TableHead>
-                      <TableHead className="text-right">القسم</TableHead>
-                      <TableHead className="text-right">الهاتف</TableHead>
-                      <TableHead className="text-right">الصلاحية</TableHead>
-                      {isAdmin && <TableHead className="text-right">إجراءات</TableHead>}
+                      <TableHead>Utilisateur</TableHead>
+                      <TableHead>Poste</TableHead>
+                      <TableHead>Département</TableHead>
+                      <TableHead>Téléphone</TableHead>
+                      <TableHead>Rôle</TableHead>
+                      {isAdmin && <TableHead>Actions</TableHead>}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -550,20 +549,20 @@ const UsersPage = () => {
                               <AvatarFallback>{getInitials(u.full_name)}</AvatarFallback>
                             </Avatar>
                             <div>
-                              <p className="font-medium">{u.full_name || "بدون اسم"}</p>
+                              <p className="font-medium">{u.full_name || "Sans nom"}</p>
                             </div>
                           </div>
                         </TableCell>
                         <TableCell>{u.job_title || "-"}</TableCell>
                         <TableCell>{u.department || "-"}</TableCell>
-                        <TableCell dir="ltr" className="text-right">
+                        <TableCell>
                           {u.phone || "-"}
                         </TableCell>
                         <TableCell>
                           <Badge
                             variant={u.role === "admin" ? "default" : "secondary"}
                           >
-                            {u.role === "admin" ? "مدير" : "مستخدم"}
+                            {u.role === "admin" ? "Administrateur" : "Utilisateur"}
                           </Badge>
                         </TableCell>
                         {isAdmin && (
@@ -573,7 +572,7 @@ const UsersPage = () => {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleEditUser(u)}
-                                title="تعديل"
+                                title="Modifier"
                               >
                                 <Edit2 className="w-4 h-4" />
                               </Button>
@@ -582,7 +581,7 @@ const UsersPage = () => {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => openResetPasswordDialog(u)}
-                                title="إعادة تعيين كلمة المرور"
+                                title="Réinitialiser le mot de passe"
                               >
                                 <KeyRound className="w-4 h-4" />
                               </Button>
@@ -594,25 +593,25 @@ const UsersPage = () => {
                                       variant="ghost"
                                       size="sm"
                                       className="text-destructive hover:text-destructive"
-                                      title="حذف"
+                                      title="Supprimer"
                                     >
                                       <Trash2 className="w-4 h-4" />
                                     </Button>
                                   </AlertDialogTrigger>
-                                  <AlertDialogContent dir="rtl">
+                                  <AlertDialogContent>
                                     <AlertDialogHeader>
-                                      <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
+                                      <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
                                       <AlertDialogDescription>
-                                        سيتم حذف المستخدم "{u.full_name}" نهائياً. هذا الإجراء لا يمكن التراجع عنه.
+                                        L'utilisateur "{u.full_name}" sera supprimé définitivement. Cette action est irréversible.
                                       </AlertDialogDescription>
                                     </AlertDialogHeader>
-                                    <AlertDialogFooter className="flex-row-reverse gap-2">
-                                      <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Annuler</AlertDialogCancel>
                                       <AlertDialogAction
                                         onClick={() => handleDeleteUser(u)}
                                         className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                       >
-                                        حذف
+                                        Supprimer
                                       </AlertDialogAction>
                                     </AlertDialogFooter>
                                   </AlertDialogContent>
@@ -631,11 +630,11 @@ const UsersPage = () => {
 
           {/* Edit Dialog */}
           <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-            <DialogContent dir="rtl" className="max-w-md">
+            <DialogContent className="max-w-md">
               <DialogHeader>
-                <DialogTitle>تعديل بيانات المستخدم</DialogTitle>
+                <DialogTitle>Modifier les informations de l'utilisateur</DialogTitle>
                 <DialogDescription>
-                  تعديل بيانات وصلاحيات المستخدم
+                  Modifier les données et les permissions de l'utilisateur
                 </DialogDescription>
               </DialogHeader>
               {editingUser && (
@@ -649,54 +648,54 @@ const UsersPage = () => {
                     </Avatar>
                     <div>
                       <p className="font-medium">
-                        {editingUser.full_name || "بدون اسم"}
+                        {editingUser.full_name || "Sans nom"}
                       </p>
                     </div>
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="edit-name">الاسم الكامل</Label>
+                    <Label htmlFor="edit-name">Nom complet</Label>
                     <Input
                       id="edit-name"
                       value={editForm.full_name}
                       onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
-                      placeholder="أدخل الاسم الكامل"
+                      placeholder="Entrez le nom complet"
                     />
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="edit-phone">رقم الهاتف</Label>
+                      <Label htmlFor="edit-phone">Numéro de téléphone</Label>
                       <Input
                         id="edit-phone"
                         value={editForm.phone}
                         onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
-                        placeholder="رقم الهاتف"
+                        placeholder="Numéro de téléphone"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="edit-job">المسمى الوظيفي</Label>
+                      <Label htmlFor="edit-job">Poste</Label>
                       <Input
                         id="edit-job"
                         value={editForm.job_title}
                         onChange={(e) => setEditForm({ ...editForm, job_title: e.target.value })}
-                        placeholder="المسمى الوظيفي"
+                        placeholder="Poste"
                       />
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="edit-dept">القسم</Label>
+                      <Label htmlFor="edit-dept">Département</Label>
                       <Input
                         id="edit-dept"
                         value={editForm.department}
                         onChange={(e) => setEditForm({ ...editForm, department: e.target.value })}
-                        placeholder="القسم"
+                        placeholder="Département"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>الصلاحية</Label>
+                      <Label>Rôle</Label>
                       <Select
                         value={editForm.role}
                         onValueChange={(v) => setEditForm({ ...editForm, role: v as AppRole })}
@@ -706,13 +705,13 @@ const UsersPage = () => {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="user">مستخدم</SelectItem>
-                          <SelectItem value="admin">مدير</SelectItem>
+                          <SelectItem value="user">Utilisateur</SelectItem>
+                          <SelectItem value="admin">Administrateur</SelectItem>
                         </SelectContent>
                       </Select>
                       {editingUser.user_id === user?.id && (
                         <p className="text-xs text-muted-foreground">
-                          لا يمكنك تغيير صلاحيتك
+                          Vous ne pouvez pas modifier votre propre rôle
                         </p>
                       )}
                     </div>
@@ -721,8 +720,8 @@ const UsersPage = () => {
               )}
               <DialogFooter>
                 <Button onClick={handleUpdateUser} disabled={saving}>
-                  {saving && <Loader2 className="w-4 h-4 ml-2 animate-spin" />}
-                  حفظ التغييرات
+                  {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  Enregistrer les modifications
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -730,29 +729,29 @@ const UsersPage = () => {
 
           {/* Reset Password Dialog */}
           <Dialog open={resetPasswordDialogOpen} onOpenChange={setResetPasswordDialogOpen}>
-            <DialogContent dir="rtl" className="max-w-sm">
+            <DialogContent className="max-w-sm">
               <DialogHeader>
-                <DialogTitle>إعادة تعيين كلمة المرور</DialogTitle>
+                <DialogTitle>Réinitialiser le mot de passe</DialogTitle>
                 <DialogDescription>
-                  أدخل كلمة مرور جديدة للمستخدم "{resetPasswordUser?.full_name}"
+                  Entrez un nouveau mot de passe pour l'utilisateur "{resetPasswordUser?.full_name}"
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label htmlFor="new-password">كلمة المرور الجديدة</Label>
+                  <Label htmlFor="new-password">Nouveau mot de passe</Label>
                   <Input
                     id="new-password"
                     type="password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="6 أحرف على الأقل"
+                    placeholder="6 caractères minimum"
                   />
                 </div>
               </div>
               <DialogFooter>
                 <Button onClick={handleResetPassword} disabled={saving || !newPassword}>
-                  {saving && <Loader2 className="w-4 h-4 ml-2 animate-spin" />}
-                  إعادة تعيين
+                  {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  Réinitialiser
                 </Button>
               </DialogFooter>
             </DialogContent>

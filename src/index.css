@@ -114,7 +114,7 @@
   }
 
   html {
-    direction: rtl;
+    /* Direction is set dynamically by LanguageContext */
   }
 
   body {

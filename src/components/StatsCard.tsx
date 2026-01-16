@@ -30,19 +30,19 @@ const StatsCard = ({ title, value, icon: Icon, trend, variant = "default" }: Sta
   };
 
   return (
-    <div className={`card-institutional border-s-4 ${variantStyles[variant]} animate-fade-in`}>
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-muted-foreground text-sm mb-1">{title}</p>
-          <p className="text-3xl font-bold text-foreground">{value}</p>
+    <div className={`card-institutional border-s-4 ${variantStyles[variant]} animate-fade-in p-3 sm:p-6`}>
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <p className="text-muted-foreground text-xs sm:text-sm mb-1 truncate">{title}</p>
+          <p className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">{value}</p>
           {trend && (
-            <p className={`text-sm mt-2 ${trend.isPositive ? "text-success" : "text-critical"}`}>
-              {trend.isPositive ? "+" : ""}{trend.value}% {t("par rapport au mois précédent", "مقارنة بالشهر السابق")}
+            <p className={`text-xs sm:text-sm mt-1 sm:mt-2 ${trend.isPositive ? "text-success" : "text-critical"}`}>
+              {trend.isPositive ? "+" : ""}{trend.value}% <span className="hidden sm:inline">{t("par rapport au mois précédent", "مقارنة بالشهر السابق")}</span>
             </p>
           )}
         </div>
-        <div className={`p-3 rounded-lg ${iconStyles[variant]}`}>
-          <Icon className="w-6 h-6" />
+        <div className={`p-2 sm:p-3 rounded-lg flex-shrink-0 ${iconStyles[variant]}`}>
+          <Icon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
         </div>
       </div>
     </div>

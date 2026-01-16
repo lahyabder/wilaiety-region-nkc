@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageToggle from "./LanguageToggle";
+import { useSidebarContext } from "./Sidebar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +21,7 @@ const Header = () => {
   const { role } = useUserRole(user?.id);
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const sidebarContext = useSidebarContext();
 
   const handleSignOut = async () => {
     const { error } = await signOut();
@@ -31,25 +33,40 @@ const Header = () => {
     }
   };
 
+  const handleMenuClick = () => {
+    if (sidebarContext) {
+      sidebarContext.setIsOpen(true);
+    }
+  };
+
   return (
     <header className="header-gradient sticky top-0 z-50 shadow-md">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo & Title */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary-foreground/20 rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-xl">J</span>
+      <div className="container mx-auto px-3 sm:px-4">
+        <div className="flex items-center justify-between h-14 sm:h-16">
+          {/* Mobile Menu Button + Logo */}
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="md:hidden text-primary-foreground hover:bg-primary-foreground/10"
+              onClick={handleMenuClick}
+            >
+              <Menu className="w-5 h-5" />
+            </Button>
+            
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary-foreground/20 rounded-lg flex items-center justify-center">
+                <span className="text-primary-foreground font-bold text-lg sm:text-xl">J</span>
               </div>
-              <div>
-                <h1 className="text-primary-foreground font-bold text-xl">Jihety</h1>
-                <p className="text-primary-foreground/80 text-xs">{t("Gestion des établissements", "إدارة المنشآت")}</p>
+              <div className="hidden xs:block">
+                <h1 className="text-primary-foreground font-bold text-lg sm:text-xl">Jihety</h1>
+                <p className="text-primary-foreground/80 text-[10px] sm:text-xs hidden sm:block">{t("Gestion des établissements", "إدارة المنشآت")}</p>
               </div>
             </div>
           </div>
 
-          {/* Search */}
-          <div className="hidden md:flex flex-1 max-w-md mx-8">
+          {/* Search - Hidden on mobile */}
+          <div className="hidden lg:flex flex-1 max-w-md mx-8">
             <div className="relative w-full">
               <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary-foreground/60" />
               <input
@@ -61,23 +78,23 @@ const Header = () => {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <LanguageToggle />
             
-            <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10">
-              <Bell className="w-5 h-5" />
+            <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10 w-8 h-8 sm:w-10 sm:h-10">
+              <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10">
-                  <User className="w-5 h-5" />
+                <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10 w-8 h-8 sm:w-10 sm:h-10">
+                  <User className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>
                   <div className="flex flex-col gap-1">
-                    <span className="font-medium">{profile?.full_name || user?.email}</span>
+                    <span className="font-medium truncate">{profile?.full_name || user?.email}</span>
                     <span className="text-xs text-muted-foreground">
                       {role === "admin" ? t("Administrateur", "مدير") : t("Utilisateur", "مستخدم")}
                     </span>
@@ -90,10 +107,6 @@ const Header = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-
-            <Button variant="ghost" size="icon" className="md:hidden text-primary-foreground hover:bg-primary-foreground/10">
-              <Menu className="w-5 h-5" />
-            </Button>
           </div>
         </div>
       </div>

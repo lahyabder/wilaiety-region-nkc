@@ -8,21 +8,24 @@ const QuickActions = () => {
   const { t } = useLanguage();
 
   return (
-    <div className="flex flex-wrap gap-3">
-      <Button className="gap-2" onClick={() => navigate("/add-facility")}>
-        <Plus className="w-4 h-4" />
-        {t("Ajouter un établissement", "إضافة منشأة")}
+    <div className="flex flex-wrap gap-2 sm:gap-3">
+      <Button className="gap-1 sm:gap-2 text-xs sm:text-sm h-8 sm:h-10 px-2 sm:px-4" onClick={() => navigate("/add-facility")}>
+        <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
+        <span className="hidden xs:inline">{t("Ajouter un établissement", "إضافة منشأة")}</span>
+        <span className="xs:hidden">{t("Ajouter", "إضافة")}</span>
       </Button>
-      <Button variant="outline" className="gap-2">
-        <FileUp className="w-4 h-4" />
-        {t("Importer des données", "استيراد البيانات")}
+      <Button variant="outline" className="gap-1 sm:gap-2 text-xs sm:text-sm h-8 sm:h-10 px-2 sm:px-4">
+        <FileUp className="w-3 h-3 sm:w-4 sm:h-4" />
+        <span className="hidden sm:inline">{t("Importer des données", "استيراد البيانات")}</span>
+        <span className="sm:hidden">{t("Importer", "استيراد")}</span>
       </Button>
-      <Button variant="outline" className="gap-2">
-        <Download className="w-4 h-4" />
-        {t("Exporter un rapport", "تصدير تقرير")}
+      <Button variant="outline" className="gap-1 sm:gap-2 text-xs sm:text-sm h-8 sm:h-10 px-2 sm:px-4">
+        <Download className="w-3 h-3 sm:w-4 sm:h-4" />
+        <span className="hidden sm:inline">{t("Exporter un rapport", "تصدير تقرير")}</span>
+        <span className="sm:hidden">{t("Exporter", "تصدير")}</span>
       </Button>
-      <Button variant="outline" className="gap-2">
-        <RefreshCw className="w-4 h-4" />
+      <Button variant="outline" className="gap-1 sm:gap-2 text-xs sm:text-sm h-8 sm:h-10 px-2 sm:px-4 hidden md:flex">
+        <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4" />
         {t("Actualiser les données", "تحديث البيانات")}
       </Button>
     </div>

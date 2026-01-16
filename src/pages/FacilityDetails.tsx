@@ -171,10 +171,10 @@ const FacilityDetails = () => {
         <Header />
         <div className="flex w-full">
           <Sidebar />
-          <main className="flex-1 p-6 min-w-0">
-            <Skeleton className="h-8 w-64 mb-6" />
-            <Skeleton className="h-24 w-full mb-6" />
-            <Skeleton className="h-96 w-full" />
+          <main className="flex-1 p-3 sm:p-4 md:p-6 min-w-0">
+            <Skeleton className="h-6 sm:h-8 w-48 sm:w-64 mb-4 sm:mb-6" />
+            <Skeleton className="h-20 sm:h-24 w-full mb-4 sm:mb-6" />
+            <Skeleton className="h-64 sm:h-96 w-full" />
           </main>
         </div>
       </div>
@@ -187,11 +187,11 @@ const FacilityDetails = () => {
         <Header />
         <div className="flex w-full">
           <Sidebar />
-          <main className="flex-1 p-6 min-w-0">
-            <div className="card-institutional text-center py-12">
-              <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">{t("Établissement non trouvé", "لم يتم العثور على المنشأة")}</h3>
-              <p className="text-muted-foreground mb-4">{t("L'établissement demandé n'existe pas ou a été supprimé", "المنشأة المطلوبة غير موجودة أو تم حذفها")}</p>
+          <main className="flex-1 p-3 sm:p-4 md:p-6 min-w-0">
+            <div className="card-institutional text-center py-8 sm:py-12">
+              <Building2 className="w-10 h-10 sm:w-12 sm:h-12 text-muted-foreground mx-auto mb-3 sm:mb-4" />
+              <h3 className="text-base sm:text-lg font-semibold text-foreground mb-2">{t("Établissement non trouvé", "لم يتم العثور على المنشأة")}</h3>
+              <p className="text-sm sm:text-base text-muted-foreground mb-4">{t("L'établissement demandé n'existe pas ou a été supprimé", "المنشأة المطلوبة غير موجودة أو تم حذفها")}</p>
               <Button onClick={() => navigate("/")}>{t("Retour à l'accueil", "العودة للرئيسية")}</Button>
             </div>
           </main>
@@ -209,54 +209,55 @@ const FacilityDetails = () => {
       <div className="flex w-full">
         <Sidebar />
         
-        <main className="flex-1 p-6 min-w-0">
-          {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+        <main className="flex-1 p-3 sm:p-4 md:p-6 min-w-0">
+          {/* Breadcrumb - Hidden on very small screens */}
+          <div className="hidden sm:flex items-center gap-2 text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-6 flex-wrap">
             <button onClick={() => navigate("/")} className="hover:text-primary transition-colors">
               {t("Tableau de bord", "لوحة التحكم")}
             </button>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
             <button onClick={() => navigate("/")} className="hover:text-primary transition-colors">
               {t("Établissements", "المنشآت")}
             </button>
-            <ArrowRight className="w-4 h-4" />
-            <span className="text-foreground">{facility.name}</span>
+            <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="text-foreground truncate max-w-[150px] sm:max-w-none">{facility.name}</span>
           </div>
 
           {/* Header */}
-          <div className="flex items-start justify-between mb-6">
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4 sm:mb-6">
+            <div className="flex items-center gap-3 sm:gap-4">
               {facility.image_url ? (
-                <img src={facility.image_url} alt={facility.name} className="w-16 h-16 rounded-xl object-cover" />
+                <img src={facility.image_url} alt={facility.name} className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl object-cover flex-shrink-0" />
               ) : (
-                <div className="w-16 h-16 rounded-xl bg-accent flex items-center justify-center">
-                  <Building2 className="w-8 h-8 text-accent-foreground" />
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl bg-accent flex items-center justify-center flex-shrink-0">
+                  <Building2 className="w-6 h-6 sm:w-8 sm:h-8 text-accent-foreground" />
                 </div>
               )}
-              <div>
-                <div className="flex items-center gap-3">
-                  <h1 className="text-2xl font-bold text-foreground">{facility.name}</h1>
-                  <Badge className={getStatusBadge(facility.status)}>{statusLabels[facility.status] || facility.status}</Badge>
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                  <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground truncate">{facility.name}</h1>
+                  <Badge className={`${getStatusBadge(facility.status)} flex-shrink-0`}>{statusLabels[facility.status] || facility.status}</Badge>
                 </div>
-                <p className="text-muted-foreground">{facility.short_name} • {sectorLabels[facility.sector] || facility.sector}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">{facility.short_name} • {sectorLabels[facility.sector] || facility.sector}</p>
               </div>
             </div>
             
-            <div className="flex gap-2">
+            <div className="flex gap-2 self-end sm:self-start flex-shrink-0">
               {isEditing ? (
                 <>
-                  <Button variant="outline" onClick={handleCancel} className="gap-2" disabled={updateFacility.isPending}>
-                    <X className="w-4 h-4" />
-                    {t("Annuler", "إلغاء")}
+                  <Button variant="outline" size="sm" onClick={handleCancel} className="gap-1 sm:gap-2" disabled={updateFacility.isPending}>
+                    <X className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">{t("Annuler", "إلغاء")}</span>
                   </Button>
-                  <Button onClick={handleSave} className="gap-2" disabled={updateFacility.isPending}>
-                    <Save className="w-4 h-4" />
-                    {updateFacility.isPending ? t("Enregistrement...", "جاري الحفظ...") : t("Enregistrer", "حفظ")}
+                  <Button size="sm" onClick={handleSave} className="gap-1 sm:gap-2" disabled={updateFacility.isPending}>
+                    <Save className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">{updateFacility.isPending ? t("Enregistrement...", "جاري الحفظ...") : t("Enregistrer", "حفظ")}</span>
+                    <span className="sm:hidden">{t("Sauver", "حفظ")}</span>
                   </Button>
                 </>
               ) : (
-                <Button onClick={() => setIsEditing(true)} className="gap-2">
-                  <Edit3 className="w-4 h-4" />
+                <Button size="sm" onClick={() => setIsEditing(true)} className="gap-1 sm:gap-2">
+                  <Edit3 className="w-3 h-3 sm:w-4 sm:h-4" />
                   {t("Modifier", "تعديل")}
                 </Button>
               )}
@@ -264,29 +265,29 @@ const FacilityDetails = () => {
           </div>
 
           {/* Tabs */}
-          <Tabs defaultValue="basic" className="space-y-6">
-            <TabsList className="bg-muted p-1 rounded-lg">
-              <TabsTrigger value="basic" className="gap-2 data-[state=active]:bg-card">
-                <FileText className="w-4 h-4" />
-                {t("Informations de base", "المعلومات الأساسية")}
+          <Tabs defaultValue="basic" className="space-y-4 sm:space-y-6">
+            <TabsList className="bg-muted p-1 rounded-lg w-full overflow-x-auto flex-nowrap">
+              <TabsTrigger value="basic" className="gap-1 sm:gap-2 data-[state=active]:bg-card text-xs sm:text-sm flex-shrink-0">
+                <FileText className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden xs:inline">{t("Informations", "المعلومات")}</span>
               </TabsTrigger>
-              <TabsTrigger value="location" className="gap-2 data-[state=active]:bg-card">
-                <MapPin className="w-4 h-4" />
-                {t("Localisation", "الموقع")}
+              <TabsTrigger value="location" className="gap-1 sm:gap-2 data-[state=active]:bg-card text-xs sm:text-sm flex-shrink-0">
+                <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden xs:inline">{t("Localisation", "الموقع")}</span>
               </TabsTrigger>
-              <TabsTrigger value="legal" className="gap-2 data-[state=active]:bg-card">
-                <Calendar className="w-4 h-4" />
-                {t("Statut juridique", "الوضع القانوني")}
+              <TabsTrigger value="legal" className="gap-1 sm:gap-2 data-[state=active]:bg-card text-xs sm:text-sm flex-shrink-0">
+                <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden xs:inline">{t("Juridique", "القانوني")}</span>
               </TabsTrigger>
-              <TabsTrigger value="history" className="gap-2 data-[state=active]:bg-card">
-                <History className="w-4 h-4" />
-                {t("Historique", "السجل")}
+              <TabsTrigger value="history" className="gap-1 sm:gap-2 data-[state=active]:bg-card text-xs sm:text-sm flex-shrink-0">
+                <History className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden xs:inline">{t("Historique", "السجل")}</span>
               </TabsTrigger>
             </TabsList>
 
             {/* Basic Info Tab */}
-            <TabsContent value="basic" className="space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <TabsContent value="basic" className="space-y-4 sm:space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 {/* Main Info Card */}
                 <div className="card-institutional space-y-5">
                   <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3">{t("Informations de l'établissement", "معلومات المنشأة")}</h2>

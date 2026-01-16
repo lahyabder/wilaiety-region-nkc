@@ -4,6 +4,8 @@ import StatsCard from "@/components/StatsCard";
 import SectorCard from "@/components/SectorCard";
 import FacilityCard from "@/components/FacilityCard";
 import QuickActions from "@/components/QuickActions";
+import { useFacilities, useFacilityStats, type FacilitySector } from "@/hooks/useFacilities";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Building2, 
   CheckCircle, 
@@ -29,38 +31,47 @@ import {
   Cpu,
   TreePine
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
-const sectors = [
-  { name: "صحية", icon: Stethoscope, count: 145 },
-  { name: "تعليمية", icon: GraduationCap, count: 230 },
-  { name: "صناعية", icon: Factory, count: 89 },
-  { name: "زراعية", icon: Wheat, count: 67 },
-  { name: "رياضية", icon: Dumbbell, count: 45 },
-  { name: "ثقافية", icon: Palette, count: 38 },
-  { name: "اجتماعية", icon: Heart, count: 92 },
-  { name: "دينية", icon: Church, count: 156 },
-  { name: "نقل", icon: Bus, count: 78 },
-  { name: "تجارة", icon: ShoppingCart, count: 312 },
-  { name: "سياحة", icon: Plane, count: 54 },
-  { name: "إدارية", icon: Landmark, count: 123 },
-  { name: "قضائية", icon: Scale, count: 28 },
-  { name: "سياسية", icon: Vote, count: 15 },
-  { name: "مالية", icon: Wallet, count: 67 },
-  { name: "كهربائية", icon: Zap, count: 43 },
-  { name: "مائية", icon: Droplets, count: 36 },
-  { name: "تكنولوجية", icon: Cpu, count: 89 },
-  { name: "بيئية", icon: TreePine, count: 27 },
-];
+const sectorIcons: Record<FacilitySector, LucideIcon> = {
+  "صحية": Stethoscope,
+  "تعليمية": GraduationCap,
+  "صناعية": Factory,
+  "زراعية": Wheat,
+  "رياضية": Dumbbell,
+  "ثقافية": Palette,
+  "اجتماعية": Heart,
+  "دينية": Church,
+  "نقل": Bus,
+  "تجارة": ShoppingCart,
+  "سياحة": Plane,
+  "إدارية": Landmark,
+  "قضائية": Scale,
+  "سياسية": Vote,
+  "مالية": Wallet,
+  "كهربائية": Zap,
+  "مائية": Droplets,
+  "تكنولوجية": Cpu,
+  "بيئية": TreePine,
+};
 
-const recentFacilities = [
-  { name: "مستشفى المدينة المركزي", sector: "القطاع الصحي", location: "المنطقة الشمالية", status: "active" as const, licenseExpiry: "2025/12/30" },
-  { name: "مدرسة النور الابتدائية", sector: "القطاع التعليمي", location: "المنطقة الوسطى", status: "pending" as const },
-  { name: "مصنع الأمل للصناعات", sector: "القطاع الصناعي", location: "المنطقة الصناعية", status: "expired" as const, licenseExpiry: "2024/06/15" },
-  { name: "نادي الشباب الرياضي", sector: "القطاع الرياضي", location: "المنطقة الجنوبية", status: "active" as const, licenseExpiry: "2026/03/20" },
+const allSectors: FacilitySector[] = [
+  "صحية", "تعليمية", "صناعية", "زراعية", "رياضية", "ثقافية", "اجتماعية", 
+  "دينية", "نقل", "تجارة", "سياحة", "إدارية", "قضائية", "سياسية", 
+  "مالية", "كهربائية", "مائية", "تكنولوجية", "بيئية"
 ];
 
 const Index = () => {
-  const totalFacilities = sectors.reduce((sum, s) => sum + s.count, 0);
+  const { data: facilities, isLoading: facilitiesLoading } = useFacilities();
+  const { data: stats, isLoading: statsLoading } = useFacilityStats();
+
+  const getStatusForCard = (status: string): "active" | "pending" | "expired" => {
+    if (status === "نشط") return "active";
+    if (status === "غير نشط") return "expired";
+    return "pending";
+  };
+
+  const getSectorLabel = (sector: FacilitySector) => `القطاع ${sector}`;
 
   return (
     <div className="min-h-screen bg-background">
@@ -83,30 +94,39 @@ const Index = () => {
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <StatsCard
-              title="إجمالي المنشآت"
-              value={totalFacilities.toLocaleString("ar-SA")}
-              icon={Building2}
-              trend={{ value: 12, isPositive: true }}
-            />
-            <StatsCard
-              title="منشآت نشطة"
-              value="١٬٤٨٩"
-              icon={CheckCircle}
-              variant="success"
-            />
-            <StatsCard
-              title="قيد المراجعة"
-              value="٨٧"
-              icon={AlertTriangle}
-              variant="warning"
-            />
-            <StatsCard
-              title="تراخيص منتهية"
-              value="٢٣"
-              icon={XCircle}
-              variant="critical"
-            />
+            {statsLoading ? (
+              <>
+                {[...Array(4)].map((_, i) => (
+                  <Skeleton key={i} className="h-32 rounded-xl" />
+                ))}
+              </>
+            ) : (
+              <>
+                <StatsCard
+                  title="إجمالي المنشآت"
+                  value={(stats?.total || 0).toLocaleString("ar-SA")}
+                  icon={Building2}
+                />
+                <StatsCard
+                  title="منشآت نشطة"
+                  value={(stats?.active || 0).toLocaleString("ar-SA")}
+                  icon={CheckCircle}
+                  variant="success"
+                />
+                <StatsCard
+                  title="قيد المراجعة"
+                  value={(stats?.pending || 0).toLocaleString("ar-SA")}
+                  icon={AlertTriangle}
+                  variant="warning"
+                />
+                <StatsCard
+                  title="غير نشطة"
+                  value={(stats?.inactive || 0).toLocaleString("ar-SA")}
+                  icon={XCircle}
+                  variant="critical"
+                />
+              </>
+            )}
           </div>
 
           {/* Sectors Grid */}
@@ -117,16 +137,24 @@ const Index = () => {
                 عرض الكل
               </button>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {sectors.slice(0, 10).map((sector, index) => (
-                <SectorCard
-                  key={index}
-                  name={sector.name}
-                  icon={sector.icon}
-                  count={sector.count}
-                />
-              ))}
-            </div>
+            {statsLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {[...Array(10)].map((_, i) => (
+                  <Skeleton key={i} className="h-24 rounded-xl" />
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {allSectors.slice(0, 10).map((sector) => (
+                  <SectorCard
+                    key={sector}
+                    name={sector}
+                    icon={sectorIcons[sector]}
+                    count={stats?.sectorCounts[sector] || 0}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Recent Facilities */}
@@ -137,14 +165,32 @@ const Index = () => {
                 عرض الكل
               </button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {recentFacilities.map((facility, index) => (
-                <FacilityCard
-                  key={index}
-                  {...facility}
-                />
-              ))}
-            </div>
+            {facilitiesLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[...Array(4)].map((_, i) => (
+                  <Skeleton key={i} className="h-32 rounded-xl" />
+                ))}
+              </div>
+            ) : facilities && facilities.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {facilities.slice(0, 4).map((facility) => (
+                  <FacilityCard
+                    key={facility.id}
+                    id={facility.id}
+                    name={facility.name}
+                    sector={getSectorLabel(facility.sector)}
+                    location={facility.region}
+                    status={getStatusForCard(facility.status)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="card-institutional text-center py-12">
+                <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">لا توجد منشآت بعد</h3>
+                <p className="text-muted-foreground">ابدأ بإضافة منشأة جديدة</p>
+              </div>
+            )}
           </div>
 
           {/* Footer */}

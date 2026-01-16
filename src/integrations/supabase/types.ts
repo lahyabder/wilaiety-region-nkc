@@ -14,7 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      facilities: {
+        Row: {
+          activity_type: string
+          address: string
+          created_at: string
+          created_date: string
+          description: string | null
+          facility_type: string
+          gps_coordinates: string | null
+          id: string
+          jurisdiction_type: Database["public"]["Enums"]["jurisdiction_type"]
+          legal_domain: Database["public"]["Enums"]["legal_domain"]
+          legal_name: string
+          location_accuracy: string | null
+          name: string
+          ownership: Database["public"]["Enums"]["ownership_type"]
+          region: string
+          sector: Database["public"]["Enums"]["facility_sector"]
+          short_name: string
+          status: Database["public"]["Enums"]["facility_status"]
+          updated_at: string
+        }
+        Insert: {
+          activity_type: string
+          address: string
+          created_at?: string
+          created_date: string
+          description?: string | null
+          facility_type: string
+          gps_coordinates?: string | null
+          id?: string
+          jurisdiction_type: Database["public"]["Enums"]["jurisdiction_type"]
+          legal_domain: Database["public"]["Enums"]["legal_domain"]
+          legal_name: string
+          location_accuracy?: string | null
+          name: string
+          ownership: Database["public"]["Enums"]["ownership_type"]
+          region: string
+          sector: Database["public"]["Enums"]["facility_sector"]
+          short_name: string
+          status?: Database["public"]["Enums"]["facility_status"]
+          updated_at?: string
+        }
+        Update: {
+          activity_type?: string
+          address?: string
+          created_at?: string
+          created_date?: string
+          description?: string | null
+          facility_type?: string
+          gps_coordinates?: string | null
+          id?: string
+          jurisdiction_type?: Database["public"]["Enums"]["jurisdiction_type"]
+          legal_domain?: Database["public"]["Enums"]["legal_domain"]
+          legal_name?: string
+          location_accuracy?: string | null
+          name?: string
+          ownership?: Database["public"]["Enums"]["ownership_type"]
+          region?: string
+          sector?: Database["public"]["Enums"]["facility_sector"]
+          short_name?: string
+          status?: Database["public"]["Enums"]["facility_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +88,30 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      facility_sector:
+        | "صحية"
+        | "تعليمية"
+        | "صناعية"
+        | "زراعية"
+        | "رياضية"
+        | "ثقافية"
+        | "اجتماعية"
+        | "دينية"
+        | "نقل"
+        | "تجارة"
+        | "سياحة"
+        | "إدارية"
+        | "قضائية"
+        | "سياسية"
+        | "مالية"
+        | "كهربائية"
+        | "مائية"
+        | "تكنولوجية"
+        | "بيئية"
+      facility_status: "نشط" | "غير نشط" | "قيد الإنشاء" | "معلق"
+      jurisdiction_type: "خاص" | "محال" | "تنسيق"
+      legal_domain: "مجال عام للجهة" | "مجال خاص للجهة" | "خارج ملكية الجهة"
+      ownership_type: "ملكية كاملة" | "إيجار" | "شراكة" | "مملوكة مع جهة أخرى"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +238,32 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      facility_sector: [
+        "صحية",
+        "تعليمية",
+        "صناعية",
+        "زراعية",
+        "رياضية",
+        "ثقافية",
+        "اجتماعية",
+        "دينية",
+        "نقل",
+        "تجارة",
+        "سياحة",
+        "إدارية",
+        "قضائية",
+        "سياسية",
+        "مالية",
+        "كهربائية",
+        "مائية",
+        "تكنولوجية",
+        "بيئية",
+      ],
+      facility_status: ["نشط", "غير نشط", "قيد الإنشاء", "معلق"],
+      jurisdiction_type: ["خاص", "محال", "تنسيق"],
+      legal_domain: ["مجال عام للجهة", "مجال خاص للجهة", "خارج ملكية الجهة"],
+      ownership_type: ["ملكية كاملة", "إيجار", "شراكة", "مملوكة مع جهة أخرى"],
+    },
   },
 } as const

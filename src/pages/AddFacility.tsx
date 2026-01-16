@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,7 +23,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { toast } from "@/hooks/use-toast";
+import { useCreateFacility, type FacilitySector, type OwnershipType, type LegalDomain, type JurisdictionType, type FacilityStatus } from "@/hooks/useFacilities";
 import { 
   ArrowRight, 
   Building2, 
@@ -36,16 +35,16 @@ import {
   Upload
 } from "lucide-react";
 
-const sectors = [
+const sectors: FacilitySector[] = [
   "صحية", "تعليمية", "صناعية", "زراعية", "رياضية", "ثقافية", "اجتماعية", 
   "دينية", "نقل", "تجارة", "سياحة", "إدارية", "قضائية", "سياسية", 
   "مالية", "كهربائية", "مائية", "تكنولوجية", "بيئية"
 ];
 
-const ownershipTypes = ["ملكية كاملة", "إيجار", "شراكة", "مملوكة مع جهة أخرى"];
-const legalDomains = ["مجال عام للجهة", "مجال خاص للجهة", "خارج ملكية الجهة"];
-const facilityTypes = ["خاص", "محال", "تنسيق"];
-const statusOptions = ["نشط", "غير نشط", "قيد الإنشاء", "معلق"];
+const ownershipTypes: OwnershipType[] = ["ملكية كاملة", "إيجار", "شراكة", "مملوكة مع جهة أخرى"];
+const legalDomains: LegalDomain[] = ["مجال عام للجهة", "مجال خاص للجهة", "خارج ملكية الجهة"];
+const facilityTypes: JurisdictionType[] = ["خاص", "محال", "تنسيق"];
+const statusOptions: FacilityStatus[] = ["نشط", "غير نشط", "قيد الإنشاء", "معلق"];
 
 // Zod validation schema
 const facilitySchema = z.object({
@@ -94,7 +93,7 @@ type FacilityFormData = z.infer<typeof facilitySchema>;
 
 const AddFacility = () => {
   const navigate = useNavigate();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const createFacility = useCreateFacility();
 
   const form = useForm<FacilityFormData>({
     resolver: zodResolver(facilitySchema),
@@ -118,19 +117,24 @@ const AddFacility = () => {
   });
 
   const onSubmit = async (data: FacilityFormData) => {
-    setIsSubmitting(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    console.log("Facility data:", data);
-    
-    toast({
-      title: "تمت الإضافة بنجاح",
-      description: `تم إضافة منشأة "${data.name}" بنجاح`,
+    await createFacility.mutateAsync({
+      name: data.name,
+      short_name: data.shortName,
+      legal_name: data.legalName,
+      sector: data.sector as FacilitySector,
+      activity_type: data.activityType,
+      facility_type: data.facilityType,
+      jurisdiction_type: data.jurisdictionType as JurisdictionType,
+      created_date: data.createdDate,
+      description: data.description,
+      gps_coordinates: data.gps || undefined,
+      region: data.region,
+      address: data.address,
+      ownership: data.ownership as OwnershipType,
+      legal_domain: data.legalDomain as LegalDomain,
+      status: data.status as FacilityStatus,
     });
     
-    setIsSubmitting(false);
     navigate("/");
   };
 
@@ -530,11 +534,11 @@ const AddFacility = () => {
                 </Button>
                 <Button 
                   type="submit" 
-                  disabled={isSubmitting}
+                  disabled={createFacility.isPending}
                   className="gap-2"
                 >
                   <Save className="w-4 h-4" />
-                  {isSubmitting ? "جاري الحفظ..." : "حفظ المنشأة"}
+                  {createFacility.isPending ? "جاري الحفظ..." : "حفظ المنشأة"}
                 </Button>
               </div>
             </form>

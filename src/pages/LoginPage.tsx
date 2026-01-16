@@ -24,24 +24,25 @@ const LoginPage = () => {
 
     if (error) {
       toast.error("فشل تسجيل الدخول: " + error.message);
-    } else {
-      // Log the login activity
-      if (data?.user) {
-        try {
-          await supabase.functions.invoke("log-activity", {
-            body: {
-              user_id: data.user.id,
-              user_email: data.user.email,
-              action: "login",
-            },
-          });
-        } catch (logError) {
-          console.error("Failed to log activity:", logError);
-        }
-      }
-      toast.success("تم تسجيل الدخول بنجاح");
-      navigate("/");
+      setLoading(false);
+      return;
     }
+
+    // Log the login activity in background (don't wait)
+    if (data?.user) {
+      supabase.functions.invoke("log-activity", {
+        body: {
+          user_id: data.user.id,
+          user_email: data.user.email,
+          action: "login",
+        },
+      }).catch((logError) => {
+        console.error("Failed to log activity:", logError);
+      });
+    }
+    
+    toast.success("تم تسجيل الدخول بنجاح");
+    navigate("/");
     setLoading(false);
   };
 

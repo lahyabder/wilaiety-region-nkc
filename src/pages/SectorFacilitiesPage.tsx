@@ -16,6 +16,31 @@ const SectorFacilitiesPage = () => {
   const { t } = useLanguage();
 
   const decodedSector = sector ? decodeURIComponent(sector) : "";
+
+  // Dynamic sector labels
+  const sectorLabels: Record<string, string> = {
+    "صحية": t("Santé", "صحية"),
+    "تعليمية": t("Éducation", "تعليمية"),
+    "صناعية": t("Industrie", "صناعية"),
+    "زراعية": t("Agriculture", "زراعية"),
+    "رياضية": t("Sport", "رياضية"),
+    "ثقافية": t("Culture", "ثقافية"),
+    "اجتماعية": t("Social", "اجتماعية"),
+    "دينية": t("Religieux", "دينية"),
+    "نقل": t("Transport", "نقل"),
+    "تجارة": t("Commerce", "تجارة"),
+    "سياحة": t("Tourisme", "سياحة"),
+    "إدارية": t("Administratif", "إدارية"),
+    "قضائية": t("Judiciaire", "قضائية"),
+    "سياسية": t("Politique", "سياسية"),
+    "مالية": t("Finance", "مالية"),
+    "كهربائية": t("Électricité", "كهربائية"),
+    "مائية": t("Eau", "مائية"),
+    "تكنولوجية": t("Technologie", "تكنولوجية"),
+    "بيئية": t("Environnement", "بيئية"),
+  };
+
+  const translatedSector = sectorLabels[decodedSector] || decodedSector;
   
   const filteredFacilities = facilities?.filter(
     (f) => f.sector === decodedSector
@@ -41,7 +66,7 @@ const SectorFacilitiesPage = () => {
               {t("Tableau de bord", "لوحة التحكم")}
             </button>
             <ArrowRight className="w-4 h-4 rotate-180" />
-            <span className="text-foreground">{t("Secteur", "قطاع")} {decodedSector}</span>
+            <span className="text-foreground">{t("Secteur", "قطاع")} {translatedSector}</span>
           </div>
 
           {/* En-tête */}
@@ -52,7 +77,7 @@ const SectorFacilitiesPage = () => {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-foreground">
-                  {t("Établissements du secteur", "منشآت قطاع")} {decodedSector}
+                  {t("Établissements du secteur", "منشآت قطاع")} {translatedSector}
                 </h1>
                 <p className="text-muted-foreground">
                   {filteredFacilities.length} {t("établissement(s) dans ce secteur", "منشأة في هذا القطاع")}
@@ -80,7 +105,7 @@ const SectorFacilitiesPage = () => {
                   key={facility.id}
                   id={facility.id}
                   name={facility.name}
-                  sector={`${t("Secteur", "قطاع")} ${facility.sector}`}
+                  sector={`${t("Secteur", "قطاع")} ${sectorLabels[facility.sector] || facility.sector}`}
                   location={facility.region}
                   status={getStatusForCard(facility.status)}
                 />

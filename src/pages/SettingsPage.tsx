@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useProfile } from "@/hooks/useAuth";
@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Lock, Bell, Palette, LogOut, Save, Loader2 } from "lucide-react";
+import { User, Lock, Bell, LogOut, Save, Loader2, Camera, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const SettingsPage = () => {
@@ -18,8 +18,11 @@ const SettingsPage = () => {
   const { user, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading, updateProfile } = useProfile(user?.id);
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     full_name: "",
     phone: "",
@@ -41,8 +44,114 @@ const SettingsPage = () => {
         job_title: profile.job_title || "",
         department: profile.department || "",
       });
+      setAvatarUrl(profile.avatar_url);
     }
   }, [profile]);
+
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "خطأ",
+        description: "يرجى اختيار ملف صورة صالح",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast({
+        title: "خطأ",
+        description: "حجم الصورة يجب أن يكون أقل من 2 ميجابايت",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploadingAvatar(true);
+    try {
+      const fileExt = file.name.split(".").pop();
+      const filePath = `${user.id}/avatar.${fileExt}`;
+
+      // Delete old avatar if exists
+      await supabase.storage.from("avatars").remove([filePath]);
+
+      // Upload new avatar
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
+
+      // Update profile with new avatar URL
+      const { error: updateError } = await updateProfile({
+        avatar_url: publicUrl,
+        updated_at: new Date().toISOString(),
+      });
+
+      if (updateError) throw updateError;
+
+      setAvatarUrl(publicUrl);
+      toast({
+        title: "تم الرفع",
+        description: "تم تحديث الصورة الشخصية بنجاح",
+      });
+    } catch (error: any) {
+      toast({
+        title: "خطأ",
+        description: error.message || "حدث خطأ أثناء رفع الصورة",
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingAvatar(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    if (!user) return;
+
+    setUploadingAvatar(true);
+    try {
+      // Remove from storage
+      const { error: deleteError } = await supabase.storage
+        .from("avatars")
+        .remove([`${user.id}/avatar.jpg`, `${user.id}/avatar.png`, `${user.id}/avatar.jpeg`, `${user.id}/avatar.webp`]);
+
+      // Update profile
+      const { error: updateError } = await updateProfile({
+        avatar_url: null,
+        updated_at: new Date().toISOString(),
+      });
+
+      if (updateError) throw updateError;
+
+      setAvatarUrl(null);
+      toast({
+        title: "تم الحذف",
+        description: "تم حذف الصورة الشخصية",
+      });
+    } catch (error: any) {
+      toast({
+        title: "خطأ",
+        description: error.message || "حدث خطأ أثناء حذف الصورة",
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   const handleProfileUpdate = async () => {
     if (!user) return;
@@ -173,16 +282,56 @@ const SettingsPage = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    <div className="flex items-center gap-4">
-                      <Avatar className="w-20 h-20">
-                        <AvatarImage src={profile?.avatar_url || ""} />
-                        <AvatarFallback className="text-lg bg-primary text-primary-foreground">
-                          {getInitials(profile?.full_name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
+                    <div className="flex items-center gap-6">
+                      <div className="relative">
+                        <Avatar className="w-24 h-24">
+                          <AvatarImage src={avatarUrl || ""} />
+                          <AvatarFallback className="text-xl bg-primary text-primary-foreground">
+                            {getInitials(profile?.full_name)}
+                          </AvatarFallback>
+                        </Avatar>
+                        {uploadingAvatar && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
+                            <Loader2 className="w-6 h-6 animate-spin text-white" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="space-y-2">
                         <h3 className="font-medium">{profile?.full_name || "مستخدم"}</h3>
                         <p className="text-sm text-muted-foreground">{user?.email}</p>
+                        <div className="flex gap-2">
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={handleAvatarUpload}
+                            className="hidden"
+                          />
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={uploadingAvatar}
+                          >
+                            <Camera className="w-4 h-4 ml-2" />
+                            تغيير الصورة
+                          </Button>
+                          {avatarUrl && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handleRemoveAvatar}
+                              disabled={uploadingAvatar}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4 ml-2" />
+                              حذف
+                            </Button>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          الحد الأقصى: 2 ميجابايت (JPG, PNG, WebP)
+                        </p>
                       </div>
                     </div>
 

@@ -3,6 +3,8 @@ import { Button } from "./ui/button";
 import { useAuth, useProfile, useUserRole } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageToggle from "./LanguageToggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,13 +19,14 @@ const Header = () => {
   const { profile } = useProfile(user?.id);
   const { role } = useUserRole(user?.id);
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const handleSignOut = async () => {
     const { error } = await signOut();
     if (error) {
-      toast.error("Échec de la déconnexion");
+      toast.error(t("Échec de la déconnexion", "فشل تسجيل الخروج"));
     } else {
-      toast.success("Déconnexion réussie");
+      toast.success(t("Déconnexion réussie", "تم تسجيل الخروج بنجاح"));
       navigate("/login");
     }
   };
@@ -40,7 +43,7 @@ const Header = () => {
               </div>
               <div>
                 <h1 className="text-primary-foreground font-bold text-xl">Jihety</h1>
-                <p className="text-primary-foreground/80 text-xs">Gestion des établissements</p>
+                <p className="text-primary-foreground/80 text-xs">{t("Gestion des établissements", "إدارة المنشآت")}</p>
               </div>
             </div>
           </div>
@@ -48,17 +51,19 @@ const Header = () => {
           {/* Search */}
           <div className="hidden md:flex flex-1 max-w-md mx-8">
             <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary-foreground/60" />
+              <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary-foreground/60" />
               <input
                 type="text"
-                placeholder="Rechercher des établissements..."
-                className="w-full bg-primary-foreground/10 border-0 rounded-lg py-2 pl-10 pr-4 text-primary-foreground placeholder:text-primary-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary-foreground/30 text-sm"
+                placeholder={t("Rechercher des établissements...", "البحث عن المنشآت...")}
+                className="w-full bg-primary-foreground/10 border-0 rounded-lg py-2 ps-10 pe-4 text-primary-foreground placeholder:text-primary-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary-foreground/30 text-sm"
               />
             </div>
           </div>
 
           {/* Actions */}
           <div className="flex items-center gap-2">
+            <LanguageToggle />
+            
             <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10">
               <Bell className="w-5 h-5" />
             </Button>
@@ -74,14 +79,14 @@ const Header = () => {
                   <div className="flex flex-col gap-1">
                     <span className="font-medium">{profile?.full_name || user?.email}</span>
                     <span className="text-xs text-muted-foreground">
-                      {role === "admin" ? "Administrateur" : "Utilisateur"}
+                      {role === "admin" ? t("Administrateur", "مدير") : t("Utilisateur", "مستخدم")}
                     </span>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut} className="text-destructive cursor-pointer">
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Déconnexion
+                  <LogOut className="w-4 h-4 me-2" />
+                  {t("Déconnexion", "تسجيل الخروج")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

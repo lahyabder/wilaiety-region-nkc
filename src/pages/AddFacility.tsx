@@ -4,6 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
+import Footer from "@/components/Footer";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -139,6 +141,7 @@ const facilitySchema = z.object({
 type FacilityFormData = z.infer<typeof facilitySchema>;
 
 const AddFacility = () => {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const createFacility = useCreateFacility();
 
@@ -186,20 +189,20 @@ const AddFacility = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Header />
       
-      <div className="flex w-full">
+      <div className="flex flex-1 w-full">
         <Sidebar />
         
-        <main className="flex-1 p-6 min-w-0">
+        <main className="flex-1 p-6 min-w-0 flex flex-col">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
             <button onClick={() => navigate("/")} className="hover:text-primary transition-colors">
-              Tableau de bord
+              {t("Tableau de bord", "لوحة التحكم")}
             </button>
             <ArrowLeft className="w-4 h-4" />
-            <span className="text-foreground">Ajouter un établissement</span>
+            <span className="text-foreground">{t("Ajouter un établissement", "إضافة منشأة")}</span>
           </div>
 
           {/* Header */}
@@ -208,13 +211,13 @@ const AddFacility = () => {
               <Building2 className="w-7 h-7 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Ajouter un établissement</h1>
-              <p className="text-muted-foreground">Entrez les informations du nouvel établissement</p>
+              <h1 className="text-2xl font-bold text-foreground">{t("Ajouter un établissement", "إضافة منشأة")}</h1>
+              <p className="text-muted-foreground">{t("Entrez les informations du nouvel établissement", "أدخل معلومات المنشأة الجديدة")}</p>
             </div>
           </div>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 
                 {/* Basic Info Section */}
@@ -576,7 +579,7 @@ const AddFacility = () => {
                   className="gap-2"
                 >
                   <X className="w-4 h-4" />
-                  Annuler
+                  {t("Annuler", "إلغاء")}
                 </Button>
                 <Button 
                   type="submit" 
@@ -584,11 +587,13 @@ const AddFacility = () => {
                   className="gap-2"
                 >
                   <Save className="w-4 h-4" />
-                  {createFacility.isPending ? "Enregistrement..." : "Enregistrer"}
+                  {createFacility.isPending ? t("Enregistrement...", "جاري الحفظ...") : t("Enregistrer", "حفظ")}
                 </Button>
               </div>
             </form>
           </Form>
+          
+          <Footer />
         </main>
       </div>
     </div>

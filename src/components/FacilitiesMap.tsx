@@ -1,27 +1,28 @@
-import { useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useFacilities, type Facility, type FacilityStatus } from "@/hooks/useFacilities";
-import { Badge } from "./ui/badge";
-import { Building2, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-// Fix for default marker icons in Leaflet with Vite
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
-});
+// Parse GPS coordinates from string
+const parseGPS = (gps: string | null): [number, number] | null => {
+  if (!gps) return null;
+  
+  const parts = gps.split(",").map(s => parseFloat(s.trim()));
+  if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+    return [parts[0], parts[1]];
+  }
+  return null;
+};
 
 // Custom marker icons based on status
 const createCustomIcon = (status: FacilityStatus) => {
   const colors: Record<FacilityStatus, string> = {
-    "نشط": "#00A95C", // Green
-    "غير نشط": "#D01C1F", // Red
-    "قيد الإنشاء": "#FFD700", // Yellow
-    "معلق": "#FFD700", // Yellow
+    "نشط": "#00A95C",
+    "غير نشط": "#D01C1F",
+    "قيد الإنشاء": "#FFD700",
+    "معلق": "#FFD700",
   };
 
   const color = colors[status] || "#00A95C";
@@ -51,113 +52,21 @@ const createCustomIcon = (status: FacilityStatus) => {
   });
 };
 
-// Parse GPS coordinates from string
-const parseGPS = (gps: string | null): [number, number] | null => {
-  if (!gps) return null;
-  
-  const parts = gps.split(",").map(s => parseFloat(s.trim()));
-  if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
-    return [parts[0], parts[1]];
-  }
-  return null;
-};
-
-// Component to fit map bounds to markers
-const FitBounds = ({ facilities }: { facilities: Facility[] }) => {
-  const map = useMap();
-
-  useEffect(() => {
-    const validFacilities = facilities.filter(f => parseGPS(f.gps_coordinates));
-    
-    if (validFacilities.length > 0) {
-      const bounds = L.latLngBounds(
-        validFacilities.map(f => {
-          const coords = parseGPS(f.gps_coordinates)!;
-          return [coords[0], coords[1]] as [number, number];
-        })
-      );
-      map.fitBounds(bounds, { padding: [50, 50] });
-    }
-  }, [facilities, map]);
-
-  return null;
-};
-
-// Separate component for map content to avoid context issues
-interface MapContentProps {
-  facilities: Facility[];
-  getStatusBadge: (status: FacilityStatus) => string;
-  navigate: (path: string) => void;
-}
-
-const MapContent = ({ facilities, getStatusBadge, navigate }: MapContentProps) => {
-  return (
-    <>
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      
-      {facilities.length > 0 && <FitBounds facilities={facilities} />}
-      
-      {facilities.map((facility) => {
-        const coords = parseGPS(facility.gps_coordinates);
-        if (!coords) return null;
-
-        return (
-          <Marker
-            key={facility.id}
-            position={coords}
-            icon={createCustomIcon(facility.status)}
-          >
-            <Popup>
-              <div className="p-2 min-w-[200px]" dir="rtl">
-                <div className="flex items-center gap-2 mb-2">
-                  <Building2 className="w-5 h-5 text-primary" />
-                  <h3 className="font-bold text-foreground">{facility.name}</h3>
-                </div>
-                <div className="space-y-1 text-sm mb-3">
-                  <p className="text-muted-foreground">
-                    <span className="font-medium">القطاع:</span> {facility.sector}
-                  </p>
-                  <p className="text-muted-foreground">
-                    <span className="font-medium">المنطقة:</span> {facility.region}
-                  </p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="font-medium text-muted-foreground">الحالة:</span>
-                    <Badge className={getStatusBadge(facility.status)}>
-                      {facility.status}
-                    </Badge>
-                  </div>
-                </div>
-                <button
-                  onClick={() => navigate(`/facility/${facility.id}`)}
-                  className="w-full px-3 py-1.5 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
-                >
-                  عرض التفاصيل
-                </button>
-              </div>
-            </Popup>
-          </Marker>
-        );
-      })}
-    </>
-  );
-};
-
 interface FacilitiesMapProps {
   height?: string;
   showLegend?: boolean;
 }
 
 const FacilitiesMap = ({ height = "400px", showLegend = true }: FacilitiesMapProps) => {
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<L.Map | null>(null);
   const { data: facilities, isLoading } = useFacilities();
   const navigate = useNavigate();
 
-  // Default center (Algeria)
-  const defaultCenter: [number, number] = [28.0339, 1.6596];
+  // Default center (Nouadhibou, Mauritania)
+  const defaultCenter: [number, number] = [20.9340, -17.0320];
 
-  const getStatusBadge = (status: FacilityStatus) => {
+  const getStatusLabel = (status: FacilityStatus) => {
     const config: Record<FacilityStatus, string> = {
       "نشط": "bg-success text-success-foreground",
       "غير نشط": "bg-critical text-critical-foreground",
@@ -168,6 +77,70 @@ const FacilitiesMap = ({ height = "400px", showLegend = true }: FacilitiesMapPro
   };
 
   const facilitiesWithCoords = facilities?.filter(f => parseGPS(f.gps_coordinates)) || [];
+
+  useEffect(() => {
+    if (!mapRef.current || isLoading) return;
+
+    // Clean up existing map
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.remove();
+      mapInstanceRef.current = null;
+    }
+
+    // Create new map
+    const map = L.map(mapRef.current).setView(defaultCenter, 12);
+    mapInstanceRef.current = map;
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
+
+    // Add markers for each facility
+    const markers: L.Marker[] = [];
+
+    facilitiesWithCoords.forEach((facility) => {
+      const coords = parseGPS(facility.gps_coordinates);
+      if (!coords) return;
+
+      const marker = L.marker(coords, { icon: createCustomIcon(facility.status) })
+        .addTo(map);
+
+      const popupContent = `
+        <div style="padding: 8px; min-width: 200px; direction: rtl; text-align: right;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+            <h3 style="font-weight: bold; margin: 0;">${facility.name}</h3>
+          </div>
+          <div style="font-size: 14px; margin-bottom: 12px;">
+            <p style="margin: 4px 0; color: #666;"><span style="font-weight: 500;">القطاع:</span> ${facility.sector}</p>
+            <p style="margin: 4px 0; color: #666;"><span style="font-weight: 500;">المنطقة:</span> ${facility.region}</p>
+            <p style="margin: 4px 0; color: #666;"><span style="font-weight: 500;">الحالة:</span> ${facility.status}</p>
+          </div>
+          <button 
+            onclick="window.location.href='/facility/${facility.id}'"
+            style="width: 100%; padding: 8px 12px; background: #00A95C; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer;"
+          >
+            عرض التفاصيل
+          </button>
+        </div>
+      `;
+
+      marker.bindPopup(popupContent);
+      markers.push(marker);
+    });
+
+    // Fit bounds to show all markers
+    if (markers.length > 0) {
+      const group = L.featureGroup(markers);
+      map.fitBounds(group.getBounds(), { padding: [50, 50] });
+    }
+
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, [facilities, isLoading]);
 
   if (isLoading) {
     return (
@@ -186,22 +159,10 @@ const FacilitiesMap = ({ height = "400px", showLegend = true }: FacilitiesMapPro
   return (
     <div className="space-y-4">
       <div 
+        ref={mapRef}
         className="rounded-xl overflow-hidden border border-border shadow-sm"
         style={{ height }}
-      >
-        <MapContainer
-          center={defaultCenter}
-          zoom={5}
-          style={{ height: "100%", width: "100%" }}
-          scrollWheelZoom={true}
-        >
-          <MapContent 
-            facilities={facilitiesWithCoords} 
-            getStatusBadge={getStatusBadge}
-            navigate={navigate}
-          />
-        </MapContainer>
-      </div>
+      />
 
       {showLegend && (
         <div className="flex flex-wrap items-center gap-4 text-sm">

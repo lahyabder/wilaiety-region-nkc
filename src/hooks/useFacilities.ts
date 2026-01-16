@@ -15,18 +15,25 @@ export type FacilityStatus = "نشط" | "غير نشط" | "قيد الإنشاء
 export interface Facility {
   id: string;
   name: string;
+  name_fr: string | null;
   short_name: string;
+  short_name_fr: string | null;
   legal_name: string;
+  legal_name_fr: string | null;
   sector: FacilitySector;
   activity_type: string;
+  activity_type_fr: string | null;
   facility_type: string;
+  facility_type_fr: string | null;
   jurisdiction_type: JurisdictionType;
   created_date: string;
   description: string | null;
+  description_fr: string | null;
   gps_coordinates: string | null;
   location_accuracy: string | null;
   region: string;
   address: string;
+  address_fr: string | null;
   ownership: OwnershipType;
   legal_domain: LegalDomain;
   status: FacilityStatus;
@@ -38,17 +45,24 @@ export interface Facility {
 
 export interface CreateFacilityData {
   name: string;
+  name_fr?: string;
   short_name: string;
+  short_name_fr?: string;
   legal_name: string;
+  legal_name_fr?: string;
   sector: FacilitySector;
   activity_type: string;
+  activity_type_fr?: string;
   facility_type: string;
+  facility_type_fr?: string;
   jurisdiction_type: JurisdictionType;
   created_date: string;
   description?: string;
+  description_fr?: string;
   gps_coordinates?: string;
   region: string;
   address: string;
+  address_fr?: string;
   ownership: OwnershipType;
   legal_domain: LegalDomain;
   status?: FacilityStatus;

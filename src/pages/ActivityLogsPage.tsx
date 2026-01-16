@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
+import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -22,8 +23,9 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useUserRole } from "@/hooks/useAuth";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import { fr, ar } from "date-fns/locale";
 import { Activity, Search, Filter, LogIn, LogOut, Key, UserPlus, Shield } from "lucide-react";
 
 interface ActivityLog {
@@ -36,22 +38,23 @@ interface ActivityLog {
   created_at: string;
 }
 
-const actionLabels: Record<string, { label: string; icon: typeof LogIn; color: string }> = {
-  login: { label: "Connexion", icon: LogIn, color: "bg-green-500/10 text-green-600" },
-  logout: { label: "Déconnexion", icon: LogOut, color: "bg-gray-500/10 text-gray-600" },
-  password_change: { label: "Changement de mot de passe", icon: Key, color: "bg-blue-500/10 text-blue-600" },
-  password_reset_by_admin: { label: "Réinitialisation du mot de passe", icon: Key, color: "bg-orange-500/10 text-orange-600" },
-  user_created: { label: "Création d'utilisateur", icon: UserPlus, color: "bg-purple-500/10 text-purple-600" },
-  role_changed: { label: "Changement de rôle", icon: Shield, color: "bg-yellow-500/10 text-yellow-600" },
-};
-
 const ActivityLogsPage = () => {
+  const { t, language } = useLanguage();
   const { user } = useAuth();
   const { isAdmin, loading: roleLoading } = useUserRole(user?.id);
   const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [actionFilter, setActionFilter] = useState<string>("all");
+
+  const actionLabels: Record<string, { label: string; icon: typeof LogIn; color: string }> = {
+    login: { label: t("Connexion", "تسجيل الدخول"), icon: LogIn, color: "bg-green-500/10 text-green-600" },
+    logout: { label: t("Déconnexion", "تسجيل الخروج"), icon: LogOut, color: "bg-gray-500/10 text-gray-600" },
+    password_change: { label: t("Changement de mot de passe", "تغيير كلمة المرور"), icon: Key, color: "bg-blue-500/10 text-blue-600" },
+    password_reset_by_admin: { label: t("Réinitialisation du mot de passe", "إعادة تعيين كلمة المرور"), icon: Key, color: "bg-orange-500/10 text-orange-600" },
+    user_created: { label: t("Création d'utilisateur", "إنشاء مستخدم"), icon: UserPlus, color: "bg-purple-500/10 text-purple-600" },
+    role_changed: { label: t("Changement de rôle", "تغيير الدور"), icon: Shield, color: "bg-yellow-500/10 text-yellow-600" },
+  };
 
   useEffect(() => {
     fetchLogs();
@@ -99,15 +102,15 @@ const ActivityLogsPage = () => {
   const uniqueActions = [...new Set(logs.map((log) => log.action))];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Header />
-      <div className="flex w-full">
+      <div className="flex flex-1 w-full">
         <Sidebar />
-        <main className="flex-1 p-6 min-w-0">
+        <main className="flex-1 p-6 min-w-0 flex flex-col">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-foreground">Journal d'activités</h1>
+            <h1 className="text-2xl font-bold text-foreground">{t("Journal d'activités", "سجل النشاط")}</h1>
             <p className="text-muted-foreground">
-              {isAdmin ? "Afficher toutes les activités des utilisateurs dans le système" : "Afficher vos activités dans le système"}
+              {isAdmin ? t("Afficher toutes les activités des utilisateurs dans le système", "عرض جميع أنشطة المستخدمين في النظام") : t("Afficher vos activités dans le système", "عرض أنشطتك في النظام")}
             </p>
           </div>
 
@@ -116,22 +119,22 @@ const ActivityLogsPage = () => {
             <CardContent className="p-4">
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="relative flex-1">
-                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Search className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    placeholder="Rechercher par e-mail ou activité..."
+                    placeholder={t("Rechercher par e-mail ou activité...", "البحث بالبريد الإلكتروني أو النشاط...")}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pr-10"
+                    className="pe-10"
                   />
                 </div>
                 <div className="w-full md:w-48">
                   <Select value={actionFilter} onValueChange={setActionFilter}>
                     <SelectTrigger>
-                      <Filter className="w-4 h-4 ml-2" />
-                      <SelectValue placeholder="Type d'activité" />
+                      <Filter className="w-4 h-4 me-2" />
+                      <SelectValue placeholder={t("Type d'activité", "نوع النشاط")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Toutes les activités</SelectItem>
+                      <SelectItem value="all">{t("Toutes les activités", "جميع الأنشطة")}</SelectItem>
                       {uniqueActions.map((action) => (
                         <SelectItem key={action} value={action}>
                           {getActionInfo(action).label}
@@ -145,11 +148,11 @@ const ActivityLogsPage = () => {
           </Card>
 
           {/* Tableau des journaux */}
-          <Card>
+          <Card className="flex-1">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Activity className="w-5 h-5" />
-                Activités récentes
+                {t("Activités récentes", "الأنشطة الأخيرة")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -162,16 +165,16 @@ const ActivityLogsPage = () => {
               ) : filteredLogs.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <Activity className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>Aucune activité enregistrée</p>
+                  <p>{t("Aucune activité enregistrée", "لا توجد أنشطة مسجلة")}</p>
                 </div>
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="text-right">Activité</TableHead>
-                      {isAdmin && <TableHead className="text-right">Utilisateur</TableHead>}
-                      <TableHead className="text-right">Date et heure</TableHead>
-                      <TableHead className="text-right">Adresse IP</TableHead>
+                      <TableHead>{t("Activité", "النشاط")}</TableHead>
+                      {isAdmin && <TableHead>{t("Utilisateur", "المستخدم")}</TableHead>}
+                      <TableHead>{t("Date et heure", "التاريخ والوقت")}</TableHead>
+                      <TableHead>{t("Adresse IP", "عنوان IP")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -182,7 +185,7 @@ const ActivityLogsPage = () => {
                         <TableRow key={log.id}>
                           <TableCell>
                             <Badge variant="secondary" className={actionInfo.color}>
-                              <ActionIcon className="w-3 h-3 ml-1" />
+                              <ActionIcon className="w-3 h-3 me-1" />
                               {actionInfo.label}
                             </Badge>
                           </TableCell>
@@ -190,9 +193,9 @@ const ActivityLogsPage = () => {
                             <TableCell>{log.user_email || "-"}</TableCell>
                           )}
                           <TableCell>
-                            {format(new Date(log.created_at), "dd MMM yyyy - HH:mm", { locale: fr })}
+                            {format(new Date(log.created_at), "dd MMM yyyy - HH:mm", { locale: language === "ar" ? ar : fr })}
                           </TableCell>
-                          <TableCell dir="ltr" className="text-right font-mono text-sm">
+                          <TableCell dir="ltr" className="font-mono text-sm">
                             {log.ip_address || "-"}
                           </TableCell>
                         </TableRow>
@@ -203,6 +206,8 @@ const ActivityLogsPage = () => {
               )}
             </CardContent>
           </Card>
+          
+          <Footer />
         </main>
       </div>
     </div>

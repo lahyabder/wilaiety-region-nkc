@@ -98,6 +98,7 @@ const licenseStatusLabels: Record<string, string> = {
 };
 
 const FacilityDetails = () => {
+  const { t } = useLanguage();
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: facility, isLoading, error } = useFacility(id || "");
@@ -187,9 +188,9 @@ const FacilityDetails = () => {
           <main className="flex-1 p-6 min-w-0">
             <div className="card-institutional text-center py-12">
               <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">Établissement non trouvé</h3>
-              <p className="text-muted-foreground mb-4">L'établissement demandé n'existe pas ou a été supprimé</p>
-              <Button onClick={() => navigate("/")}>Retour à l'accueil</Button>
+              <h3 className="text-lg font-semibold text-foreground mb-2">{t("Établissement non trouvé", "لم يتم العثور على المنشأة")}</h3>
+              <p className="text-muted-foreground mb-4">{t("L'établissement demandé n'existe pas ou a été supprimé", "المنشأة المطلوبة غير موجودة أو تم حذفها")}</p>
+              <Button onClick={() => navigate("/")}>{t("Retour à l'accueil", "العودة للرئيسية")}</Button>
             </div>
           </main>
         </div>
@@ -210,11 +211,11 @@ const FacilityDetails = () => {
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
             <button onClick={() => navigate("/")} className="hover:text-primary transition-colors">
-              Tableau de bord
+              {t("Tableau de bord", "لوحة التحكم")}
             </button>
             <ArrowRight className="w-4 h-4" />
             <button onClick={() => navigate("/")} className="hover:text-primary transition-colors">
-              Établissements
+              {t("Établissements", "المنشآت")}
             </button>
             <ArrowRight className="w-4 h-4" />
             <span className="text-foreground">{facility.name}</span>
@@ -244,17 +245,17 @@ const FacilityDetails = () => {
                 <>
                   <Button variant="outline" onClick={handleCancel} className="gap-2" disabled={updateFacility.isPending}>
                     <X className="w-4 h-4" />
-                    Annuler
+                    {t("Annuler", "إلغاء")}
                   </Button>
                   <Button onClick={handleSave} className="gap-2" disabled={updateFacility.isPending}>
                     <Save className="w-4 h-4" />
-                    {updateFacility.isPending ? "Enregistrement..." : "Enregistrer"}
+                    {updateFacility.isPending ? t("Enregistrement...", "جاري الحفظ...") : t("Enregistrer", "حفظ")}
                   </Button>
                 </>
               ) : (
                 <Button onClick={() => setIsEditing(true)} className="gap-2">
                   <Edit3 className="w-4 h-4" />
-                  Modifier
+                  {t("Modifier", "تعديل")}
                 </Button>
               )}
             </div>
@@ -265,19 +266,19 @@ const FacilityDetails = () => {
             <TabsList className="bg-muted p-1 rounded-lg">
               <TabsTrigger value="basic" className="gap-2 data-[state=active]:bg-card">
                 <FileText className="w-4 h-4" />
-                Informations de base
+                {t("Informations de base", "المعلومات الأساسية")}
               </TabsTrigger>
               <TabsTrigger value="location" className="gap-2 data-[state=active]:bg-card">
                 <MapPin className="w-4 h-4" />
-                Localisation
+                {t("Localisation", "الموقع")}
               </TabsTrigger>
               <TabsTrigger value="legal" className="gap-2 data-[state=active]:bg-card">
                 <Calendar className="w-4 h-4" />
-                Statut juridique
+                {t("Statut juridique", "الوضع القانوني")}
               </TabsTrigger>
               <TabsTrigger value="history" className="gap-2 data-[state=active]:bg-card">
                 <History className="w-4 h-4" />
-                Historique
+                {t("Historique", "السجل")}
               </TabsTrigger>
             </TabsList>
 
@@ -286,11 +287,11 @@ const FacilityDetails = () => {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Main Info Card */}
                 <div className="card-institutional space-y-5">
-                  <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3">Informations de l'établissement</h2>
+                  <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3">{t("Informations de l'établissement", "معلومات المنشأة")}</h2>
                   
                   <div className="space-y-4">
                     <div>
-                      <Label className="text-muted-foreground text-sm">Nom de l'établissement</Label>
+                      <Label className="text-muted-foreground text-sm">{t("Nom de l'établissement", "اسم المنشأة")}</Label>
                       {isEditing ? (
                         <Input 
                           value={editedFacility.name || ""}
@@ -304,7 +305,7 @@ const FacilityDetails = () => {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label className="text-muted-foreground text-sm">Abréviation</Label>
+                        <Label className="text-muted-foreground text-sm">{t("Abréviation", "الاختصار")}</Label>
                         {isEditing ? (
                           <Input 
                             value={editedFacility.short_name || ""}
@@ -316,7 +317,7 @@ const FacilityDetails = () => {
                         )}
                       </div>
                       <div>
-                        <Label className="text-muted-foreground text-sm">Date de création</Label>
+                        <Label className="text-muted-foreground text-sm">{t("Date de création", "تاريخ الإنشاء")}</Label>
                         {isEditing ? (
                           <Input 
                             type="date"
@@ -331,7 +332,7 @@ const FacilityDetails = () => {
                     </div>
 
                     <div>
-                      <Label className="text-muted-foreground text-sm">Nom légal</Label>
+                      <Label className="text-muted-foreground text-sm">{t("Nom légal", "الاسم القانوني")}</Label>
                       {isEditing ? (
                         <Input 
                           value={editedFacility.legal_name || ""}
@@ -344,7 +345,7 @@ const FacilityDetails = () => {
                     </div>
 
                     <div>
-                      <Label className="text-muted-foreground text-sm">Description</Label>
+                      <Label className="text-muted-foreground text-sm">{t("Description", "الوصف")}</Label>
                       {isEditing ? (
                         <Textarea 
                           value={editedFacility.description || ""}
@@ -352,12 +353,12 @@ const FacilityDetails = () => {
                           className="mt-1 min-h-[100px]"
                         />
                       ) : (
-                        <p className="text-foreground mt-1 leading-relaxed">{facility.description || "Aucune description"}</p>
+                        <p className="text-foreground mt-1 leading-relaxed">{facility.description || t("Aucune description", "لا يوجد وصف")}</p>
                       )}
                     </div>
 
                     <div>
-                      <Label className="text-muted-foreground text-sm">Site web</Label>
+                      <Label className="text-muted-foreground text-sm">{t("Site web", "الموقع الإلكتروني")}</Label>
                       {isEditing ? (
                         <Input 
                           type="url"
@@ -374,10 +375,10 @@ const FacilityDetails = () => {
                           className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors mt-1"
                         >
                           <ExternalLink className="w-4 h-4" />
-                          <span>Visiter le site</span>
+                          <span>{t("Visiter le site", "زيارة الموقع")}</span>
                         </a>
                       ) : (
-                        <p className="text-muted-foreground mt-1">Aucun lien</p>
+                        <p className="text-muted-foreground mt-1">{t("Aucun lien", "لا يوجد رابط")}</p>
                       )}
                     </div>
                   </div>
@@ -385,11 +386,11 @@ const FacilityDetails = () => {
 
                 {/* Classification Card */}
                 <div className="card-institutional space-y-5">
-                  <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3">Classification et activité</h2>
+                  <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3">{t("Classification et activité", "التصنيف والنشاط")}</h2>
                   
                   <div className="space-y-4">
                     <div>
-                      <Label className="text-muted-foreground text-sm">Secteur</Label>
+                      <Label className="text-muted-foreground text-sm">{t("Secteur", "القطاع")}</Label>
                       {isEditing ? (
                         <Select 
                           value={editedFacility.sector}
@@ -410,7 +411,7 @@ const FacilityDetails = () => {
                     </div>
 
                     <div>
-                      <Label className="text-muted-foreground text-sm">Type d'activité</Label>
+                      <Label className="text-muted-foreground text-sm">{t("Type d'activité", "نوع النشاط")}</Label>
                       {isEditing ? (
                         <Input 
                           value={editedFacility.activity_type || ""}
@@ -423,7 +424,7 @@ const FacilityDetails = () => {
                     </div>
 
                     <div>
-                      <Label className="text-muted-foreground text-sm">Type d'établissement</Label>
+                      <Label className="text-muted-foreground text-sm">{t("Type d'établissement", "نوع المنشأة")}</Label>
                       {isEditing ? (
                         <Input 
                           value={editedFacility.facility_type || ""}

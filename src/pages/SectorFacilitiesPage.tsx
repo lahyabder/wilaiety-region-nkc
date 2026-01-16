@@ -32,34 +32,34 @@ const SectorFacilitiesPage = () => {
         <Sidebar />
         
         <main className="flex-1 p-6">
-          {/* Breadcrumb */}
+          {/* Fil d'Ariane */}
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
             <button onClick={() => navigate("/")} className="hover:text-primary transition-colors">
-              لوحة التحكم
+              Tableau de bord
             </button>
             <ArrowRight className="w-4 h-4 rotate-180" />
-            <span className="text-foreground">قطاع {decodedSector}</span>
+            <span className="text-foreground">Secteur {decodedSector}</span>
           </div>
 
-          {/* Header */}
+          {/* En-tête */}
           <div className="flex items-start justify-between mb-6">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center">
                 <Building2 className="w-7 h-7 text-primary" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">منشآت قطاع {decodedSector}</h1>
-                <p className="text-muted-foreground">{filteredFacilities.length} منشأة في هذا القطاع</p>
+                <h1 className="text-2xl font-bold text-foreground">Établissements du secteur {decodedSector}</h1>
+                <p className="text-muted-foreground">{filteredFacilities.length} établissement(s) dans ce secteur</p>
               </div>
             </div>
             
             <Button className="gap-2" onClick={() => navigate("/add-facility")}>
               <Plus className="w-4 h-4" />
-              إضافة منشأة
+              Ajouter un établissement
             </Button>
           </div>
 
-          {/* Facilities Grid */}
+          {/* Grille des établissements */}
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {[...Array(6)].map((_, i) => (
@@ -73,7 +73,7 @@ const SectorFacilitiesPage = () => {
                   key={facility.id}
                   id={facility.id}
                   name={facility.name}
-                  sector={`القطاع ${facility.sector}`}
+                  sector={`Secteur ${facility.sector}`}
                   location={facility.region}
                   status={getStatusForCard(facility.status)}
                 />
@@ -82,11 +82,11 @@ const SectorFacilitiesPage = () => {
           ) : (
             <div className="card-institutional text-center py-12">
               <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">لا توجد منشآت في هذا القطاع</h3>
-              <p className="text-muted-foreground mb-4">ابدأ بإضافة منشأة جديدة</p>
+              <h3 className="text-lg font-semibold text-foreground mb-2">Aucun établissement dans ce secteur</h3>
+              <p className="text-muted-foreground mb-4">Commencez par ajouter un nouvel établissement</p>
               <Button onClick={() => navigate("/add-facility")}>
                 <Plus className="w-4 h-4 ml-2" />
-                إضافة منشأة
+                Ajouter un établissement
               </Button>
             </div>
           )}

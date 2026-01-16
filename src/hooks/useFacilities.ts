@@ -31,6 +31,7 @@ export interface Facility {
   legal_domain: LegalDomain;
   status: FacilityStatus;
   image_url: string | null;
+  website_url: string | null;
   created_at: string;
   updated_at: string;
 }

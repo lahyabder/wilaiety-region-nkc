@@ -24,7 +24,8 @@ import {
   X,
   History,
   AlertTriangle,
-  CheckCircle
+  CheckCircle,
+  ExternalLink
 } from "lucide-react";
 
 const sectors: FacilitySector[] = [
@@ -76,6 +77,7 @@ const FacilityDetails = () => {
       legal_domain: editedFacility.legal_domain,
       status: editedFacility.status,
       image_url: editedFacility.image_url,
+      website_url: editedFacility.website_url,
     });
     setIsEditing(false);
   };
@@ -293,6 +295,32 @@ const FacilityDetails = () => {
                         />
                       ) : (
                         <p className="text-foreground mt-1 leading-relaxed">{facility.description || "لا يوجد وصف"}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <Label className="text-muted-foreground text-sm">رابط الموقع</Label>
+                      {isEditing ? (
+                        <Input 
+                          type="url"
+                          value={editedFacility.website_url || ""}
+                          onChange={(e) => setEditedFacility({...editedFacility, website_url: e.target.value})}
+                          className="mt-1"
+                          placeholder="https://example.com"
+                          dir="ltr"
+                        />
+                      ) : facility.website_url ? (
+                        <a 
+                          href={facility.website_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors mt-1"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          <span>زيارة الموقع</span>
+                        </a>
+                      ) : (
+                        <p className="text-muted-foreground mt-1">لا يوجد رابط</p>
                       )}
                     </div>
                   </div>

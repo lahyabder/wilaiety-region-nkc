@@ -23,7 +23,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useUserRole } from "@/hooks/useAuth";
 import { format } from "date-fns";
-import { ar } from "date-fns/locale";
+import { fr } from "date-fns/locale";
 import { Activity, Search, Filter, LogIn, LogOut, Key, UserPlus, Shield } from "lucide-react";
 
 interface ActivityLog {
@@ -37,12 +37,12 @@ interface ActivityLog {
 }
 
 const actionLabels: Record<string, { label: string; icon: typeof LogIn; color: string }> = {
-  login: { label: "تسجيل دخول", icon: LogIn, color: "bg-green-500/10 text-green-600" },
-  logout: { label: "تسجيل خروج", icon: LogOut, color: "bg-gray-500/10 text-gray-600" },
-  password_change: { label: "تغيير كلمة المرور", icon: Key, color: "bg-blue-500/10 text-blue-600" },
-  password_reset_by_admin: { label: "إعادة تعيين كلمة المرور", icon: Key, color: "bg-orange-500/10 text-orange-600" },
-  user_created: { label: "إنشاء مستخدم", icon: UserPlus, color: "bg-purple-500/10 text-purple-600" },
-  role_changed: { label: "تغيير الصلاحيات", icon: Shield, color: "bg-yellow-500/10 text-yellow-600" },
+  login: { label: "Connexion", icon: LogIn, color: "bg-green-500/10 text-green-600" },
+  logout: { label: "Déconnexion", icon: LogOut, color: "bg-gray-500/10 text-gray-600" },
+  password_change: { label: "Changement de mot de passe", icon: Key, color: "bg-blue-500/10 text-blue-600" },
+  password_reset_by_admin: { label: "Réinitialisation du mot de passe", icon: Key, color: "bg-orange-500/10 text-orange-600" },
+  user_created: { label: "Création d'utilisateur", icon: UserPlus, color: "bg-purple-500/10 text-purple-600" },
+  role_changed: { label: "Changement de rôle", icon: Shield, color: "bg-yellow-500/10 text-yellow-600" },
 };
 
 const ActivityLogsPage = () => {
@@ -105,20 +105,20 @@ const ActivityLogsPage = () => {
         <Sidebar />
         <main className="flex-1 p-6">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-foreground">سجل النشاطات</h1>
+            <h1 className="text-2xl font-bold text-foreground">Journal d'activités</h1>
             <p className="text-muted-foreground">
-              {isAdmin ? "عرض جميع نشاطات المستخدمين في النظام" : "عرض نشاطاتك في النظام"}
+              {isAdmin ? "Afficher toutes les activités des utilisateurs dans le système" : "Afficher vos activités dans le système"}
             </p>
           </div>
 
-          {/* Filters */}
+          {/* Filtres */}
           <Card className="mb-6">
             <CardContent className="p-4">
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="relative flex-1">
                   <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    placeholder="بحث بالبريد الإلكتروني أو النشاط..."
+                    placeholder="Rechercher par e-mail ou activité..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pr-10"
@@ -128,10 +128,10 @@ const ActivityLogsPage = () => {
                   <Select value={actionFilter} onValueChange={setActionFilter}>
                     <SelectTrigger>
                       <Filter className="w-4 h-4 ml-2" />
-                      <SelectValue placeholder="نوع النشاط" />
+                      <SelectValue placeholder="Type d'activité" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">جميع النشاطات</SelectItem>
+                      <SelectItem value="all">Toutes les activités</SelectItem>
                       {uniqueActions.map((action) => (
                         <SelectItem key={action} value={action}>
                           {getActionInfo(action).label}
@@ -144,12 +144,12 @@ const ActivityLogsPage = () => {
             </CardContent>
           </Card>
 
-          {/* Logs Table */}
+          {/* Tableau des journaux */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Activity className="w-5 h-5" />
-                النشاطات الأخيرة
+                Activités récentes
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -162,16 +162,16 @@ const ActivityLogsPage = () => {
               ) : filteredLogs.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <Activity className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>لا توجد نشاطات مسجلة</p>
+                  <p>Aucune activité enregistrée</p>
                 </div>
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="text-right">النشاط</TableHead>
-                      {isAdmin && <TableHead className="text-right">المستخدم</TableHead>}
-                      <TableHead className="text-right">التاريخ والوقت</TableHead>
-                      <TableHead className="text-right">عنوان IP</TableHead>
+                      <TableHead className="text-right">Activité</TableHead>
+                      {isAdmin && <TableHead className="text-right">Utilisateur</TableHead>}
+                      <TableHead className="text-right">Date et heure</TableHead>
+                      <TableHead className="text-right">Adresse IP</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -190,7 +190,7 @@ const ActivityLogsPage = () => {
                             <TableCell>{log.user_email || "-"}</TableCell>
                           )}
                           <TableCell>
-                            {format(new Date(log.created_at), "dd MMM yyyy - HH:mm", { locale: ar })}
+                            {format(new Date(log.created_at), "dd MMM yyyy - HH:mm", { locale: fr })}
                           </TableCell>
                           <TableCell dir="ltr" className="text-right font-mono text-sm">
                             {log.ip_address || "-"}

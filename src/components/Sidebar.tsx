@@ -9,19 +9,28 @@ import {
   BarChart3
 } from "lucide-react";
 import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "لوحة التحكم", active: true },
-  { icon: Building2, label: "المنشآت" },
-  { icon: MapPin, label: "الخريطة" },
-  { icon: FileText, label: "التراخيص" },
-  { icon: BarChart3, label: "التقارير" },
-  { icon: Users, label: "المستخدمون" },
-  { icon: Settings, label: "الإعدادات" },
+  { icon: LayoutDashboard, label: "لوحة التحكم", path: "/" },
+  { icon: Building2, label: "المنشآت", path: "/" },
+  { icon: MapPin, label: "الخريطة", path: "/map" },
+  { icon: FileText, label: "التراخيص", path: "/" },
+  { icon: BarChart3, label: "التقارير", path: "/" },
+  { icon: Users, label: "المستخدمون", path: "/" },
+  { icon: Settings, label: "الإعدادات", path: "/" },
 ];
 
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isActive = (path: string, label: string) => {
+    if (label === "لوحة التحكم" && location.pathname === "/") return true;
+    if (label === "الخريطة" && location.pathname === "/map") return true;
+    return false;
+  };
 
   return (
     <aside className={`bg-card border-l border-border h-[calc(100vh-4rem)] sticky top-16 transition-all duration-300 ${collapsed ? "w-16" : "w-64"}`}>
@@ -37,8 +46,9 @@ const Sidebar = () => {
           {menuItems.map((item, index) => (
             <button
               key={index}
+              onClick={() => navigate(item.path)}
               className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-colors ${
-                item.active 
+                isActive(item.path, item.label)
                   ? "bg-primary text-primary-foreground" 
                   : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
               }`}

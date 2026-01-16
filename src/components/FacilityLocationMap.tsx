@@ -1,5 +1,5 @@
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import { Icon } from "leaflet";
+import { useEffect, useRef } from "react";
+import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 interface FacilityLocationMapProps {
@@ -9,6 +9,9 @@ interface FacilityLocationMapProps {
 }
 
 const FacilityLocationMap = ({ coordinates, facilityName, address }: FacilityLocationMapProps) => {
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<L.Map | null>(null);
+
   // Parse coordinates from string format "lat,lng" or "lat, lng"
   const parseCoordinates = (coords: string | null): [number, number] | null => {
     if (!coords) return null;
@@ -26,14 +29,43 @@ const FacilityLocationMap = ({ coordinates, facilityName, address }: FacilityLoc
 
   const position = parseCoordinates(coordinates);
 
-  const customIcon = new Icon({
-    iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
-  });
+  useEffect(() => {
+    if (!mapRef.current || !position) return;
+
+    // Clean up existing map
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.remove();
+    }
+
+    // Create new map
+    const map = L.map(mapRef.current).setView(position, 15);
+    mapInstanceRef.current = map;
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
+
+    // Fix default marker icon
+    const icon = L.icon({
+      iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+      shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41],
+    });
+
+    L.marker(position, { icon })
+      .addTo(map)
+      .bindPopup(`<div class="text-center"><strong>${facilityName}</strong><br/><span class="text-sm">${address}</span></div>`);
+
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, [position, facilityName, address]);
 
   if (!position) {
     return (
@@ -55,28 +87,11 @@ const FacilityLocationMap = ({ coordinates, facilityName, address }: FacilityLoc
 
   return (
     <div className="space-y-3">
-      <div className="aspect-video rounded-lg overflow-hidden border border-border">
-        <MapContainer
-          center={position}
-          zoom={15}
-          style={{ height: "100%", width: "100%" }}
-          scrollWheelZoom={false}
-        >
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <Marker position={position} icon={customIcon}>
-            <Popup>
-              <div className="text-center">
-                <strong>{facilityName}</strong>
-                <br />
-                <span className="text-sm">{address}</span>
-              </div>
-            </Popup>
-          </Marker>
-        </MapContainer>
-      </div>
+      <div 
+        ref={mapRef} 
+        className="aspect-video rounded-lg overflow-hidden border border-border"
+        style={{ minHeight: "300px" }}
+      />
       <a 
         href={googleMapsUrl} 
         target="_blank" 

@@ -1,16 +1,19 @@
 import { useParams, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
+import Footer from "@/components/Footer";
 import FacilityCard from "@/components/FacilityCard";
 import { useFacilities, type FacilitySector } from "@/hooks/useFacilities";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Building2, Plus } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const SectorFacilitiesPage = () => {
   const { sector } = useParams<{ sector: string }>();
   const navigate = useNavigate();
   const { data: facilities, isLoading } = useFacilities();
+  const { t } = useLanguage();
 
   const decodedSector = sector ? decodeURIComponent(sector) : "";
   
@@ -35,10 +38,10 @@ const SectorFacilitiesPage = () => {
           {/* Fil d'Ariane */}
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
             <button onClick={() => navigate("/")} className="hover:text-primary transition-colors">
-              Tableau de bord
+              {t("Tableau de bord", "لوحة التحكم")}
             </button>
             <ArrowRight className="w-4 h-4 rotate-180" />
-            <span className="text-foreground">Secteur {decodedSector}</span>
+            <span className="text-foreground">{t("Secteur", "قطاع")} {decodedSector}</span>
           </div>
 
           {/* En-tête */}
@@ -48,14 +51,18 @@ const SectorFacilitiesPage = () => {
                 <Building2 className="w-7 h-7 text-primary" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Établissements du secteur {decodedSector}</h1>
-                <p className="text-muted-foreground">{filteredFacilities.length} établissement(s) dans ce secteur</p>
+                <h1 className="text-2xl font-bold text-foreground">
+                  {t("Établissements du secteur", "منشآت قطاع")} {decodedSector}
+                </h1>
+                <p className="text-muted-foreground">
+                  {filteredFacilities.length} {t("établissement(s) dans ce secteur", "منشأة في هذا القطاع")}
+                </p>
               </div>
             </div>
             
             <Button className="gap-2" onClick={() => navigate("/add-facility")}>
               <Plus className="w-4 h-4" />
-              Ajouter un établissement
+              {t("Ajouter un établissement", "إضافة منشأة")}
             </Button>
           </div>
 
@@ -73,7 +80,7 @@ const SectorFacilitiesPage = () => {
                   key={facility.id}
                   id={facility.id}
                   name={facility.name}
-                  sector={`Secteur ${facility.sector}`}
+                  sector={`${t("Secteur", "قطاع")} ${facility.sector}`}
                   location={facility.region}
                   status={getStatusForCard(facility.status)}
                 />
@@ -82,14 +89,20 @@ const SectorFacilitiesPage = () => {
           ) : (
             <div className="card-institutional text-center py-12">
               <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">Aucun établissement dans ce secteur</h3>
-              <p className="text-muted-foreground mb-4">Commencez par ajouter un nouvel établissement</p>
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                {t("Aucun établissement dans ce secteur", "لا توجد منشآت في هذا القطاع")}
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                {t("Commencez par ajouter un nouvel établissement", "ابدأ بإضافة منشأة جديدة")}
+              </p>
               <Button onClick={() => navigate("/add-facility")}>
                 <Plus className="w-4 h-4 ml-2" />
-                Ajouter un établissement
+                {t("Ajouter un établissement", "إضافة منشأة")}
               </Button>
             </div>
           )}
+          
+          <Footer />
         </main>
       </div>
     </div>

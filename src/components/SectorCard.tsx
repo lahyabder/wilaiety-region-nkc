@@ -1,4 +1,5 @@
 import { LucideIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface SectorCardProps {
   name: string;
@@ -8,10 +9,21 @@ interface SectorCardProps {
 }
 
 const SectorCard = ({ name, icon: Icon, count, onClick }: SectorCardProps) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    } else {
+      // Navigate to sector facilities page
+      navigate(`/sector/${encodeURIComponent(name)}`);
+    }
+  };
+
   return (
     <button
-      onClick={onClick}
-      className="card-institutional hover:border-primary hover:shadow-md transition-all duration-200 text-right w-full group"
+      onClick={handleClick}
+      className="card-institutional hover:border-primary hover:shadow-md transition-all duration-200 text-right w-full group cursor-pointer"
     >
       <div className="flex items-center gap-4">
         <div className="p-3 rounded-lg bg-accent group-hover:bg-primary/10 transition-colors">

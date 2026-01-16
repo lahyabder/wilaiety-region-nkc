@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
+import Footer from "@/components/Footer";
 import StatsCard from "@/components/StatsCard";
 import SectorCard from "@/components/SectorCard";
 import FacilityCard from "@/components/FacilityCard";
@@ -218,12 +219,7 @@ const Index = () => {
             )}
           </div>
 
-          {/* Footer */}
-          <footer className="mt-12 pt-6 border-t border-border text-center">
-            <p className="text-muted-foreground text-sm">
-              © {new Date().getFullYear()} Jihety - {t("Plateforme souveraine de gestion des données institutionnelles", "منصة سيادية لإدارة البيانات المؤسسية")}
-            </p>
-          </footer>
+          <Footer />
         </main>
       </div>
     </div>

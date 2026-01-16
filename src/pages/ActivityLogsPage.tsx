@@ -99,7 +99,7 @@ const ActivityLogsPage = () => {
   const uniqueActions = [...new Set(logs.map((log) => log.action))];
 
   return (
-    <div className="min-h-screen bg-background" dir="rtl">
+    <div className="min-h-screen bg-background">
       <Header />
       <div className="flex">
         <Sidebar />

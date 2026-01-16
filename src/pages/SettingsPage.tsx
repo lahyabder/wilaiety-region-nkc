@@ -249,7 +249,7 @@ const SettingsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background" dir="rtl">
+    <div className="min-h-screen bg-background">
       <Header />
       <div className="flex">
         <Sidebar />

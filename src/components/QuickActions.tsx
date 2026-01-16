@@ -9,19 +9,19 @@ const QuickActions = () => {
     <div className="flex flex-wrap gap-3">
       <Button className="gap-2" onClick={() => navigate("/add-facility")}>
         <Plus className="w-4 h-4" />
-        إضافة منشأة
+        Ajouter un établissement
       </Button>
       <Button variant="outline" className="gap-2">
         <FileUp className="w-4 h-4" />
-        استيراد بيانات
+        Importer des données
       </Button>
       <Button variant="outline" className="gap-2">
         <Download className="w-4 h-4" />
-        تصدير تقرير
+        Exporter un rapport
       </Button>
       <Button variant="outline" className="gap-2">
         <RefreshCw className="w-4 h-4" />
-        تحديث البيانات
+        Actualiser les données
       </Button>
     </div>
   );

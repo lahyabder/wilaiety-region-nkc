@@ -13,10 +13,10 @@ interface StatsCardProps {
 
 const StatsCard = ({ title, value, icon: Icon, trend, variant = "default" }: StatsCardProps) => {
   const variantStyles = {
-    default: "border-r-primary",
-    success: "border-r-success",
-    warning: "border-r-warning",
-    critical: "border-r-critical",
+    default: "border-l-primary",
+    success: "border-l-success",
+    warning: "border-l-warning",
+    critical: "border-l-critical",
   };
 
   const iconStyles = {
@@ -27,14 +27,14 @@ const StatsCard = ({ title, value, icon: Icon, trend, variant = "default" }: Sta
   };
 
   return (
-    <div className={`card-institutional border-r-4 ${variantStyles[variant]} animate-fade-in`}>
+    <div className={`card-institutional border-l-4 ${variantStyles[variant]} animate-fade-in`}>
       <div className="flex items-start justify-between">
         <div>
           <p className="text-muted-foreground text-sm mb-1">{title}</p>
           <p className="text-3xl font-bold text-foreground">{value}</p>
           {trend && (
             <p className={`text-sm mt-2 ${trend.isPositive ? "text-success" : "text-critical"}`}>
-              {trend.isPositive ? "+" : ""}{trend.value}% من الشهر السابق
+              {trend.isPositive ? "+" : ""}{trend.value}% par rapport au mois précédent
             </p>
           )}
         </div>

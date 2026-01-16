@@ -21,9 +21,9 @@ const Header = () => {
   const handleSignOut = async () => {
     const { error } = await signOut();
     if (error) {
-      toast.error("فشل تسجيل الخروج");
+      toast.error("Échec de la déconnexion");
     } else {
-      toast.success("تم تسجيل الخروج بنجاح");
+      toast.success("Déconnexion réussie");
       navigate("/login");
     }
   };
@@ -36,11 +36,11 @@ const Header = () => {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-primary-foreground/20 rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-xl">ج</span>
+                <span className="text-primary-foreground font-bold text-xl">J</span>
               </div>
               <div>
-                <h1 className="text-primary-foreground font-bold text-xl">جهتي</h1>
-                <p className="text-primary-foreground/80 text-xs">Jihety</p>
+                <h1 className="text-primary-foreground font-bold text-xl">Jihety</h1>
+                <p className="text-primary-foreground/80 text-xs">Gestion des établissements</p>
               </div>
             </div>
           </div>
@@ -48,11 +48,11 @@ const Header = () => {
           {/* Search */}
           <div className="hidden md:flex flex-1 max-w-md mx-8">
             <div className="relative w-full">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary-foreground/60" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary-foreground/60" />
               <input
                 type="text"
-                placeholder="البحث في المنشآت..."
-                className="w-full bg-primary-foreground/10 border-0 rounded-lg py-2 pr-10 pl-4 text-primary-foreground placeholder:text-primary-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary-foreground/30 text-sm"
+                placeholder="Rechercher des établissements..."
+                className="w-full bg-primary-foreground/10 border-0 rounded-lg py-2 pl-10 pr-4 text-primary-foreground placeholder:text-primary-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary-foreground/30 text-sm"
               />
             </div>
           </div>
@@ -70,18 +70,18 @@ const Header = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel className="text-right">
+                <DropdownMenuLabel>
                   <div className="flex flex-col gap-1">
                     <span className="font-medium">{profile?.full_name || user?.email}</span>
                     <span className="text-xs text-muted-foreground">
-                      {role === "admin" ? "مدير النظام" : "مستخدم"}
+                      {role === "admin" ? "Administrateur" : "Utilisateur"}
                     </span>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut} className="text-destructive cursor-pointer">
-                  <LogOut className="w-4 h-4 ml-2" />
-                  تسجيل الخروج
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Déconnexion
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

@@ -57,6 +57,7 @@ export type Database = {
           facility_type: string
           gps_coordinates: string | null
           id: string
+          image_url: string | null
           jurisdiction_type: Database["public"]["Enums"]["jurisdiction_type"]
           legal_domain: Database["public"]["Enums"]["legal_domain"]
           legal_name: string
@@ -78,6 +79,7 @@ export type Database = {
           facility_type: string
           gps_coordinates?: string | null
           id?: string
+          image_url?: string | null
           jurisdiction_type: Database["public"]["Enums"]["jurisdiction_type"]
           legal_domain: Database["public"]["Enums"]["legal_domain"]
           legal_name: string
@@ -99,6 +101,7 @@ export type Database = {
           facility_type?: string
           gps_coordinates?: string | null
           id?: string
+          image_url?: string | null
           jurisdiction_type?: Database["public"]["Enums"]["jurisdiction_type"]
           legal_domain?: Database["public"]["Enums"]["legal_domain"]
           legal_name?: string

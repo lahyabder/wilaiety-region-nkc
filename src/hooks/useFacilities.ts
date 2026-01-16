@@ -30,6 +30,7 @@ export interface Facility {
   ownership: OwnershipType;
   legal_domain: LegalDomain;
   status: FacilityStatus;
+  image_url: string | null;
   created_at: string;
   updated_at: string;
 }

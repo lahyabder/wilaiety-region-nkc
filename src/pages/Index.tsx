@@ -104,24 +104,24 @@ const Index = () => {
               <>
                 <StatsCard
                   title="إجمالي المنشآت"
-                  value={(stats?.total || 0).toLocaleString("ar-SA")}
+                  value={(stats?.total || 0).toLocaleString("en-US")}
                   icon={Building2}
                 />
                 <StatsCard
                   title="منشآت نشطة"
-                  value={(stats?.active || 0).toLocaleString("ar-SA")}
+                  value={(stats?.active || 0).toLocaleString("en-US")}
                   icon={CheckCircle}
                   variant="success"
                 />
                 <StatsCard
                   title="قيد المراجعة"
-                  value={(stats?.pending || 0).toLocaleString("ar-SA")}
+                  value={(stats?.pending || 0).toLocaleString("en-US")}
                   icon={AlertTriangle}
                   variant="warning"
                 />
                 <StatsCard
                   title="غير نشطة"
-                  value={(stats?.inactive || 0).toLocaleString("ar-SA")}
+                  value={(stats?.inactive || 0).toLocaleString("en-US")}
                   icon={XCircle}
                   variant="critical"
                 />

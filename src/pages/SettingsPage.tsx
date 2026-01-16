@@ -251,9 +251,9 @@ const SettingsPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <div className="flex">
+      <div className="flex w-full">
         <Sidebar />
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-6 min-w-0">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-2xl font-bold mb-6">Paramètres</h1>
 

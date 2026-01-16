@@ -101,9 +101,9 @@ const ActivityLogsPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <div className="flex">
+      <div className="flex w-full">
         <Sidebar />
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-6 min-w-0">
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-foreground">Journal d'activités</h1>
             <p className="text-muted-foreground">

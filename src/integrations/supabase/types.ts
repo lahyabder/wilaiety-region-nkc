@@ -50,69 +50,90 @@ export type Database = {
       facilities: {
         Row: {
           activity_type: string
+          activity_type_fr: string | null
           address: string
+          address_fr: string | null
           created_at: string
           created_date: string
           description: string | null
+          description_fr: string | null
           facility_type: string
+          facility_type_fr: string | null
           gps_coordinates: string | null
           id: string
           image_url: string | null
           jurisdiction_type: Database["public"]["Enums"]["jurisdiction_type"]
           legal_domain: Database["public"]["Enums"]["legal_domain"]
           legal_name: string
+          legal_name_fr: string | null
           location_accuracy: string | null
           name: string
+          name_fr: string | null
           ownership: Database["public"]["Enums"]["ownership_type"]
           region: string
           sector: Database["public"]["Enums"]["facility_sector"]
           short_name: string
+          short_name_fr: string | null
           status: Database["public"]["Enums"]["facility_status"]
           updated_at: string
           website_url: string | null
         }
         Insert: {
           activity_type: string
+          activity_type_fr?: string | null
           address: string
+          address_fr?: string | null
           created_at?: string
           created_date: string
           description?: string | null
+          description_fr?: string | null
           facility_type: string
+          facility_type_fr?: string | null
           gps_coordinates?: string | null
           id?: string
           image_url?: string | null
           jurisdiction_type: Database["public"]["Enums"]["jurisdiction_type"]
           legal_domain: Database["public"]["Enums"]["legal_domain"]
           legal_name: string
+          legal_name_fr?: string | null
           location_accuracy?: string | null
           name: string
+          name_fr?: string | null
           ownership: Database["public"]["Enums"]["ownership_type"]
           region: string
           sector: Database["public"]["Enums"]["facility_sector"]
           short_name: string
+          short_name_fr?: string | null
           status?: Database["public"]["Enums"]["facility_status"]
           updated_at?: string
           website_url?: string | null
         }
         Update: {
           activity_type?: string
+          activity_type_fr?: string | null
           address?: string
+          address_fr?: string | null
           created_at?: string
           created_date?: string
           description?: string | null
+          description_fr?: string | null
           facility_type?: string
+          facility_type_fr?: string | null
           gps_coordinates?: string | null
           id?: string
           image_url?: string | null
           jurisdiction_type?: Database["public"]["Enums"]["jurisdiction_type"]
           legal_domain?: Database["public"]["Enums"]["legal_domain"]
           legal_name?: string
+          legal_name_fr?: string | null
           location_accuracy?: string | null
           name?: string
+          name_fr?: string | null
           ownership?: Database["public"]["Enums"]["ownership_type"]
           region?: string
           sector?: Database["public"]["Enums"]["facility_sector"]
           short_name?: string
+          short_name_fr?: string | null
           status?: Database["public"]["Enums"]["facility_status"]
           updated_at?: string
           website_url?: string | null

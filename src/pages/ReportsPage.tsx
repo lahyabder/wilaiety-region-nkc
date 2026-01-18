@@ -347,92 +347,113 @@ const ReportsPage = () => {
           ) : (
             <>
               {/* Summary Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">{t("Total des établissements", "إجمالي المنشآت")}</p>
-                        <p className="text-3xl font-bold text-foreground">{facilityStats?.total || 0}</p>
-                      </div>
-                      <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                        <Building2 className="w-6 h-6 text-primary" />
-                      </div>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+                <div className="bg-card rounded-xl p-4 sm:p-5 border border-primary border-s-4 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs sm:text-sm text-muted-foreground mb-1 line-clamp-2">
+                        {t("Total des établissements", "إجمالي المنشآت")}
+                      </p>
+                      <p className="text-2xl sm:text-3xl font-bold text-foreground">
+                        {(facilityStats?.total || 0).toLocaleString("fr-FR")}
+                      </p>
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="p-2 sm:p-3 rounded-xl bg-primary/10 text-primary flex-shrink-0">
+                      <Building2 className="w-5 h-5 sm:w-6 sm:h-6" />
+                    </div>
+                  </div>
+                </div>
 
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">{t("Total des licences", "إجمالي التراخيص")}</p>
-                        <p className="text-3xl font-bold text-foreground">{licenseStats?.total || 0}</p>
-                      </div>
-                      <div className="w-12 h-12 bg-chart-2/10 rounded-full flex items-center justify-center">
-                        <FileText className="w-6 h-6 text-chart-2" />
-                      </div>
+                <div className="bg-card rounded-xl p-4 sm:p-5 border border-muted-foreground border-s-4 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs sm:text-sm text-muted-foreground mb-1 line-clamp-2">
+                        {t("Total des licences", "إجمالي التراخيص")}
+                      </p>
+                      <p className="text-2xl sm:text-3xl font-bold text-foreground">
+                        {(licenseStats?.total || 0).toLocaleString("fr-FR")}
+                      </p>
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="p-2 sm:p-3 rounded-xl bg-muted text-muted-foreground flex-shrink-0">
+                      <FileText className="w-5 h-5 sm:w-6 sm:h-6" />
+                    </div>
+                  </div>
+                </div>
 
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">{t("Licences expirent bientôt", "تراخيص قريبة الانتهاء")}</p>
-                        <p className="text-3xl font-bold text-chart-4">{licenseStats?.expiringSoon || 0}</p>
-                      </div>
-                      <div className="w-12 h-12 bg-chart-4/10 rounded-full flex items-center justify-center">
-                        <AlertTriangle className="w-6 h-6 text-chart-4" />
-                      </div>
+                <div className="bg-card rounded-xl p-4 sm:p-5 border border-warning border-s-4 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs sm:text-sm text-muted-foreground mb-1 line-clamp-2">
+                        {t("Licences expirent bientôt", "تراخيص قريبة الانتهاء")}
+                      </p>
+                      <p className="text-2xl sm:text-3xl font-bold text-foreground">
+                        {(licenseStats?.expiringSoon || 0).toLocaleString("fr-FR")}
+                      </p>
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="p-2 sm:p-3 rounded-xl bg-warning/10 text-warning-foreground flex-shrink-0">
+                      <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6" />
+                    </div>
+                  </div>
+                </div>
 
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">{t("Licences expirées", "تراخيص منتهية")}</p>
-                        <p className="text-3xl font-bold text-destructive">{licenseStats?.expired || 0}</p>
-                      </div>
-                      <div className="w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center">
-                        <XCircle className="w-6 h-6 text-destructive" />
-                      </div>
+                <div className="bg-card rounded-xl p-4 sm:p-5 border border-critical border-s-4 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs sm:text-sm text-muted-foreground mb-1 line-clamp-2">
+                        {t("Licences expirées", "تراخيص منتهية")}
+                      </p>
+                      <p className="text-2xl sm:text-3xl font-bold text-foreground">
+                        {(licenseStats?.expired || 0).toLocaleString("fr-FR")}
+                      </p>
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="p-2 sm:p-3 rounded-xl bg-critical/10 text-critical flex-shrink-0">
+                      <XCircle className="w-5 h-5 sm:w-6 sm:h-6" />
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Charts Row 1 */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6">
                 {/* Sector Distribution */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">{t("Répartition par secteur", "التوزيع حسب القطاع")}</CardTitle>
+                <Card className="border-border/50 shadow-sm">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base sm:text-lg font-bold text-center">{t("Répartition par secteur", "التوزيع حسب القطاع")}</CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="pb-4">
                     {sectorData.length > 0 ? (
-                      <ChartContainer config={chartConfig} className="h-[400px]">
+                      <div className="h-72 sm:h-80" style={{ direction: "ltr" }}>
                         <ResponsiveContainer width="100%" height="100%">
-                          <BarChart data={sectorData} layout="vertical" margin={{ left: 20, right: 20 }}>
-                            <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
-                            <XAxis type="number" />
+                          <BarChart data={sectorData} layout="vertical" margin={{ left: 80, right: 30 }}>
+                            <XAxis 
+                              type="number" 
+                              tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                              axisLine={{ stroke: "hsl(var(--border))" }}
+                              tickLine={{ stroke: "hsl(var(--border))" }}
+                            />
                             <YAxis 
                               dataKey="name" 
                               type="category" 
-                              width={80} 
-                              tick={{ fontSize: 12 }}
-                              tickFormatter={(value) => value}
+                              width={75}
+                              tick={{ fontSize: 11, fill: "hsl(var(--foreground))" }}
+                              axisLine={{ stroke: "hsl(var(--border))" }}
+                              tickLine={false}
                             />
-                            <ChartTooltip content={<ChartTooltipContent />} />
-                            <Bar dataKey="value" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
+                            <ChartTooltip 
+                              content={<ChartTooltipContent />} 
+                              cursor={{ fill: "hsl(var(--accent))" }}
+                            />
+                            <Bar 
+                              dataKey="value" 
+                              fill="hsl(var(--primary))" 
+                              radius={[0, 4, 4, 0]}
+                              maxBarSize={24}
+                            />
                           </BarChart>
                         </ResponsiveContainer>
-                      </ChartContainer>
+                      </div>
                     ) : (
-                      <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                      <div className="h-72 flex items-center justify-center text-muted-foreground">
                         {t("Aucune donnée disponible", "لا توجد بيانات متاحة")}
                       </div>
                     )}
@@ -440,23 +461,34 @@ const ReportsPage = () => {
                 </Card>
 
                 {/* Facility Status Pie Chart */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">{t("Statut des établissements", "حالة المنشآت")}</CardTitle>
+                <Card className="border-border/50 shadow-sm">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base sm:text-lg font-bold text-center">{t("Statut des établissements", "حالة المنشآت")}</CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="pb-4">
                     {facilityStatusData.length > 0 ? (
-                      <ChartContainer config={chartConfig} className="h-[300px]">
+                      <div className="h-72 sm:h-80">
                         <ResponsiveContainer width="100%" height="100%">
                           <PieChart>
                             <Pie
                               data={facilityStatusData}
                               cx="50%"
-                              cy="50%"
+                              cy="45%"
                               labelLine={false}
-                              label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                              label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
+                                if (percent < 0.05) return null;
+                                const RADIAN = Math.PI / 180;
+                                const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+                                const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                                const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                                return (
+                                  <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" className="text-xs font-semibold">
+                                    {`${(percent * 100).toFixed(0)}%`}
+                                  </text>
+                                );
+                              }}
                               outerRadius={80}
-                              innerRadius={40}
+                              innerRadius={50}
                               dataKey="value"
                               paddingAngle={2}
                             >
@@ -465,11 +497,18 @@ const ReportsPage = () => {
                               ))}
                             </Pie>
                             <ChartTooltip content={<ChartTooltipContent />} />
+                            <Legend 
+                              verticalAlign="bottom" 
+                              height={36}
+                              iconType="circle"
+                              iconSize={10}
+                              wrapperStyle={{ fontSize: "12px", direction: language === "ar" ? "rtl" : "ltr" }}
+                            />
                           </PieChart>
                         </ResponsiveContainer>
-                      </ChartContainer>
+                      </div>
                     ) : (
-                      <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                      <div className="h-72 flex items-center justify-center text-muted-foreground">
                         {t("Aucune donnée disponible", "لا توجد بيانات متاحة")}
                       </div>
                     )}
@@ -478,25 +517,36 @@ const ReportsPage = () => {
               </div>
 
               {/* Charts Row 2 */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6">
                 {/* License Status Pie Chart */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">{t("Statut des licences", "حالة التراخيص")}</CardTitle>
+                <Card className="border-border/50 shadow-sm">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base sm:text-lg font-bold text-center">{t("Statut des licences", "حالة التراخيص")}</CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="pb-4">
                     {licenseStatusData.length > 0 ? (
-                      <ChartContainer config={chartConfig} className="h-[300px]">
+                      <div className="h-72 sm:h-80">
                         <ResponsiveContainer width="100%" height="100%">
                           <PieChart>
                             <Pie
                               data={licenseStatusData}
                               cx="50%"
-                              cy="50%"
+                              cy="45%"
                               labelLine={false}
-                              label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                              label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
+                                if (percent < 0.05) return null;
+                                const RADIAN = Math.PI / 180;
+                                const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+                                const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                                const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                                return (
+                                  <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" className="text-xs font-semibold">
+                                    {`${(percent * 100).toFixed(0)}%`}
+                                  </text>
+                                );
+                              }}
                               outerRadius={80}
-                              innerRadius={40}
+                              innerRadius={50}
                               dataKey="value"
                               paddingAngle={2}
                             >
@@ -505,11 +555,18 @@ const ReportsPage = () => {
                               ))}
                             </Pie>
                             <ChartTooltip content={<ChartTooltipContent />} />
+                            <Legend 
+                              verticalAlign="bottom" 
+                              height={36}
+                              iconType="circle"
+                              iconSize={10}
+                              wrapperStyle={{ fontSize: "12px", direction: language === "ar" ? "rtl" : "ltr" }}
+                            />
                           </PieChart>
                         </ResponsiveContainer>
-                      </ChartContainer>
+                      </div>
                     ) : (
-                      <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                      <div className="h-72 flex items-center justify-center text-muted-foreground">
                         {t("Aucune donnée disponible", "لا توجد بيانات متاحة")}
                       </div>
                     )}
@@ -517,24 +574,34 @@ const ReportsPage = () => {
                 </Card>
 
                 {/* Monthly Trend Line Chart */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">{t("Croissance mensuelle", "النمو الشهري")}</CardTitle>
+                <Card className="border-border/50 shadow-sm">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base sm:text-lg font-bold text-center">{t("Croissance mensuelle", "النمو الشهري")}</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <ChartContainer config={chartConfig} className="h-[300px]">
+                  <CardContent className="pb-4">
+                    <div className="h-72 sm:h-80" style={{ direction: "ltr" }}>
                       <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={monthlyData}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="month" />
-                          <YAxis />
+                        <LineChart data={monthlyData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                          <XAxis 
+                            dataKey="month" 
+                            tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                            axisLine={{ stroke: "hsl(var(--border))" }}
+                          />
+                          <YAxis 
+                            tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                            axisLine={{ stroke: "hsl(var(--border))" }}
+                          />
                           <ChartTooltip content={<ChartTooltipContent />} />
-                          <Legend />
+                          <Legend 
+                            wrapperStyle={{ fontSize: "12px", direction: language === "ar" ? "rtl" : "ltr" }}
+                          />
                           <Line 
                             type="monotone" 
                             dataKey="facilities" 
                             stroke="hsl(var(--primary))" 
                             strokeWidth={2}
+                            dot={{ fill: "hsl(var(--primary))", strokeWidth: 2 }}
                             name={t("Établissements", "المنشآت")}
                           />
                           <Line 
@@ -542,11 +609,12 @@ const ReportsPage = () => {
                             dataKey="licenses" 
                             stroke="hsl(var(--chart-2))" 
                             strokeWidth={2}
+                            dot={{ fill: "hsl(var(--chart-2))", strokeWidth: 2 }}
                             name={t("Licences", "التراخيص")}
                           />
                         </LineChart>
                       </ResponsiveContainer>
-                    </ChartContainer>
+                    </div>
                   </CardContent>
                 </Card>
               </div>

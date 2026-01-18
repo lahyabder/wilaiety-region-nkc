@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
@@ -18,7 +17,8 @@ import {
   ResponsiveContainer,
   LineChart,
   Line,
-  Legend
+  Legend,
+  Tooltip
 } from "recharts";
 import { 
   Building2, 
@@ -439,8 +439,13 @@ const ReportsPage = () => {
                               axisLine={{ stroke: "hsl(var(--border))" }}
                               tickLine={false}
                             />
-                            <ChartTooltip 
-                              content={<ChartTooltipContent />} 
+                            <Tooltip 
+                              contentStyle={{
+                                backgroundColor: "hsl(var(--card))",
+                                border: "1px solid hsl(var(--border))",
+                                borderRadius: "8px",
+                                fontSize: "12px",
+                              }}
                               cursor={{ fill: "hsl(var(--accent))" }}
                             />
                             <Bar 
@@ -496,7 +501,14 @@ const ReportsPage = () => {
                                 <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
                               ))}
                             </Pie>
-                            <ChartTooltip content={<ChartTooltipContent />} />
+                            <Tooltip 
+                              contentStyle={{
+                                backgroundColor: "hsl(var(--card))",
+                                border: "1px solid hsl(var(--border))",
+                                borderRadius: "8px",
+                                fontSize: "12px",
+                              }}
+                            />
                             <Legend 
                               verticalAlign="bottom" 
                               height={36}
@@ -554,7 +566,14 @@ const ReportsPage = () => {
                                 <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
                               ))}
                             </Pie>
-                            <ChartTooltip content={<ChartTooltipContent />} />
+                            <Tooltip 
+                              contentStyle={{
+                                backgroundColor: "hsl(var(--card))",
+                                border: "1px solid hsl(var(--border))",
+                                borderRadius: "8px",
+                                fontSize: "12px",
+                              }}
+                            />
                             <Legend 
                               verticalAlign="bottom" 
                               height={36}
@@ -592,7 +611,14 @@ const ReportsPage = () => {
                             tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
                             axisLine={{ stroke: "hsl(var(--border))" }}
                           />
-                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <Tooltip 
+                            contentStyle={{
+                              backgroundColor: "hsl(var(--card))",
+                              border: "1px solid hsl(var(--border))",
+                              borderRadius: "8px",
+                              fontSize: "12px",
+                            }}
+                          />
                           <Legend 
                             wrapperStyle={{ fontSize: "12px", direction: language === "ar" ? "rtl" : "ltr" }}
                           />

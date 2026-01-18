@@ -2,18 +2,17 @@ import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import Footer from "@/components/Footer";
-import StatsCard from "@/components/StatsCard";
 import SectorCard from "@/components/SectorCard";
 import FacilityCard from "@/components/FacilityCard";
 import QuickActions from "@/components/QuickActions";
+import LicenseStatsCards from "@/components/dashboard/LicenseStatsCards";
+import StatusPieChart from "@/components/dashboard/StatusPieChart";
+import SectorBarChart from "@/components/dashboard/SectorBarChart";
 import { useFacilities, useFacilityStats, type FacilitySector } from "@/hooks/useFacilities";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Building2, 
-  CheckCircle, 
-  AlertTriangle, 
-  XCircle,
   Stethoscope,
   GraduationCap,
   Factory,
@@ -100,6 +99,14 @@ const Index = () => {
 
   const getSectorLabel = (sector: FacilitySector) => `${t("Secteur", "قطاع")} ${sectorLabels[sector]}`;
 
+  // Calculate status counts for pie chart
+  const statusCounts = {
+    active: stats?.active || 0,
+    inactive: stats?.inactive || 0,
+    pending: stats?.pending || 0,
+    underConstruction: facilities?.filter(f => f.status === "قيد الإنشاء").length || 0,
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -111,7 +118,7 @@ const Index = () => {
           {/* Page Title */}
           <div className="mb-4 sm:mb-6">
             <h1 className="text-xl sm:text-2xl font-bold text-foreground">{t("Tableau de bord", "لوحة التحكم")}</h1>
-            <p className="text-sm sm:text-base text-muted-foreground">{t("Aperçu des établissements de la région", "نظرة عامة على منشآت المنطقة")}</p>
+            <p className="text-sm sm:text-base text-muted-foreground">{t("Vue d'ensemble des établissements et licences", "نظرة عامة على المنشآت والتراخيص")}</p>
           </div>
 
           {/* Quick Actions */}
@@ -119,39 +126,30 @@ const Index = () => {
             <QuickActions />
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
+          {/* License & Facility Stats Cards */}
+          <div className="mb-6 sm:mb-8">
+            {statsLoading ? (
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                {[...Array(4)].map((_, i) => (
+                  <Skeleton key={i} className="h-24 rounded-xl" />
+                ))}
+              </div>
+            ) : (
+              <LicenseStatsCards totalFacilities={stats?.total || 0} />
+            )}
+          </div>
+
+          {/* Charts Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
             {statsLoading ? (
               <>
-                {[...Array(4)].map((_, i) => (
-                  <Skeleton key={i} className="h-24 sm:h-32 rounded-xl" />
-                ))}
+                <Skeleton className="h-80 rounded-xl" />
+                <Skeleton className="h-80 rounded-xl" />
               </>
             ) : (
               <>
-                <StatsCard
-                  title={t("Total des établissements", "إجمالي المنشآت")}
-                  value={(stats?.total || 0).toLocaleString("fr-FR")}
-                  icon={Building2}
-                />
-                <StatsCard
-                  title={t("Établissements actifs", "المنشآت النشطة")}
-                  value={(stats?.active || 0).toLocaleString("fr-FR")}
-                  icon={CheckCircle}
-                  variant="success"
-                />
-                <StatsCard
-                  title={t("En cours de révision", "قيد المراجعة")}
-                  value={(stats?.pending || 0).toLocaleString("fr-FR")}
-                  icon={AlertTriangle}
-                  variant="warning"
-                />
-                <StatsCard
-                  title={t("Inactifs", "غير نشط")}
-                  value={(stats?.inactive || 0).toLocaleString("fr-FR")}
-                  icon={XCircle}
-                  variant="critical"
-                />
+                <SectorBarChart sectorCounts={stats?.sectorCounts || {} as Record<FacilitySector, number>} />
+                <StatusPieChart {...statusCounts} />
               </>
             )}
           </div>

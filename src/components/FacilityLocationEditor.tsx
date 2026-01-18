@@ -34,8 +34,8 @@ const FacilityLocationEditor = ({ coordinates, onCoordinatesChange, facilityName
 
   const position = parseCoordinates(coordinates);
   
-  // Default to Nouadhibou, Mauritania if no coordinates
-  const defaultPosition: [number, number] = [20.9340, -17.0320];
+  // Default to Nouakchott, Mauritania if no coordinates
+  const defaultPosition: [number, number] = [18.0735, -15.9582];
 
   const updateMarker = (map: L.Map, lat: number, lng: number) => {
     const icon = L.icon({

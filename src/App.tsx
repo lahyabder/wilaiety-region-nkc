@@ -16,6 +16,7 @@ import UsersPage from "./pages/UsersPage";
 import SettingsPage from "./pages/SettingsPage";
 import ActivityLogsPage from "./pages/ActivityLogsPage";
 import SectorFacilitiesPage from "./pages/SectorFacilitiesPage";
+import AllFacilitiesPage from "./pages/AllFacilitiesPage";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -44,6 +45,7 @@ const App = () => (
                 <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
                 <Route path="/activity-logs" element={<ProtectedRoute><ActivityLogsPage /></ProtectedRoute>} />
                 <Route path="/sector/:sector" element={<ProtectedRoute><SectorFacilitiesPage /></ProtectedRoute>} />
+                <Route path="/facilities" element={<ProtectedRoute><AllFacilitiesPage /></ProtectedRoute>} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

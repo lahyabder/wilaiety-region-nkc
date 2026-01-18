@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
@@ -34,9 +34,12 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { supabase } from "@/integrations/supabase/client";
 import { useLicenses, useLicenseStats, useCreateLicense, useDeleteLicense, type LicenseStatus } from "@/hooks/useLicenses";
 import { useFacilities } from "@/hooks/useFacilities";
+import LicensePreviewCard from "@/components/LicensePreviewCard";
 import StatsCard from "@/components/StatsCard";
+import { toast } from "sonner";
 import { 
   ArrowRight, 
   FileText, 
@@ -50,7 +53,11 @@ import {
   Calendar,
   Trash2,
   Eye,
-  RefreshCw
+  RefreshCw,
+  Upload,
+  Image,
+  Loader2,
+  X
 } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 import { fr, ar } from "date-fns/locale";
@@ -77,7 +84,65 @@ const LicensesPage = () => {
     issue_date: "",
     expiry_date: "",
     notes: "",
+    image_url: "",
   });
+
+  // Image upload state
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error(t("Veuillez sélectionner un fichier image valide", "يرجى اختيار ملف صورة صالح"));
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error(t("La taille de l'image doit être inférieure à 5 Mo", "حجم الصورة يجب أن يكون أقل من 5 ميجابايت"));
+      return;
+    }
+
+    setUploadingImage(true);
+
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `licenses/new/${Date.now()}.${fileExt}`;
+
+      const { data, error } = await supabase.storage
+        .from("facility-images")
+        .upload(fileName, file, {
+          cacheControl: "3600",
+          upsert: true,
+        });
+
+      if (error) throw error;
+
+      const { data: urlData } = supabase.storage
+        .from("facility-images")
+        .getPublicUrl(data.path);
+
+      setImagePreview(urlData.publicUrl);
+      setFormData(prev => ({ ...prev, image_url: urlData.publicUrl }));
+      toast.success(t("Image téléchargée avec succès", "تم رفع الصورة بنجاح"));
+    } catch (error: any) {
+      console.error("Error uploading image:", error);
+      toast.error(t("Échec du téléchargement de l'image", "فشل في رفع الصورة"));
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImagePreview(null);
+    setFormData(prev => ({ ...prev, image_url: "" }));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   const getStatusLabel = (status: LicenseStatus) => {
     const labels: Record<LicenseStatus, { fr: string; ar: string }> = {
@@ -142,6 +207,7 @@ const LicensesPage = () => {
       issue_date: formData.issue_date,
       expiry_date: formData.expiry_date,
       notes: formData.notes || undefined,
+      image_url: formData.image_url || undefined,
     });
 
     setIsAddDialogOpen(false);
@@ -153,7 +219,9 @@ const LicensesPage = () => {
       issue_date: "",
       expiry_date: "",
       notes: "",
+      image_url: "",
     });
+    setImagePreview(null);
   };
 
   return (
@@ -280,6 +348,76 @@ const LicensesPage = () => {
                       value={formData.notes}
                       onChange={(e) => setFormData({...formData, notes: e.target.value})}
                     />
+                  </div>
+
+                  {/* License Image Upload */}
+                  <div>
+                    <Label className="mb-2 block">
+                      <div className="flex items-center gap-2">
+                        <Image className="w-4 h-4" />
+                        {t("Image de la licence", "صورة الترخيص")}
+                      </div>
+                    </Label>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      disabled={uploadingImage}
+                    />
+                    {imagePreview ? (
+                      <div className="relative group">
+                        <img
+                          src={imagePreview}
+                          alt={t("Aperçu de la licence", "معاينة الترخيص")}
+                          className="w-full h-32 object-cover rounded-lg border border-border"
+                        />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={uploadingImage}
+                          >
+                            {uploadingImage ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Upload className="w-4 h-4" />
+                            )}
+                            <span className="mr-2">{t("Changer", "تغيير")}</span>
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={handleRemoveImage}
+                          >
+                            <X className="w-4 h-4" />
+                            <span className="mr-2">{t("Supprimer", "حذف")}</span>
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        onClick={() => fileInputRef.current?.click()}
+                        className="h-32 bg-muted rounded-lg flex items-center justify-center border-2 border-dashed border-border hover:border-primary cursor-pointer transition-colors"
+                      >
+                        {uploadingImage ? (
+                          <div className="text-center">
+                            <Loader2 className="w-6 h-6 text-primary mx-auto mb-2 animate-spin" />
+                            <span className="text-sm text-muted-foreground">{t("Téléchargement...", "جاري الرفع...")}</span>
+                          </div>
+                        ) : (
+                          <div className="text-center">
+                            <Upload className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
+                            <span className="text-sm text-muted-foreground">{t("Cliquez pour télécharger", "انقر للرفع")}</span>
+                            <p className="text-xs text-muted-foreground mt-1">{t("PNG, JPG jusqu'à 5 Mo", "PNG, JPG حتى 5 ميجابايت")}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -411,19 +549,22 @@ const LicensesPage = () => {
                       <TableCell>{getDaysRemaining(license.expiry_date)}</TableCell>
                       <TableCell>{getStatusBadge(license.status)}</TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
+                          <LicensePreviewCard license={license} />
                           <Button 
                             variant="ghost" 
                             size="icon"
                             onClick={() => navigate(`/facility/${license.facility_id}`)}
+                            title={t("Voir l'établissement", "عرض المنشأة")}
                           >
-                            <Eye className="w-4 h-4" />
+                            <Building2 className="w-4 h-4" />
                           </Button>
                           <Button 
                             variant="ghost" 
                             size="icon"
                             className="text-critical hover:text-critical"
                             onClick={() => deleteLicense.mutate(license.id)}
+                            title={t("Supprimer", "حذف")}
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>

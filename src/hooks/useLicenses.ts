@@ -34,6 +34,7 @@ export interface CreateLicenseData {
   issue_date: string;
   expiry_date: string;
   notes?: string;
+  image_url?: string;
 }
 
 export const useLicenses = () => {

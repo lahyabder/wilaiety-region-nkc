@@ -8,9 +8,14 @@ const Footer = () => {
       <div className="container mx-auto px-4 text-center">
         <p className="text-sm text-muted-foreground">
           {t("Conception et développement:", "تصميم وبرمجة:")}{" "}
-          <span className="font-medium text-foreground">
+          <a 
+            href="https://darmauritanie.art/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="font-medium text-foreground hover:text-primary transition-colors underline-offset-4 hover:underline"
+          >
             {t("Dar Mauritanie", "دار موريتانيا")}
-          </span>
+          </a>
         </p>
       </div>
     </footer>

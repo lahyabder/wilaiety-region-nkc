@@ -57,6 +57,7 @@ interface FacilitiesMapProps {
   height?: string;
   showLegend?: boolean;
   selectedDistrict?: string;
+  selectedSector?: string;
 }
 
 // District bounds for filtering
@@ -75,7 +76,7 @@ const districtBounds: Record<string, { center: [number, number]; bounds: L.LatLn
   }
 };
 
-const FacilitiesMap = ({ height = "400px", showLegend = true, selectedDistrict = "all" }: FacilitiesMapProps) => {
+const FacilitiesMap = ({ height = "400px", showLegend = true, selectedDistrict = "all", selectedSector = "all" }: FacilitiesMapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const { data: facilities, isLoading } = useFacilities();
@@ -132,11 +133,15 @@ const FacilitiesMap = ({ height = "400px", showLegend = true, selectedDistrict =
     return config[status];
   };
 
-  // Filter facilities based on selected district
+  // Filter facilities based on selected district and sector
   const facilitiesWithCoords = facilities?.filter(f => {
     const coords = parseGPS(f.gps_coordinates);
     if (!coords) return false;
     
+    // Filter by sector
+    if (selectedSector !== "all" && f.sector !== selectedSector) return false;
+    
+    // Filter by district
     if (selectedDistrict === "all") return true;
     
     const districtInfo = districtBounds[selectedDistrict];
@@ -230,7 +235,7 @@ const FacilitiesMap = ({ height = "400px", showLegend = true, selectedDistrict =
         mapInstanceRef.current = null;
       }
     };
-  }, [facilities, isLoading, language, statusLabels, sectorLabels, selectedDistrict]);
+  }, [facilities, isLoading, language, statusLabels, sectorLabels, selectedDistrict, selectedSector]);
 
   if (isLoading) {
     return (

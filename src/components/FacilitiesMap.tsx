@@ -65,8 +65,14 @@ const FacilitiesMap = ({ height = "400px", showLegend = true }: FacilitiesMapPro
   const navigate = useNavigate();
   const { t, language } = useLanguage();
 
-  // Default center (Nouakchott, Mauritania)
-  const defaultCenter: [number, number] = [18.0735, -15.9582];
+  // Center of the 3 districts (Tevragh Zeina, Sebkha, Ksar)
+  const defaultCenter: [number, number] = [18.0967, -15.9843];
+  
+  // Bounds for the 3 districts only
+  const mapBounds: L.LatLngBoundsExpression = [
+    [18.05, -16.02],  // Southwest corner (south of Sebkha)
+    [18.14, -15.93]   // Northeast corner (east of Ksar)
+  ];
 
   // Dynamic status labels
   const statusLabels: Record<FacilityStatus, string> = {
@@ -120,9 +126,17 @@ const FacilitiesMap = ({ height = "400px", showLegend = true }: FacilitiesMapPro
       mapInstanceRef.current = null;
     }
 
-    // Create new map
-    const map = L.map(mapRef.current).setView(defaultCenter, 12);
+    // Create new map with bounds restriction
+    const map = L.map(mapRef.current, {
+      maxBounds: mapBounds,
+      maxBoundsViscosity: 1.0, // Prevents dragging outside bounds
+      minZoom: 13,
+      maxZoom: 18,
+    }).setView(defaultCenter, 14);
     mapInstanceRef.current = map;
+
+    // Set initial bounds to show all 3 districts
+    map.fitBounds(mapBounds);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',

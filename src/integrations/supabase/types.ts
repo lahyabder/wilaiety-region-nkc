@@ -191,6 +191,7 @@ export type Database = {
           expiry_date: string
           facility_id: string
           id: string
+          image_url: string | null
           issue_date: string
           issuing_authority: string
           license_number: string
@@ -205,6 +206,7 @@ export type Database = {
           expiry_date: string
           facility_id: string
           id?: string
+          image_url?: string | null
           issue_date: string
           issuing_authority: string
           license_number: string
@@ -219,6 +221,7 @@ export type Database = {
           expiry_date?: string
           facility_id?: string
           id?: string
+          image_url?: string | null
           issue_date?: string
           issuing_authority?: string
           license_number?: string

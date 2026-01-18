@@ -33,10 +33,12 @@ import {
 } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import html2canvas from "html2canvas";
 import * as XLSX from "xlsx";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Footer from "@/components/Footer";
+import { useRef } from "react";
 
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
@@ -67,78 +69,132 @@ const ReportsPage = () => {
   const { data: facilityStats, isLoading: statsLoading } = useFacilityStats();
   const { data: licenses, isLoading: licensesLoading } = useLicenses();
   const { data: licenseStats, isLoading: licenseStatsLoading } = useLicenseStats();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const pdfContentRef = useRef<HTMLDivElement>(null);
 
   const isLoading = facilitiesLoading || statsLoading || licensesLoading || licenseStatsLoading;
 
-  // Export to PDF
-  const exportToPDF = () => {
-    const doc = new jsPDF();
+  // Export to PDF using html2canvas for Arabic support
+  const exportToPDF = async () => {
+    toast.info(t("Génération du PDF en cours...", "جاري إنشاء ملف PDF..."));
     
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(18);
-    doc.text(t("Rapport des établissements et licences", "تقرير المنشآت والتراخيص"), 14, 22);
-    
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "normal");
-    doc.text(`${t("Généré le:", "تاريخ الإنشاء:")} ${new Date().toLocaleDateString(t("fr-FR", "ar-SA"))}`, 14, 32);
-    
-    // Facilities Summary
-    doc.setFont("helvetica", "bold");
-    doc.text(t("Résumé des établissements", "ملخص المنشآت"), 14, 45);
-    
-    autoTable(doc, {
-      startY: 50,
-      head: [[t("Catégorie", "الفئة"), t("Nombre", "العدد")]],
-      body: [
-        [t("Total des établissements", "إجمالي المنشآت"), String(facilityStats?.total || 0)],
-        [t("Actifs", "نشطة"), String(facilityStats?.active || 0)],
-        [t("En attente", "معلقة"), String(facilityStats?.pending || 0)],
-        [t("Inactifs", "غير نشطة"), String(facilityStats?.inactive || 0)],
-      ],
-      theme: "striped",
-      headStyles: { fillColor: [59, 130, 246] },
-    });
-    
-    // Licenses Summary
-    const finalY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
-    doc.setFont("helvetica", "bold");
-    doc.text(t("Résumé des licences", "ملخص التراخيص"), 14, finalY + 15);
-    
-    autoTable(doc, {
-      startY: finalY + 20,
-      head: [[t("Catégorie", "الفئة"), t("Nombre", "العدد")]],
-      body: [
-        [t("Total des licences", "إجمالي التراخيص"), String(licenseStats?.total || 0)],
-        [t("Valides", "سارية"), String(licenseStats?.active || 0)],
-        [t("Expirent bientôt", "قريبة الانتهاء"), String(licenseStats?.expiringSoon || 0)],
-        [t("Expirées", "منتهية"), String(licenseStats?.expired || 0)],
-      ],
-      theme: "striped",
-      headStyles: { fillColor: [34, 197, 94] },
-    });
-    
-    // Sector Distribution
-    const finalY2 = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
-    doc.setFont("helvetica", "bold");
-    doc.text(t("Répartition par secteur", "التوزيع حسب القطاع"), 14, finalY2 + 15);
+    // Create a hidden div with the report content
+    const reportContent = document.createElement('div');
+    reportContent.style.cssText = `
+      position: absolute;
+      left: -9999px;
+      top: 0;
+      width: 800px;
+      padding: 40px;
+      background: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: ${language === 'ar' ? 'rtl' : 'ltr'};
+    `;
     
     const sectorRows = Object.entries(facilityStats?.sectorCounts || {})
       .filter(([_, count]) => (count as number) > 0)
-      .map(([sector, count]) => [sector, String(count)]);
+      .map(([sector, count]) => `<tr><td style="padding: 8px; border: 1px solid #ddd;">${sector}</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${count}</td></tr>`)
+      .join('');
+
+    reportContent.innerHTML = `
+      <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: #16a34a; margin-bottom: 10px; font-size: 24px;">${t("Rapport des établissements et licences", "تقرير المنشآت والتراخيص")}</h1>
+        <p style="color: #666;">${t("Généré le:", "تاريخ الإنشاء:")} ${new Date().toLocaleDateString(language === 'ar' ? 'ar-SA' : 'fr-FR')}</p>
+      </div>
+
+      <div style="margin-bottom: 30px;">
+        <h2 style="color: #3b82f6; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; font-size: 18px;">${t("Résumé des établissements", "ملخص المنشآت")}</h2>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+          <thead>
+            <tr style="background: #3b82f6; color: white;">
+              <th style="padding: 10px; border: 1px solid #ddd;">${t("Catégorie", "الفئة")}</th>
+              <th style="padding: 10px; border: 1px solid #ddd;">${t("Nombre", "العدد")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="padding: 8px; border: 1px solid #ddd;">${t("Total des établissements", "إجمالي المنشآت")}</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${facilityStats?.total || 0}</td></tr>
+            <tr style="background: #f9fafb;"><td style="padding: 8px; border: 1px solid #ddd;">${t("Actifs", "نشطة")}</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${facilityStats?.active || 0}</td></tr>
+            <tr><td style="padding: 8px; border: 1px solid #ddd;">${t("En attente", "معلقة")}</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${facilityStats?.pending || 0}</td></tr>
+            <tr style="background: #f9fafb;"><td style="padding: 8px; border: 1px solid #ddd;">${t("Inactifs", "غير نشطة")}</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${facilityStats?.inactive || 0}</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-bottom: 30px;">
+        <h2 style="color: #22c55e; border-bottom: 2px solid #22c55e; padding-bottom: 10px; font-size: 18px;">${t("Résumé des licences", "ملخص التراخيص")}</h2>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+          <thead>
+            <tr style="background: #22c55e; color: white;">
+              <th style="padding: 10px; border: 1px solid #ddd;">${t("Catégorie", "الفئة")}</th>
+              <th style="padding: 10px; border: 1px solid #ddd;">${t("Nombre", "العدد")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="padding: 8px; border: 1px solid #ddd;">${t("Total des licences", "إجمالي التراخيص")}</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${licenseStats?.total || 0}</td></tr>
+            <tr style="background: #f9fafb;"><td style="padding: 8px; border: 1px solid #ddd;">${t("Valides", "سارية")}</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${licenseStats?.active || 0}</td></tr>
+            <tr><td style="padding: 8px; border: 1px solid #ddd;">${t("Expirent bientôt", "قريبة الانتهاء")}</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${licenseStats?.expiringSoon || 0}</td></tr>
+            <tr style="background: #f9fafb;"><td style="padding: 8px; border: 1px solid #ddd;">${t("Expirées", "منتهية")}</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${licenseStats?.expired || 0}</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      ${sectorRows ? `
+      <div style="margin-bottom: 30px;">
+        <h2 style="color: #a855f7; border-bottom: 2px solid #a855f7; padding-bottom: 10px; font-size: 18px;">${t("Répartition par secteur", "التوزيع حسب القطاع")}</h2>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+          <thead>
+            <tr style="background: #a855f7; color: white;">
+              <th style="padding: 10px; border: 1px solid #ddd;">${t("Secteur", "القطاع")}</th>
+              <th style="padding: 10px; border: 1px solid #ddd;">${t("Nombre", "العدد")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${sectorRows}
+          </tbody>
+        </table>
+      </div>
+      ` : ''}
+
+      <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 12px;">
+        ${t("Conception et développement: Dar Mauritanie", "تصميم وبرمجة: دار موريتانيا")}
+      </div>
+    `;
     
-    if (sectorRows.length > 0) {
-      autoTable(doc, {
-        startY: finalY2 + 20,
-        head: [[t("Secteur", "القطاع"), t("Nombre", "العدد")]],
-        body: sectorRows,
-        theme: "striped",
-        headStyles: { fillColor: [168, 85, 247] },
+    document.body.appendChild(reportContent);
+    
+    try {
+      const canvas = await html2canvas(reportContent, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
       });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgWidth = 210;
+      const pageHeight = 297;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+      
+      pdf.save(language === 'ar' ? 'تقرير-المنشآت.pdf' : 'rapport-etablissements.pdf');
+      toast.success(t("Rapport exporté avec succès", "تم تصدير التقرير بنجاح"));
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast.error(t("Erreur lors de la génération du PDF", "خطأ في إنشاء ملف PDF"));
+    } finally {
+      document.body.removeChild(reportContent);
     }
-    
-    doc.save(t("rapport-etablissements.pdf", "تقرير-المنشآت.pdf"));
-    toast.success(t("Rapport exporté avec succès", "تم تصدير التقرير بنجاح"));
   };
 
   // Export to Excel

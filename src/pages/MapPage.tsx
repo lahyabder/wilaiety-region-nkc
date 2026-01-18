@@ -1,13 +1,29 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import Footer from "@/components/Footer";
 import FacilitiesMap from "@/components/FacilitiesMap";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, Layers, Filter } from "lucide-react";
+import { ArrowLeft, Plus, Layers } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const districts = [
+  { id: "all", nameAr: "جميع المقاطعات", nameFr: "Toutes les moughataa" },
+  { id: "tevragh-zeina", nameAr: "تفرغ زينة", nameFr: "Tevragh Zeina" },
+  { id: "sebkha", nameAr: "السبخة", nameFr: "Sebkha" },
+  { id: "ksar", nameAr: "لكصر", nameFr: "Ksar" },
+];
 
 const MapPage = () => {
+  const [selectedDistrict, setSelectedDistrict] = useState("all");
   const { t } = useLanguage();
   const navigate = useNavigate();
 
@@ -41,10 +57,18 @@ const MapPage = () => {
             </div>
             
             <div className="flex gap-2">
-              <Button variant="outline" className="gap-2">
-                <Filter className="w-4 h-4" />
-                {t("Filtrer", "تصفية")}
-              </Button>
+              <Select value={selectedDistrict} onValueChange={setSelectedDistrict}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder={t("Filtrer par moughataa", "فلترة حسب المقاطعة")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {districts.map((district) => (
+                    <SelectItem key={district.id} value={district.id}>
+                      {t(district.nameFr, district.nameAr)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Button className="gap-2" onClick={() => navigate("/add-facility")}>
                 <Plus className="w-4 h-4" />
                 {t("Ajouter un établissement", "إضافة منشأة")}
@@ -54,7 +78,7 @@ const MapPage = () => {
 
           {/* Map */}
           <div className="card-institutional flex-1">
-            <FacilitiesMap height="calc(100vh - 280px)" showLegend={true} />
+            <FacilitiesMap height="calc(100vh - 280px)" showLegend={true} selectedDistrict={selectedDistrict} />
           </div>
 
           <Footer />

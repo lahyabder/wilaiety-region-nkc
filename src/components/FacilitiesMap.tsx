@@ -60,7 +60,7 @@ interface FacilitiesMapProps {
   selectedSector?: string;
 }
 
-// District bounds for filtering
+// District bounds for filtering - all moughataa of Nouakchott
 const districtBounds: Record<string, { center: [number, number]; bounds: L.LatLngBoundsExpression }> = {
   "tevragh-zeina": {
     center: [18.110344, -15.9993672],
@@ -73,6 +73,30 @@ const districtBounds: Record<string, { center: [number, number]; bounds: L.LatLn
   "ksar": {
     center: [18.1054371, -15.9552997],
     bounds: [[18.085, -15.975], [18.125, -15.935]]
+  },
+  "el-mina": {
+    center: [18.05, -15.995],
+    bounds: [[18.03, -16.02], [18.07, -15.97]]
+  },
+  "arafat": {
+    center: [18.025, -15.97],
+    bounds: [[18.00, -16.00], [18.05, -15.94]]
+  },
+  "dar-naim": {
+    center: [18.125, -15.925],
+    bounds: [[18.10, -15.95], [18.15, -15.90]]
+  },
+  "toujounine": {
+    center: [18.075, -15.915],
+    bounds: [[18.05, -15.95], [18.10, -15.88]]
+  },
+  "riyadh": {
+    center: [18.045, -15.95],
+    bounds: [[18.02, -15.98], [18.07, -15.92]]
+  },
+  "teyarett": {
+    center: [18.10, -15.975],
+    bounds: [[18.08, -16.00], [18.12, -15.95]]
   }
 };
 

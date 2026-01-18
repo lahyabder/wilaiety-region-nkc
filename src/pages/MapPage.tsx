@@ -5,10 +5,12 @@ import Sidebar from "@/components/Sidebar";
 import Footer from "@/components/Footer";
 import FacilitiesMap from "@/components/FacilitiesMap";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, Layers } from "lucide-react";
+import { ArrowLeft, Plus, Layers, Download } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useFacilities } from "@/hooks/useFacilities";
+import { useFacilities, type Facility } from "@/hooks/useFacilities";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import * as XLSX from "xlsx";
 import {
   Select,
   SelectContent,
@@ -17,11 +19,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// District bounds for counting
+// District bounds for counting - all moughataa of Nouakchott
 const districtBounds: Record<string, { bounds: [[number, number], [number, number]] }> = {
   "tevragh-zeina": { bounds: [[18.09, -16.015], [18.13, -15.98]] },
   "sebkha": { bounds: [[18.055, -16.02], [18.095, -15.975]] },
   "ksar": { bounds: [[18.085, -15.975], [18.125, -15.935]] },
+  "el-mina": { bounds: [[18.03, -16.02], [18.07, -15.97]] },
+  "arafat": { bounds: [[18.00, -16.00], [18.05, -15.94]] },
+  "dar-naim": { bounds: [[18.10, -15.95], [18.15, -15.90]] },
+  "toujounine": { bounds: [[18.05, -15.95], [18.10, -15.88]] },
+  "riyadh": { bounds: [[18.02, -15.98], [18.07, -15.92]] },
+  "teyarett": { bounds: [[18.08, -16.00], [18.12, -15.95]] },
 };
 
 const districts = [
@@ -29,6 +37,12 @@ const districts = [
   { id: "tevragh-zeina", nameAr: "تفرغ زينة", nameFr: "Tevragh Zeina" },
   { id: "sebkha", nameAr: "السبخة", nameFr: "Sebkha" },
   { id: "ksar", nameAr: "لكصر", nameFr: "Ksar" },
+  { id: "el-mina", nameAr: "الميناء", nameFr: "El Mina" },
+  { id: "arafat", nameAr: "عرفات", nameFr: "Arafat" },
+  { id: "dar-naim", nameAr: "دار النعيم", nameFr: "Dar Naim" },
+  { id: "toujounine", nameAr: "توجنين", nameFr: "Toujounine" },
+  { id: "riyadh", nameAr: "الرياض", nameFr: "Riyadh" },
+  { id: "teyarett", nameAr: "تيارت", nameFr: "Teyarett" },
 ];
 
 const sectors = [
@@ -67,9 +81,31 @@ const parseGPS = (gps: string | null): [number, number] | null => {
 const MapPage = () => {
   const [selectedDistrict, setSelectedDistrict] = useState("all");
   const [selectedSector, setSelectedSector] = useState("all");
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const { data: facilities } = useFacilities();
+
+  // Get filtered facilities for export
+  const filteredFacilities = useMemo(() => {
+    return facilities?.filter(f => {
+      const coords = parseGPS(f.gps_coordinates);
+      if (!coords) return false;
+      
+      // Filter by sector
+      if (selectedSector !== "all" && f.sector !== selectedSector) return false;
+      
+      // Filter by district
+      if (selectedDistrict === "all") return true;
+      
+      const districtInfo = districtBounds[selectedDistrict];
+      if (!districtInfo) return true;
+      
+      const [lat, lng] = coords;
+      const [[minLat, minLng], [maxLat, maxLng]] = districtInfo.bounds;
+      
+      return lat >= minLat && lat <= maxLat && lng >= minLng && lng <= maxLng;
+    }) || [];
+  }, [facilities, selectedDistrict, selectedSector]);
 
   // Count facilities per district
   const districtCounts = useMemo(() => {
@@ -108,6 +144,40 @@ const MapPage = () => {
     
     return counts;
   }, [facilities]);
+
+  // Export to Excel
+  const handleExportExcel = () => {
+    if (filteredFacilities.length === 0) {
+      toast.error(t("Aucune donnée à exporter", "لا توجد بيانات للتصدير"));
+      return;
+    }
+
+    const exportData = filteredFacilities.map((f: Facility) => ({
+      [t("Nom", "الاسم")]: language === "ar" ? f.name : (f.name_fr || f.name),
+      [t("Nom court", "الاسم المختصر")]: language === "ar" ? f.short_name : (f.short_name_fr || f.short_name),
+      [t("Secteur", "القطاع")]: f.sector,
+      [t("Statut", "الحالة")]: f.status,
+      [t("Région", "المنطقة")]: f.region,
+      [t("Adresse", "العنوان")]: language === "ar" ? f.address : (f.address_fr || f.address),
+      [t("Coordonnées GPS", "إحداثيات GPS")]: f.gps_coordinates || "",
+      [t("Type de propriété", "نوع الملكية")]: f.ownership,
+      [t("Type d'activité", "نوع النشاط")]: language === "ar" ? f.activity_type : (f.activity_type_fr || f.activity_type),
+      [t("Date de création", "تاريخ الإنشاء")]: f.created_date,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, t("Établissements", "المنشآت"));
+    
+    const districtName = selectedDistrict === "all" 
+      ? t("tous", "الكل") 
+      : districts.find(d => d.id === selectedDistrict)?.[language === "ar" ? "nameAr" : "nameFr"] || selectedDistrict;
+    
+    const fileName = `${t("etablissements", "منشآت")}_${districtName}_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+    
+    toast.success(t(`${filteredFacilities.length} établissements exportés`, `تم تصدير ${filteredFacilities.length} منشأة`));
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -176,6 +246,12 @@ const MapPage = () => {
                   ))}
                 </SelectContent>
               </Select>
+
+              {/* Export Button */}
+              <Button variant="outline" className="gap-2" onClick={handleExportExcel}>
+                <Download className="w-4 h-4" />
+                {t("Exporter", "تصدير")}
+              </Button>
 
               <Button className="gap-2" onClick={() => navigate("/add-facility")}>
                 <Plus className="w-4 h-4" />

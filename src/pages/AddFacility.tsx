@@ -128,10 +128,10 @@ const facilitySchema = z.object({
     .min(3, { message: "Le nom doit contenir au moins 3 caractères" })
     .max(100, { message: "Le nom ne doit pas dépasser 100 caractères" }),
   shortName: z.string()
-    .min(2, { message: "يجب أن يحتوي الاختصار على حرفين على الأقل" })
-    .max(20, { message: "يجب ألا يتجاوز الاختصار 20 حرفاً" }),
+    .max(20, { message: "يجب ألا يتجاوز الاختصار 20 حرفاً" })
+    .optional()
+    .or(z.literal("")),
   shortNameFr: z.string()
-    .min(2, { message: "L'abréviation doit contenir au moins 2 caractères" })
     .max(20, { message: "L'abréviation ne doit pas dépasser 20 caractères" })
     .optional()
     .or(z.literal("")),
@@ -377,7 +377,7 @@ const AddFacility = () => {
                         name="shortName"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t("Abréviation (Arabe)", "الاختصار (عربي)")} *</FormLabel>
+                            <FormLabel>{t("Abréviation (Arabe)", "الاختصار (عربي)")}</FormLabel>
                             <FormControl>
                               <Input placeholder={t("Ex: م.م", "مثال: م.م")} {...field} dir="rtl" />
                             </FormControl>

@@ -60,6 +60,46 @@ interface FacilitiesMapProps {
   selectedSector?: string;
 }
 
+// District polygon coordinates for the 3 main districts (approximate boundaries)
+const districtPolygons: Record<string, { coords: [number, number][]; color: string; nameAr: string; nameFr: string }> = {
+  "tevragh-zeina": {
+    coords: [
+      [18.09, -16.015],
+      [18.09, -15.98],
+      [18.13, -15.98],
+      [18.13, -16.015],
+      [18.09, -16.015]
+    ],
+    color: "#3B82F6", // Blue
+    nameAr: "تفرغ زينة",
+    nameFr: "Tevragh Zeina"
+  },
+  "sebkha": {
+    coords: [
+      [18.055, -16.02],
+      [18.055, -15.975],
+      [18.095, -15.975],
+      [18.095, -16.02],
+      [18.055, -16.02]
+    ],
+    color: "#10B981", // Green
+    nameAr: "السبخة",
+    nameFr: "Sebkha"
+  },
+  "ksar": {
+    coords: [
+      [18.085, -15.975],
+      [18.085, -15.935],
+      [18.125, -15.935],
+      [18.125, -15.975],
+      [18.085, -15.975]
+    ],
+    color: "#F59E0B", // Orange
+    nameAr: "لكصر",
+    nameFr: "Ksar"
+  }
+};
+
 // District bounds for filtering - all moughataa of Nouakchott
 const districtBounds: Record<string, { center: [number, number]; bounds: L.LatLngBoundsExpression }> = {
   "tevragh-zeina": {
@@ -211,6 +251,53 @@ const FacilitiesMap = ({ height = "400px", showLegend = true, selectedDistrict =
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
 
+    // Add district boundaries polygons
+    Object.entries(districtPolygons).forEach(([districtId, district]) => {
+      const polygon = L.polygon(district.coords, {
+        color: district.color,
+        weight: 3,
+        opacity: 0.8,
+        fillColor: district.color,
+        fillOpacity: 0.15,
+        dashArray: selectedDistrict === districtId ? undefined : "5, 10",
+      }).addTo(map);
+
+      // Add district label
+      const center = polygon.getBounds().getCenter();
+      const label = L.divIcon({
+        className: "district-label",
+        html: `
+          <div style="
+            background-color: ${district.color};
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          ">
+            ${language === "ar" ? district.nameAr : district.nameFr}
+          </div>
+        `,
+        iconSize: [0, 0],
+        iconAnchor: [40, 10],
+      });
+      L.marker(center, { icon: label, interactive: false }).addTo(map);
+
+      // Highlight on hover
+      polygon.on("mouseover", () => {
+        polygon.setStyle({ fillOpacity: 0.3, weight: 4 });
+      });
+      polygon.on("mouseout", () => {
+        polygon.setStyle({ 
+          fillOpacity: 0.15, 
+          weight: 3,
+          dashArray: selectedDistrict === districtId ? undefined : "5, 10"
+        });
+      });
+    });
+
     // Add markers for each facility
     const markers: L.Marker[] = [];
 
@@ -284,23 +371,43 @@ const FacilitiesMap = ({ height = "400px", showLegend = true, selectedDistrict =
       />
 
       {showLegend && (
-        <div className="flex flex-wrap items-center gap-4 text-sm">
-          <span className="font-medium text-foreground">{t("Légende:", "الأسطورة:")}</span>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-success border-2 border-white shadow" />
-            <span className="text-muted-foreground">{t("Actif", "نشط")}</span>
+        <div className="space-y-3">
+          {/* Status Legend */}
+          <div className="flex flex-wrap items-center gap-4 text-sm">
+            <span className="font-medium text-foreground">{t("Statuts:", "الحالات:")}</span>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full bg-success border-2 border-white shadow" />
+              <span className="text-muted-foreground">{t("Actif", "نشط")}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full bg-warning border-2 border-white shadow" />
+              <span className="text-muted-foreground">{t("En révision", "قيد المراجعة")}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full bg-critical border-2 border-white shadow" />
+              <span className="text-muted-foreground">{t("Inactif", "غير نشط")}</span>
+            </div>
+            <span className="text-muted-foreground ms-auto">
+              {facilitiesWithCoords.length} {t("établissement(s) sur la carte", "منشأة على الخريطة")}
+            </span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-warning border-2 border-white shadow" />
-            <span className="text-muted-foreground">{t("En révision", "قيد المراجعة")}</span>
+          
+          {/* Districts Legend */}
+          <div className="flex flex-wrap items-center gap-4 text-sm">
+            <span className="font-medium text-foreground">{t("Moughataa:", "المقاطعات:")}</span>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded border-2" style={{ borderColor: "#3B82F6", backgroundColor: "rgba(59, 130, 246, 0.2)" }} />
+              <span className="text-muted-foreground">{t("Tevragh Zeina", "تفرغ زينة")}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded border-2" style={{ borderColor: "#10B981", backgroundColor: "rgba(16, 185, 129, 0.2)" }} />
+              <span className="text-muted-foreground">{t("Sebkha", "السبخة")}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded border-2" style={{ borderColor: "#F59E0B", backgroundColor: "rgba(245, 158, 11, 0.2)" }} />
+              <span className="text-muted-foreground">{t("Ksar", "لكصر")}</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-critical border-2 border-white shadow" />
-            <span className="text-muted-foreground">{t("Inactif", "غير نشط")}</span>
-          </div>
-          <span className="text-muted-foreground ms-auto">
-            {facilitiesWithCoords.length} {t("établissement(s) sur la carte", "منشأة على الخريطة")}
-          </span>
         </div>
       )}
 

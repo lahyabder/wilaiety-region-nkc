@@ -33,7 +33,7 @@ const SectorCard = ({ name, arabicName, icon: Icon, count, onClick }: SectorCard
           <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-accent-foreground group-hover:text-primary transition-colors" />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors text-sm sm:text-base truncate">{name}</h3>
+          <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors text-xs sm:text-sm whitespace-nowrap">{name}</h3>
           <p className="text-muted-foreground text-xs sm:text-sm">{count} {t("établissement(s)", "منشأة")}</p>
         </div>
       </div>

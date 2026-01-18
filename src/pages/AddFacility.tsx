@@ -511,7 +511,7 @@ const AddFacility = () => {
                             </FormControl>
                             <SelectContent>
                               {sectors.map((sector) => (
-                                <SelectItem key={sector} value={sector}>{sectorLabels[sector]}</SelectItem>
+                                <SelectItem key={sector} value={sector}>{t(sectorLabels[sector], sector)}</SelectItem>
                               ))}
                             </SelectContent>
                           </Select>

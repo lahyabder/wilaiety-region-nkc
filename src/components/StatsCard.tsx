@@ -33,7 +33,7 @@ const StatsCard = ({ title, value, icon: Icon, trend, variant = "default" }: Sta
     <div className={`card-institutional border-s-4 ${variantStyles[variant]} animate-fade-in p-3 sm:p-6`}>
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <p className="text-muted-foreground text-xs sm:text-sm mb-1 truncate">{title}</p>
+          <p className="text-muted-foreground text-xs sm:text-sm mb-1 whitespace-nowrap">{title}</p>
           <p className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">{value}</p>
           {trend && (
             <p className={`text-xs sm:text-sm mt-1 sm:mt-2 ${trend.isPositive ? "text-success" : "text-critical"}`}>

@@ -572,6 +572,9 @@ const AddFacility = () => {
                                 <SelectItem value="عام">{t("Public", "عام")}</SelectItem>
                                 <SelectItem value="خاص">{t("Privé", "خاص")}</SelectItem>
                                 <SelectItem value="شبه عام">{t("Semi-public", "شبه عام")}</SelectItem>
+                                <SelectItem value="أجنبية">{t("Étranger", "أجنبية")}</SelectItem>
+                                <SelectItem value="دولية">{t("International", "دولية")}</SelectItem>
+                                <SelectItem value="مجتمع مدني">{t("Société civile", "مجتمع مدني")}</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />

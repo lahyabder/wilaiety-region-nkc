@@ -358,12 +358,18 @@ const ReportsPage = () => {
                   </CardHeader>
                   <CardContent>
                     {sectorData.length > 0 ? (
-                      <ChartContainer config={chartConfig} className="h-[300px]">
+                      <ChartContainer config={chartConfig} className="h-[400px]">
                         <ResponsiveContainer width="100%" height="100%">
-                          <BarChart data={sectorData} layout="vertical">
+                          <BarChart data={sectorData} layout="vertical" margin={{ left: 20, right: 20 }}>
                             <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
                             <XAxis type="number" />
-                            <YAxis dataKey="name" type="category" width={100} />
+                            <YAxis 
+                              dataKey="name" 
+                              type="category" 
+                              width={80} 
+                              tick={{ fontSize: 12 }}
+                              tickFormatter={(value) => value}
+                            />
                             <ChartTooltip content={<ChartTooltipContent />} />
                             <Bar dataKey="value" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
                           </BarChart>

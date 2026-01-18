@@ -173,7 +173,7 @@ const Index = () => {
                 {allSectors.slice(0, 10).map((sector) => (
                   <SectorCard
                     key={sector}
-                    name={sectorLabels[sector]}
+                    name={t(sectorLabels[sector], sector)}
                     arabicName={sector}
                     icon={sectorIcons[sector]}
                     count={stats?.sectorCounts[sector] || 0}

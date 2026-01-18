@@ -29,6 +29,7 @@ import {
 import { useCreateFacility, type FacilitySector, type OwnershipType, type LegalDomain, type JurisdictionType, type FacilityStatus } from "@/hooks/useFacilities";
 import FacilityLocationEditor from "@/components/FacilityLocationEditor";
 import { useAdministrativeDivisions } from "@/hooks/useAdministrativeDivisions";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { 
   ArrowLeft, 
@@ -41,8 +42,16 @@ import {
   Upload,
   Loader2,
   Navigation,
-  LocateFixed
+  LocateFixed,
+  Eye,
+  Image as ImageIcon
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const sectors: FacilitySector[] = [
   "صحية", "تعليمية", "صناعية", "زراعية", "رياضية", "ثقافية", "اجتماعية", 
@@ -205,6 +214,82 @@ const AddFacility = () => {
   const [isLocating, setIsLocating] = useState(false);
   const [documents, setDocuments] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [previewDoc, setPreviewDoc] = useState<{ file: File; url: string } | null>(null);
+  const [documentPreviews, setDocumentPreviews] = useState<Map<string, string>>(new Map());
+
+  // Generate previews for images
+  const addDocumentWithPreview = useCallback((files: File[]) => {
+    files.forEach(file => {
+      if (file.type.startsWith('image/')) {
+        const url = URL.createObjectURL(file);
+        setDocumentPreviews(prev => new Map(prev).set(file.name + file.size, url));
+      }
+    });
+    setDocuments(prev => [...prev, ...files]);
+  }, []);
+
+  const removeDocument = useCallback((index: number) => {
+    setDocuments(prev => {
+      const file = prev[index];
+      const key = file.name + file.size;
+      const previewUrl = documentPreviews.get(key);
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        setDocumentPreviews(p => {
+          const newMap = new Map(p);
+          newMap.delete(key);
+          return newMap;
+        });
+      }
+      return prev.filter((_, i) => i !== index);
+    });
+  }, [documentPreviews]);
+
+  // Upload documents to storage
+  const uploadDocuments = async (facilityId: string) => {
+    const uploadedDocs: { file_name: string; file_url: string; file_type: string; file_size: number }[] = [];
+    
+    for (const file of documents) {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${facilityId}/${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+      
+      const { data, error } = await supabase.storage
+        .from('facility-documents')
+        .upload(fileName, file);
+      
+      if (error) {
+        console.error('Upload error:', error);
+        continue;
+      }
+      
+      const { data: urlData } = supabase.storage
+        .from('facility-documents')
+        .getPublicUrl(fileName);
+      
+      uploadedDocs.push({
+        file_name: file.name,
+        file_url: urlData.publicUrl,
+        file_type: file.type,
+        file_size: file.size
+      });
+    }
+    
+    // Insert document records into database
+    if (uploadedDocs.length > 0) {
+      const { error } = await supabase
+        .from('facility_documents')
+        .insert(uploadedDocs.map(doc => ({
+          facility_id: facilityId,
+          ...doc
+        })));
+      
+      if (error) {
+        console.error('Error saving document records:', error);
+      }
+    }
+    
+    return uploadedDocs;
+  };
 
   const form = useForm<FacilityFormData>({
     resolver: zodResolver(facilitySchema),
@@ -289,32 +374,45 @@ const AddFacility = () => {
   };
 
   const onSubmit = async (data: FacilityFormData) => {
-    await createFacility.mutateAsync({
-      name: data.name,
-      name_fr: data.nameFr || undefined,
-      short_name: data.shortName,
-      short_name_fr: data.shortNameFr || undefined,
-      legal_name: data.legalName,
-      legal_name_fr: data.legalNameFr || undefined,
-      sector: data.sector as FacilitySector,
-      activity_type: data.activityType,
-      activity_type_fr: data.activityTypeFr || undefined,
-      facility_type: data.facilityType,
-      facility_type_fr: data.facilityTypeFr || undefined,
-      jurisdiction_type: data.jurisdictionType as JurisdictionType,
-      created_date: data.createdDate,
-      description: data.description,
-      description_fr: data.descriptionFr || undefined,
-      gps_coordinates: data.gps || undefined,
-      region: data.region,
-      address: data.address,
-      address_fr: data.addressFr || undefined,
-      ownership: data.ownership as OwnershipType,
-      legal_domain: data.legalDomain as LegalDomain,
-      status: data.status as FacilityStatus,
-    });
-    
-    navigate("/");
+    setIsUploading(true);
+    try {
+      const facility = await createFacility.mutateAsync({
+        name: data.name,
+        name_fr: data.nameFr || undefined,
+        short_name: data.shortName || data.name.substring(0, 20),
+        short_name_fr: data.shortNameFr || undefined,
+        legal_name: data.legalName,
+        legal_name_fr: data.legalNameFr || undefined,
+        sector: data.sector as FacilitySector,
+        activity_type: data.activityType,
+        activity_type_fr: data.activityTypeFr || undefined,
+        facility_type: data.facilityType,
+        facility_type_fr: data.facilityTypeFr || undefined,
+        jurisdiction_type: data.jurisdictionType as JurisdictionType,
+        created_date: data.createdDate,
+        description: data.description,
+        description_fr: data.descriptionFr || undefined,
+        gps_coordinates: data.gps || undefined,
+        region: data.region,
+        address: data.address,
+        address_fr: data.addressFr || undefined,
+        ownership: data.ownership as OwnershipType,
+        legal_domain: data.legalDomain as LegalDomain,
+        status: data.status as FacilityStatus,
+      });
+      
+      // Upload documents if any
+      if (documents.length > 0 && facility?.id) {
+        await uploadDocuments(facility.id);
+        toast.success(t("Documents téléchargés avec succès", "تم رفع الوثائق بنجاح"));
+      }
+      
+      navigate("/");
+    } catch (error) {
+      console.error('Error creating facility:', error);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -875,7 +973,7 @@ const AddFacility = () => {
                           if (validFiles.length < files.length) {
                             toast.error(t("Certains fichiers ont été ignorés (type non supporté ou taille > 10 Mo)", "تم تجاهل بعض الملفات (نوع غير مدعوم أو الحجم > 10 ميجابايت)"));
                           }
-                          setDocuments(prev => [...prev, ...validFiles]);
+                          addDocumentWithPreview(validFiles);
                         }}
                       >
                         <input
@@ -892,7 +990,7 @@ const AddFacility = () => {
                             if (validFiles.length < files.length) {
                               toast.error(t("Certains fichiers dépassent 10 Mo", "بعض الملفات تتجاوز 10 ميجابايت"));
                             }
-                            setDocuments(prev => [...prev, ...validFiles]);
+                            addDocumentWithPreview(validFiles);
                             e.target.value = '';
                           }}
                         />
@@ -905,30 +1003,77 @@ const AddFacility = () => {
                         </p>
                       </div>
 
-                      {/* Uploaded files list */}
+                      {/* Uploaded files list with previews */}
                       {documents.length > 0 && (
-                        <div className="mt-4 space-y-2">
-                          {documents.map((file, index) => (
-                            <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                              <div className="flex items-center gap-3">
-                                <FileText className="w-5 h-5 text-primary" />
-                                <div>
-                                  <p className="text-sm font-medium">{file.name}</p>
-                                  <p className="text-xs text-muted-foreground">
+                        <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                          {documents.map((file, index) => {
+                            const isImage = file.type.startsWith('image/');
+                            const previewUrl = documentPreviews.get(file.name + file.size);
+                            
+                            return (
+                              <div 
+                                key={index} 
+                                className="relative group border rounded-lg overflow-hidden bg-muted/30 hover:border-primary transition-colors"
+                              >
+                                {/* Preview */}
+                                <div className="aspect-square flex items-center justify-center p-2">
+                                  {isImage && previewUrl ? (
+                                    <img 
+                                      src={previewUrl} 
+                                      alt={file.name}
+                                      className="max-w-full max-h-full object-contain rounded"
+                                    />
+                                  ) : (
+                                    <div className="text-center">
+                                      <FileText className="w-10 h-10 text-primary mx-auto mb-1" />
+                                      <span className="text-xs text-muted-foreground uppercase font-medium">
+                                        {file.name.split('.').pop()}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                                
+                                {/* File info overlay */}
+                                <div className="absolute bottom-0 inset-x-0 bg-background/90 backdrop-blur-sm p-2 border-t">
+                                  <p className="text-xs font-medium truncate" title={file.name}>
+                                    {file.name}
+                                  </p>
+                                  <p className="text-[10px] text-muted-foreground">
                                     {(file.size / 1024 / 1024).toFixed(2)} MB
                                   </p>
                                 </div>
+                                
+                                {/* Action buttons overlay */}
+                                <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  {(isImage || file.type === 'application/pdf') && (
+                                    <Button
+                                      type="button"
+                                      variant="secondary"
+                                      size="icon"
+                                      className="h-7 w-7"
+                                      onClick={() => {
+                                        const url = isImage && previewUrl 
+                                          ? previewUrl 
+                                          : URL.createObjectURL(file);
+                                        setPreviewDoc({ file, url });
+                                      }}
+                                    >
+                                      <Eye className="w-3.5 h-3.5" />
+                                    </Button>
+                                  )}
+                                  <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="icon"
+                                    className="h-7 w-7"
+                                    onClick={() => removeDocument(index)}
+                                  >
+                                    <X className="w-3.5 h-3.5" />
+                                  </Button>
+                                </div>
                               </div>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setDocuments(prev => prev.filter((_, i) => i !== index))}
-                              >
-                                <X className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       )}
                     </div>
@@ -949,15 +1094,64 @@ const AddFacility = () => {
                 </Button>
                 <Button 
                   type="submit" 
-                  disabled={createFacility.isPending}
+                  disabled={createFacility.isPending || isUploading}
                   className="gap-2"
                 >
-                  <Save className="w-4 h-4" />
-                  {createFacility.isPending ? t("Enregistrement...", "جاري الحفظ...") : t("Enregistrer", "حفظ")}
+                  {(createFacility.isPending || isUploading) ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      {isUploading ? t("Téléchargement des documents...", "جاري رفع الوثائق...") : t("Enregistrement...", "جاري الحفظ...")}
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      {t("Enregistrer", "حفظ")}
+                    </>
+                  )}
                 </Button>
               </div>
             </form>
           </Form>
+
+          {/* Document Preview Dialog */}
+          <Dialog open={!!previewDoc} onOpenChange={() => setPreviewDoc(null)}>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  {previewDoc?.file.type.startsWith('image/') ? (
+                    <ImageIcon className="w-5 h-5" />
+                  ) : (
+                    <FileText className="w-5 h-5" />
+                  )}
+                  {previewDoc?.file.name}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="flex-1 overflow-auto max-h-[70vh]">
+                {previewDoc?.file.type.startsWith('image/') ? (
+                  <img 
+                    src={previewDoc.url} 
+                    alt={previewDoc.file.name}
+                    className="w-full h-auto object-contain"
+                  />
+                ) : previewDoc?.file.type === 'application/pdf' ? (
+                  <iframe 
+                    src={previewDoc.url}
+                    className="w-full h-[70vh] border-0"
+                    title={previewDoc.file.name}
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-64">
+                    <div className="text-center">
+                      <FileText className="w-16 h-16 text-muted-foreground mx-auto mb-2" />
+                      <p className="text-muted-foreground">
+                        {t("Aperçu non disponible", "المعاينة غير متاحة")}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
           
           <Footer />
         </main>

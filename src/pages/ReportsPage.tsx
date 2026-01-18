@@ -77,24 +77,24 @@ const ReportsPage = () => {
     
     doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
-    doc.text("Rapport des établissements et licences", 14, 22);
+    doc.text(t("Rapport des établissements et licences", "تقرير المنشآت والتراخيص"), 14, 22);
     
     doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
-    doc.text(`Généré le: ${new Date().toLocaleDateString("fr-FR")}`, 14, 32);
+    doc.text(`${t("Généré le:", "تاريخ الإنشاء:")} ${new Date().toLocaleDateString(t("fr-FR", "ar-SA"))}`, 14, 32);
     
     // Facilities Summary
     doc.setFont("helvetica", "bold");
-    doc.text("Résumé des établissements", 14, 45);
+    doc.text(t("Résumé des établissements", "ملخص المنشآت"), 14, 45);
     
     autoTable(doc, {
       startY: 50,
-      head: [["Catégorie", "Nombre"]],
+      head: [[t("Catégorie", "الفئة"), t("Nombre", "العدد")]],
       body: [
-        ["Total des établissements", String(facilityStats?.total || 0)],
-        ["Actifs", String(facilityStats?.active || 0)],
-        ["En attente", String(facilityStats?.pending || 0)],
-        ["Inactifs", String(facilityStats?.inactive || 0)],
+        [t("Total des établissements", "إجمالي المنشآت"), String(facilityStats?.total || 0)],
+        [t("Actifs", "نشطة"), String(facilityStats?.active || 0)],
+        [t("En attente", "معلقة"), String(facilityStats?.pending || 0)],
+        [t("Inactifs", "غير نشطة"), String(facilityStats?.inactive || 0)],
       ],
       theme: "striped",
       headStyles: { fillColor: [59, 130, 246] },
@@ -103,16 +103,16 @@ const ReportsPage = () => {
     // Licenses Summary
     const finalY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
     doc.setFont("helvetica", "bold");
-    doc.text("Résumé des licences", 14, finalY + 15);
+    doc.text(t("Résumé des licences", "ملخص التراخيص"), 14, finalY + 15);
     
     autoTable(doc, {
       startY: finalY + 20,
-      head: [["Catégorie", "Nombre"]],
+      head: [[t("Catégorie", "الفئة"), t("Nombre", "العدد")]],
       body: [
-        ["Total des licences", String(licenseStats?.total || 0)],
-        ["Valides", String(licenseStats?.active || 0)],
-        ["Expirent bientôt", String(licenseStats?.expiringSoon || 0)],
-        ["Expirées", String(licenseStats?.expired || 0)],
+        [t("Total des licences", "إجمالي التراخيص"), String(licenseStats?.total || 0)],
+        [t("Valides", "سارية"), String(licenseStats?.active || 0)],
+        [t("Expirent bientôt", "قريبة الانتهاء"), String(licenseStats?.expiringSoon || 0)],
+        [t("Expirées", "منتهية"), String(licenseStats?.expired || 0)],
       ],
       theme: "striped",
       headStyles: { fillColor: [34, 197, 94] },
@@ -121,24 +121,24 @@ const ReportsPage = () => {
     // Sector Distribution
     const finalY2 = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
     doc.setFont("helvetica", "bold");
-    doc.text("Répartition par secteur", 14, finalY2 + 15);
+    doc.text(t("Répartition par secteur", "التوزيع حسب القطاع"), 14, finalY2 + 15);
     
     const sectorRows = Object.entries(facilityStats?.sectorCounts || {})
       .filter(([_, count]) => (count as number) > 0)
-      .map(([sector, count]) => [sectorLabels[sector] || sector, String(count)]);
+      .map(([sector, count]) => [sector, String(count)]);
     
     if (sectorRows.length > 0) {
       autoTable(doc, {
         startY: finalY2 + 20,
-        head: [["Secteur", "Nombre"]],
+        head: [[t("Secteur", "القطاع"), t("Nombre", "العدد")]],
         body: sectorRows,
         theme: "striped",
         headStyles: { fillColor: [168, 85, 247] },
       });
     }
     
-    doc.save("rapport-etablissements.pdf");
-    toast.success("Rapport exporté avec succès");
+    doc.save(t("rapport-etablissements.pdf", "تقرير-المنشآت.pdf"));
+    toast.success(t("Rapport exporté avec succès", "تم تصدير التقرير بنجاح"));
   };
 
   // Export to Excel
@@ -147,71 +147,71 @@ const ReportsPage = () => {
     
     // Facilities Summary Sheet
     const facilitiesSummary = [
-      ["Statistiques des établissements", ""],
-      ["Total", facilityStats?.total || 0],
-      ["Actifs", facilityStats?.active || 0],
-      ["En attente", facilityStats?.pending || 0],
-      ["Inactifs", facilityStats?.inactive || 0],
+      [t("Statistiques des établissements", "إحصائيات المنشآت"), ""],
+      [t("Total", "الإجمالي"), facilityStats?.total || 0],
+      [t("Actifs", "نشطة"), facilityStats?.active || 0],
+      [t("En attente", "معلقة"), facilityStats?.pending || 0],
+      [t("Inactifs", "غير نشطة"), facilityStats?.inactive || 0],
     ];
     const ws1 = XLSX.utils.aoa_to_sheet(facilitiesSummary);
-    XLSX.utils.book_append_sheet(workbook, ws1, "Établissements");
+    XLSX.utils.book_append_sheet(workbook, ws1, t("Établissements", "المنشآت"));
     
     // Licenses Summary Sheet
     const licensesSummary = [
-      ["Statistiques des licences", ""],
-      ["Total", licenseStats?.total || 0],
-      ["Valides", licenseStats?.active || 0],
-      ["Expirent bientôt", licenseStats?.expiringSoon || 0],
-      ["Expirées", licenseStats?.expired || 0],
+      [t("Statistiques des licences", "إحصائيات التراخيص"), ""],
+      [t("Total", "الإجمالي"), licenseStats?.total || 0],
+      [t("Valides", "سارية"), licenseStats?.active || 0],
+      [t("Expirent bientôt", "قريبة الانتهاء"), licenseStats?.expiringSoon || 0],
+      [t("Expirées", "منتهية"), licenseStats?.expired || 0],
     ];
     const ws2 = XLSX.utils.aoa_to_sheet(licensesSummary);
-    XLSX.utils.book_append_sheet(workbook, ws2, "Licences");
+    XLSX.utils.book_append_sheet(workbook, ws2, t("Licences", "التراخيص"));
     
     // Sector Distribution Sheet
-    const sectorData = [["Secteur", "Nombre"]];
+    const sectorData = [[t("Secteur", "القطاع"), t("Nombre", "العدد")]];
     Object.entries(facilityStats?.sectorCounts || {}).forEach(([sector, count]) => {
       if ((count as number) > 0) {
-        sectorData.push([sectorLabels[sector] || sector, count as unknown as string]);
+        sectorData.push([sector, count as unknown as string]);
       }
     });
     const ws3 = XLSX.utils.aoa_to_sheet(sectorData);
-    XLSX.utils.book_append_sheet(workbook, ws3, "Secteurs");
+    XLSX.utils.book_append_sheet(workbook, ws3, t("Secteurs", "القطاعات"));
     
     // Facilities List Sheet
     if (facilities && facilities.length > 0) {
-      const facilitiesData = [["Nom", "Secteur", "Région", "Statut", "Date de création"]];
+      const facilitiesData = [[t("Nom", "الاسم"), t("Secteur", "القطاع"), t("Région", "المنطقة"), t("Statut", "الحالة"), t("Date de création", "تاريخ الإنشاء")]];
       facilities.forEach((f) => {
         facilitiesData.push([
           f.name,
-          sectorLabels[f.sector] || f.sector,
+          f.sector,
           f.region,
           f.status,
-          new Date(f.created_at).toLocaleDateString("fr-FR"),
+          new Date(f.created_at).toLocaleDateString(t("fr-FR", "ar-SA")),
         ]);
       });
       const ws4 = XLSX.utils.aoa_to_sheet(facilitiesData);
-      XLSX.utils.book_append_sheet(workbook, ws4, "Liste des établissements");
+      XLSX.utils.book_append_sheet(workbook, ws4, t("Liste des établissements", "قائمة المنشآت"));
     }
     
     // Licenses List Sheet
     if (licenses && licenses.length > 0) {
-      const licensesData = [["Numéro de licence", "Type", "Autorité émettrice", "Date d'émission", "Date d'expiration", "Statut"]];
+      const licensesData = [[t("Numéro de licence", "رقم الترخيص"), t("Type", "النوع"), t("Autorité émettrice", "الجهة المصدرة"), t("Date d'émission", "تاريخ الإصدار"), t("Date d'expiration", "تاريخ الانتهاء"), t("Statut", "الحالة")]];
       licenses.forEach((l) => {
         licensesData.push([
           l.license_number,
           l.license_type,
           l.issuing_authority,
-          new Date(l.issue_date).toLocaleDateString("fr-FR"),
-          new Date(l.expiry_date).toLocaleDateString("fr-FR"),
+          new Date(l.issue_date).toLocaleDateString(t("fr-FR", "ar-SA")),
+          new Date(l.expiry_date).toLocaleDateString(t("fr-FR", "ar-SA")),
           l.status,
         ]);
       });
       const ws5 = XLSX.utils.aoa_to_sheet(licensesData);
-      XLSX.utils.book_append_sheet(workbook, ws5, "Liste des licences");
+      XLSX.utils.book_append_sheet(workbook, ws5, t("Liste des licences", "قائمة التراخيص"));
     }
     
-    XLSX.writeFile(workbook, "rapport-etablissements.xlsx");
-    toast.success("Rapport exporté avec succès");
+    XLSX.writeFile(workbook, t("rapport-etablissements.xlsx", "تقرير-المنشآت.xlsx"));
+    toast.success(t("Rapport exporté avec succès", "تم تصدير التقرير بنجاح"));
   };
 
   // Prepare sector data for charts - use Arabic sector names directly

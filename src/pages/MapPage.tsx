@@ -19,17 +19,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// District bounds for counting - all moughataa of Nouakchott
+// District bounds for counting - only Tevragh Zeina, Sebkha, Ksar
 const districtBounds: Record<string, { bounds: [[number, number], [number, number]] }> = {
   "tevragh-zeina": { bounds: [[18.09, -16.015], [18.13, -15.98]] },
   "sebkha": { bounds: [[18.055, -16.02], [18.095, -15.975]] },
   "ksar": { bounds: [[18.085, -15.975], [18.125, -15.935]] },
-  "el-mina": { bounds: [[18.03, -16.02], [18.07, -15.97]] },
-  "arafat": { bounds: [[18.00, -16.00], [18.05, -15.94]] },
-  "dar-naim": { bounds: [[18.10, -15.95], [18.15, -15.90]] },
-  "toujounine": { bounds: [[18.05, -15.95], [18.10, -15.88]] },
-  "riyadh": { bounds: [[18.02, -15.98], [18.07, -15.92]] },
-  "teyarett": { bounds: [[18.08, -16.00], [18.12, -15.95]] },
 };
 
 const districts = [
@@ -37,12 +31,6 @@ const districts = [
   { id: "tevragh-zeina", nameAr: "تفرغ زينة", nameFr: "Tevragh Zeina" },
   { id: "sebkha", nameAr: "السبخة", nameFr: "Sebkha" },
   { id: "ksar", nameAr: "لكصر", nameFr: "Ksar" },
-  { id: "el-mina", nameAr: "الميناء", nameFr: "El Mina" },
-  { id: "arafat", nameAr: "عرفات", nameFr: "Arafat" },
-  { id: "dar-naim", nameAr: "دار النعيم", nameFr: "Dar Naim" },
-  { id: "toujounine", nameAr: "توجنين", nameFr: "Toujounine" },
-  { id: "riyadh", nameAr: "الرياض", nameFr: "Riyadh" },
-  { id: "teyarett", nameAr: "تيارت", nameFr: "Teyarett" },
 ];
 
 const sectors = [

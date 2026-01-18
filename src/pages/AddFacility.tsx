@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,6 +27,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useCreateFacility, type FacilitySector, type OwnershipType, type LegalDomain, type JurisdictionType, type FacilityStatus } from "@/hooks/useFacilities";
+import FacilityLocationEditor from "@/components/FacilityLocationEditor";
 import { useAdministrativeDivisions } from "@/hooks/useAdministrativeDivisions";
 import { toast } from "sonner";
 import { 
@@ -187,6 +188,39 @@ const AddFacility = () => {
 
   const [isLocating, setIsLocating] = useState(false);
 
+  const form = useForm<FacilityFormData>({
+    resolver: zodResolver(facilitySchema),
+    defaultValues: {
+      name: "",
+      nameFr: "",
+      shortName: "",
+      shortNameFr: "",
+      legalName: "",
+      legalNameFr: "",
+      sector: "",
+      activityType: "",
+      activityTypeFr: "",
+      facilityType: "",
+      facilityTypeFr: "",
+      jurisdictionType: "",
+      createdDate: "",
+      description: "",
+      descriptionFr: "",
+      gps: "",
+      region: "",
+      address: "",
+      addressFr: "",
+      ownership: "",
+      legalDomain: "",
+      status: "نشط",
+    },
+  });
+
+  // Handle GPS coordinates change from map
+  const handleCoordinatesChange = useCallback((coordinates: string) => {
+    form.setValue("gps", coordinates);
+  }, [form]);
+
   // Handle division change to auto-fill GPS coordinates
   const handleDivisionChange = (value: string, onChange: (value: string) => void) => {
     onChange(value);
@@ -235,34 +269,6 @@ const AddFacility = () => {
       }
     );
   };
-
-  const form = useForm<FacilityFormData>({
-    resolver: zodResolver(facilitySchema),
-    defaultValues: {
-      name: "",
-      nameFr: "",
-      shortName: "",
-      shortNameFr: "",
-      legalName: "",
-      legalNameFr: "",
-      sector: "",
-      activityType: "",
-      activityTypeFr: "",
-      facilityType: "",
-      facilityTypeFr: "",
-      jurisdictionType: "",
-      createdDate: "",
-      description: "",
-      descriptionFr: "",
-      gps: "",
-      region: "",
-      address: "",
-      addressFr: "",
-      ownership: "",
-      legalDomain: "",
-      status: "نشط",
-    },
-  });
 
   const onSubmit = async (data: FacilityFormData) => {
     await createFacility.mutateAsync({
@@ -757,13 +763,12 @@ const AddFacility = () => {
                       />
                     </div>
 
-                    {/* Map placeholder */}
-                    <div className="aspect-video bg-muted rounded-lg flex items-center justify-center border-2 border-dashed border-border">
-                      <div className="text-center">
-                        <MapPin className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                        <span className="text-sm text-muted-foreground">{t("Carte interactive", "خريطة تفاعلية")}</span>
-                      </div>
-                    </div>
+                    {/* Interactive Map */}
+                    <FacilityLocationEditor
+                      coordinates={form.watch("gps") || null}
+                      onCoordinatesChange={handleCoordinatesChange}
+                      facilityName={form.watch("name") || t("Nouvel établissement", "منشأة جديدة")}
+                    />
                   </div>
                 </div>
 

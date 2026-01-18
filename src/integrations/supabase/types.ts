@@ -273,6 +273,62 @@ export type Database = {
         }
         Relationships: []
       }
+      reports: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data: Json | null
+          description: string | null
+          description_fr: string | null
+          facility_id: string | null
+          file_url: string | null
+          id: string
+          report_type: string
+          status: string
+          title: string
+          title_fr: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json | null
+          description?: string | null
+          description_fr?: string | null
+          facility_id?: string | null
+          file_url?: string | null
+          id?: string
+          report_type?: string
+          status?: string
+          title: string
+          title_fr?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json | null
+          description?: string | null
+          description_fr?: string | null
+          facility_id?: string | null
+          file_url?: string | null
+          id?: string
+          report_type?: string
+          status?: string
+          title?: string
+          title_fr?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_facility_id_fkey"
+            columns: ["facility_id"]
+            isOneToOne: false
+            referencedRelation: "facilities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string

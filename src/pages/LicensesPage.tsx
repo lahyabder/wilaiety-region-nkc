@@ -260,103 +260,152 @@ const LicensesPage = () => {
                   {t("Ajouter une licence", "إضافة ترخيص")}
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-lg">
-                <DialogHeader>
-                  <DialogTitle>{t("Ajouter une nouvelle licence", "إضافة ترخيص جديد")}</DialogTitle>
-                  <DialogDescription>
-                    {t("Entrez les informations de la nouvelle licence", "أدخل معلومات الترخيص الجديد")}
-                  </DialogDescription>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader className="pb-4 border-b border-border">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <DialogTitle className="text-lg">{t("Ajouter une nouvelle licence", "إضافة ترخيص جديد")}</DialogTitle>
+                      <DialogDescription className="text-sm">
+                        {t("Remplissez les informations requises pour créer une nouvelle licence", "املأ المعلومات المطلوبة لإنشاء ترخيص جديد")}
+                      </DialogDescription>
+                    </div>
+                  </div>
                 </DialogHeader>
                 
-                <div className="space-y-4 py-4">
-                  <div>
-                    <Label>{t("Établissement *", "المنشأة *")}</Label>
+                <div className="space-y-6 py-6">
+                  {/* Facility Selection */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium flex items-center gap-2">
+                      <Building2 className="w-4 h-4 text-muted-foreground" />
+                      {t("Établissement", "المنشأة")}
+                      <span className="text-destructive">*</span>
+                    </Label>
                     <Select 
                       value={formData.facility_id} 
                       onValueChange={(value) => setFormData({...formData, facility_id: value})}
                     >
-                      <SelectTrigger className="mt-1">
+                      <SelectTrigger className="h-11">
                         <SelectValue placeholder={t("Sélectionner l'établissement", "اختيار المنشأة")} />
                       </SelectTrigger>
                       <SelectContent>
                         {facilities?.map((facility) => (
                           <SelectItem key={facility.id} value={facility.id}>
-                            {facility.name}
+                            <div className="flex items-center gap-2">
+                              <Building2 className="w-4 h-4 text-muted-foreground" />
+                              {facility.name}
+                            </div>
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>{t("Numéro de licence *", "رقم الترخيص *")}</Label>
-                      <Input 
-                        className="mt-1"
-                        placeholder="LIC-2024-XXXXX"
-                        value={formData.license_number}
-                        onChange={(e) => setFormData({...formData, license_number: e.target.value})}
-                      />
+                  {/* License Info Section */}
+                  <div className="space-y-4 p-4 bg-muted/30 rounded-xl border border-border/50">
+                    <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-primary" />
+                      {t("Informations de la licence", "معلومات الترخيص")}
+                    </h4>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-sm">
+                          {t("Numéro de licence", "رقم الترخيص")}
+                          <span className="text-destructive mr-1">*</span>
+                        </Label>
+                        <Input 
+                          className="h-10"
+                          placeholder="LIC-2024-XXXXX"
+                          value={formData.license_number}
+                          onChange={(e) => setFormData({...formData, license_number: e.target.value})}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm">
+                          {t("Type de licence", "نوع الترخيص")}
+                          <span className="text-destructive mr-1">*</span>
+                        </Label>
+                        <Input 
+                          className="h-10"
+                          placeholder={t("Licence d'exploitation", "ترخيص تشغيل")}
+                          value={formData.license_type}
+                          onChange={(e) => setFormData({...formData, license_type: e.target.value})}
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <Label>{t("Type de licence *", "نوع الترخيص *")}</Label>
+
+                    <div className="space-y-2">
+                      <Label className="text-sm">
+                        {t("Autorité émettrice", "الجهة المصدرة")}
+                        <span className="text-destructive mr-1">*</span>
+                      </Label>
                       <Input 
-                        className="mt-1"
-                        placeholder={t("Licence d'exploitation", "ترخيص تشغيل")}
-                        value={formData.license_type}
-                        onChange={(e) => setFormData({...formData, license_type: e.target.value})}
+                        className="h-10"
+                        placeholder={t("Ministère de la Santé", "وزارة الصحة")}
+                        value={formData.issuing_authority}
+                        onChange={(e) => setFormData({...formData, issuing_authority: e.target.value})}
                       />
                     </div>
                   </div>
 
-                  <div>
-                    <Label>{t("Autorité émettrice *", "الجهة المصدرة *")}</Label>
-                    <Input 
-                      className="mt-1"
-                      placeholder={t("Ministère de la Santé", "وزارة الصحة")}
-                      value={formData.issuing_authority}
-                      onChange={(e) => setFormData({...formData, issuing_authority: e.target.value})}
-                    />
+                  {/* Dates Section */}
+                  <div className="space-y-4 p-4 bg-muted/30 rounded-xl border border-border/50">
+                    <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-primary" />
+                      {t("Dates de validité", "تواريخ الصلاحية")}
+                    </h4>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-sm">
+                          {t("Date d'émission", "تاريخ الإصدار")}
+                          <span className="text-destructive mr-1">*</span>
+                        </Label>
+                        <Input 
+                          type="date"
+                          className="h-10"
+                          value={formData.issue_date}
+                          onChange={(e) => setFormData({...formData, issue_date: e.target.value})}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm">
+                          {t("Date d'expiration", "تاريخ الانتهاء")}
+                          <span className="text-destructive mr-1">*</span>
+                        </Label>
+                        <Input 
+                          type="date"
+                          className="h-10"
+                          value={formData.expiry_date}
+                          onChange={(e) => setFormData({...formData, expiry_date: e.target.value})}
+                        />
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>{t("Date d'émission *", "تاريخ الإصدار *")}</Label>
-                      <Input 
-                        type="date"
-                        className="mt-1"
-                        value={formData.issue_date}
-                        onChange={(e) => setFormData({...formData, issue_date: e.target.value})}
-                      />
-                    </div>
-                    <div>
-                      <Label>{t("Date d'expiration *", "تاريخ الانتهاء *")}</Label>
-                      <Input 
-                        type="date"
-                        className="mt-1"
-                        value={formData.expiry_date}
-                        onChange={(e) => setFormData({...formData, expiry_date: e.target.value})}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label>{t("Notes", "ملاحظات")}</Label>
+                  {/* Notes Section */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">
+                      {t("Notes", "ملاحظات")}
+                      <span className="text-muted-foreground text-xs mr-2">({t("optionnel", "اختياري")})</span>
+                    </Label>
                     <Textarea 
-                      className="mt-1"
-                      placeholder={t("Notes supplémentaires...", "ملاحظات إضافية...")}
+                      className="min-h-[80px] resize-none"
+                      placeholder={t("Ajouter des notes ou remarques supplémentaires...", "إضافة ملاحظات أو تعليقات إضافية...")}
                       value={formData.notes}
                       onChange={(e) => setFormData({...formData, notes: e.target.value})}
                     />
                   </div>
 
                   {/* License Image Upload */}
-                  <div>
-                    <Label className="mb-2 block">
-                      <div className="flex items-center gap-2">
-                        <Image className="w-4 h-4" />
-                        {t("Image de la licence", "صورة الترخيص")}
-                      </div>
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium flex items-center gap-2">
+                      <Image className="w-4 h-4 text-muted-foreground" />
+                      {t("Image de la licence", "صورة الترخيص")}
+                      <span className="text-muted-foreground text-xs">({t("optionnel", "اختياري")})</span>
                     </Label>
                     <input
                       ref={fileInputRef}
@@ -367,19 +416,20 @@ const LicensesPage = () => {
                       disabled={uploadingImage}
                     />
                     {imagePreview ? (
-                      <div className="relative group">
+                      <div className="relative group rounded-xl overflow-hidden border border-border">
                         <img
                           src={imagePreview}
                           alt={t("Aperçu de la licence", "معاينة الترخيص")}
-                          className="w-full h-32 object-cover rounded-lg border border-border"
+                          className="w-full h-40 object-cover"
                         />
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center justify-center gap-3">
                           <Button
                             type="button"
                             variant="secondary"
                             size="sm"
                             onClick={() => fileInputRef.current?.click()}
                             disabled={uploadingImage}
+                            className="shadow-lg"
                           >
                             {uploadingImage ? (
                               <Loader2 className="w-4 h-4 animate-spin" />
@@ -393,6 +443,7 @@ const LicensesPage = () => {
                             variant="destructive"
                             size="sm"
                             onClick={handleRemoveImage}
+                            className="shadow-lg"
                           >
                             <X className="w-4 h-4" />
                             <span className="mr-2">{t("Supprimer", "حذف")}</span>
@@ -402,17 +453,19 @@ const LicensesPage = () => {
                     ) : (
                       <div
                         onClick={() => fileInputRef.current?.click()}
-                        className="h-32 bg-muted rounded-lg flex items-center justify-center border-2 border-dashed border-border hover:border-primary cursor-pointer transition-colors"
+                        className="h-36 bg-gradient-to-br from-muted/50 to-muted rounded-xl flex flex-col items-center justify-center border-2 border-dashed border-border hover:border-primary hover:bg-primary/5 cursor-pointer transition-all duration-200 group"
                       >
                         {uploadingImage ? (
                           <div className="text-center">
-                            <Loader2 className="w-6 h-6 text-primary mx-auto mb-2 animate-spin" />
-                            <span className="text-sm text-muted-foreground">{t("Téléchargement...", "جاري الرفع...")}</span>
+                            <Loader2 className="w-8 h-8 text-primary mx-auto mb-3 animate-spin" />
+                            <span className="text-sm font-medium text-muted-foreground">{t("Téléchargement en cours...", "جاري الرفع...")}</span>
                           </div>
                         ) : (
                           <div className="text-center">
-                            <Upload className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
-                            <span className="text-sm text-muted-foreground">{t("Cliquez pour télécharger", "انقر للرفع")}</span>
+                            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-3 group-hover:bg-primary/10 transition-colors">
+                              <Upload className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                            </div>
+                            <span className="text-sm font-medium text-foreground">{t("Cliquez pour télécharger", "انقر للرفع")}</span>
                             <p className="text-xs text-muted-foreground mt-1">{t("PNG, JPG jusqu'à 5 Mo", "PNG, JPG حتى 5 ميجابايت")}</p>
                           </div>
                         )}
@@ -421,13 +474,14 @@ const LicensesPage = () => {
                   </div>
                 </div>
 
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                <DialogFooter className="pt-4 border-t border-border gap-3 sm:gap-3">
+                  <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="min-w-[100px]">
                     {t("Annuler", "إلغاء")}
                   </Button>
                   <Button 
                     onClick={handleCreateLicense}
                     disabled={createLicense.isPending}
+                    className="min-w-[140px] gap-2"
                   >
                     {createLicense.isPending ? t("Enregistrement...", "جاري الحفظ...") : t("Enregistrer la licence", "حفظ الترخيص")}
                   </Button>

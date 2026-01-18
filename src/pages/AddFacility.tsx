@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -203,6 +203,8 @@ const AddFacility = () => {
   const { data: administrativeDivisions, isLoading: divisionsLoading } = useAdministrativeDivisions();
 
   const [isLocating, setIsLocating] = useState(false);
+  const [documents, setDocuments] = useState<File[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   const form = useForm<FacilityFormData>({
     resolver: zodResolver(facilitySchema),
@@ -848,10 +850,52 @@ const AddFacility = () => {
                       )}
                     />
 
-                    {/* Documents upload placeholder */}
+                    {/* Documents upload */}
                     <div>
                       <FormLabel>{t("Documents justificatifs", "الوثائق المؤيدة")}</FormLabel>
-                      <div className="mt-2 border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer">
+                      <div 
+                        className="mt-2 border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer"
+                        onClick={() => document.getElementById('document-upload')?.click()}
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          e.currentTarget.classList.add('border-primary', 'bg-primary/5');
+                        }}
+                        onDragLeave={(e) => {
+                          e.preventDefault();
+                          e.currentTarget.classList.remove('border-primary', 'bg-primary/5');
+                        }}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          e.currentTarget.classList.remove('border-primary', 'bg-primary/5');
+                          const files = Array.from(e.dataTransfer.files);
+                          const validFiles = files.filter(file => 
+                            file.size <= 10 * 1024 * 1024 && 
+                            ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png', 'image/jpg'].includes(file.type)
+                          );
+                          if (validFiles.length < files.length) {
+                            toast.error(t("Certains fichiers ont été ignorés (type non supporté ou taille > 10 Mo)", "تم تجاهل بعض الملفات (نوع غير مدعوم أو الحجم > 10 ميجابايت)"));
+                          }
+                          setDocuments(prev => [...prev, ...validFiles]);
+                        }}
+                      >
+                        <input
+                          id="document-upload"
+                          type="file"
+                          multiple
+                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                          className="hidden"
+                          onChange={(e) => {
+                            const files = Array.from(e.target.files || []);
+                            const validFiles = files.filter(file => 
+                              file.size <= 10 * 1024 * 1024
+                            );
+                            if (validFiles.length < files.length) {
+                              toast.error(t("Certains fichiers dépassent 10 Mo", "بعض الملفات تتجاوز 10 ميجابايت"));
+                            }
+                            setDocuments(prev => [...prev, ...validFiles]);
+                            e.target.value = '';
+                          }}
+                        />
                         <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
                         <p className="text-sm text-muted-foreground">
                           {t("Glissez les fichiers ici ou cliquez pour télécharger", "اسحب الملفات هنا أو انقر للتحميل")}
@@ -860,6 +904,33 @@ const AddFacility = () => {
                           {t("PDF, DOC, JPG - Maximum 10 Mo", "PDF, DOC, JPG - الحد الأقصى 10 ميجابايت")}
                         </p>
                       </div>
+
+                      {/* Uploaded files list */}
+                      {documents.length > 0 && (
+                        <div className="mt-4 space-y-2">
+                          {documents.map((file, index) => (
+                            <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                              <div className="flex items-center gap-3">
+                                <FileText className="w-5 h-5 text-primary" />
+                                <div>
+                                  <p className="text-sm font-medium">{file.name}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {(file.size / 1024 / 1024).toFixed(2)} MB
+                                  </p>
+                                </div>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setDocuments(prev => prev.filter((_, i) => i !== index))}
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

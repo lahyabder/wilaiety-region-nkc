@@ -56,9 +56,26 @@ const createCustomIcon = (status: FacilityStatus) => {
 interface FacilitiesMapProps {
   height?: string;
   showLegend?: boolean;
+  selectedDistrict?: string;
 }
 
-const FacilitiesMap = ({ height = "400px", showLegend = true }: FacilitiesMapProps) => {
+// District bounds for filtering
+const districtBounds: Record<string, { center: [number, number]; bounds: L.LatLngBoundsExpression }> = {
+  "tevragh-zeina": {
+    center: [18.110344, -15.9993672],
+    bounds: [[18.09, -16.015], [18.13, -15.98]]
+  },
+  "sebkha": {
+    center: [18.0748218, -15.9983611],
+    bounds: [[18.055, -16.02], [18.095, -15.975]]
+  },
+  "ksar": {
+    center: [18.1054371, -15.9552997],
+    bounds: [[18.085, -15.975], [18.125, -15.935]]
+  }
+};
+
+const FacilitiesMap = ({ height = "400px", showLegend = true, selectedDistrict = "all" }: FacilitiesMapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const { data: facilities, isLoading } = useFacilities();
@@ -115,7 +132,21 @@ const FacilitiesMap = ({ height = "400px", showLegend = true }: FacilitiesMapPro
     return config[status];
   };
 
-  const facilitiesWithCoords = facilities?.filter(f => parseGPS(f.gps_coordinates)) || [];
+  // Filter facilities based on selected district
+  const facilitiesWithCoords = facilities?.filter(f => {
+    const coords = parseGPS(f.gps_coordinates);
+    if (!coords) return false;
+    
+    if (selectedDistrict === "all") return true;
+    
+    const districtInfo = districtBounds[selectedDistrict];
+    if (!districtInfo) return true;
+    
+    const [lat, lng] = coords;
+    const [[minLat, minLng], [maxLat, maxLng]] = districtInfo.bounds as [[number, number], [number, number]];
+    
+    return lat >= minLat && lat <= maxLat && lng >= minLng && lng <= maxLng;
+  }) || [];
 
   useEffect(() => {
     if (!mapRef.current || isLoading) return;
@@ -126,17 +157,26 @@ const FacilitiesMap = ({ height = "400px", showLegend = true }: FacilitiesMapPro
       mapInstanceRef.current = null;
     }
 
+    // Determine bounds based on selected district
+    const activeBounds = selectedDistrict !== "all" && districtBounds[selectedDistrict] 
+      ? districtBounds[selectedDistrict].bounds 
+      : mapBounds;
+    
+    const activeCenter = selectedDistrict !== "all" && districtBounds[selectedDistrict]
+      ? districtBounds[selectedDistrict].center
+      : defaultCenter;
+
     // Create new map with bounds restriction
     const map = L.map(mapRef.current, {
       maxBounds: mapBounds,
-      maxBoundsViscosity: 1.0, // Prevents dragging outside bounds
+      maxBoundsViscosity: 1.0,
       minZoom: 13,
       maxZoom: 18,
-    }).setView(defaultCenter, 14);
+    }).setView(activeCenter, selectedDistrict !== "all" ? 15 : 14);
     mapInstanceRef.current = map;
 
-    // Set initial bounds to show all 3 districts
-    map.fitBounds(mapBounds);
+    // Set initial bounds
+    map.fitBounds(activeBounds);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -190,7 +230,7 @@ const FacilitiesMap = ({ height = "400px", showLegend = true }: FacilitiesMapPro
         mapInstanceRef.current = null;
       }
     };
-  }, [facilities, isLoading, language, statusLabels, sectorLabels]);
+  }, [facilities, isLoading, language, statusLabels, sectorLabels, selectedDistrict]);
 
   if (isLoading) {
     return (

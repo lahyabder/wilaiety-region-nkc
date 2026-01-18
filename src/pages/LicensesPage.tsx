@@ -53,7 +53,7 @@ import {
   RefreshCw
 } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
-import { fr } from "date-fns/locale";
+import { fr, ar } from "date-fns/locale";
 
 const LicensesPage = () => {
   const { t } = useLanguage();
@@ -79,11 +79,14 @@ const LicensesPage = () => {
     notes: "",
   });
 
-  const statusLabels: Record<LicenseStatus, string> = {
-    "ساري": "Valide",
-    "قريب الانتهاء": "Expire bientôt",
-    "منتهي": "Expiré",
-    "ملغى": "Annulé",
+  const getStatusLabel = (status: LicenseStatus) => {
+    const labels: Record<LicenseStatus, { fr: string; ar: string }> = {
+      "ساري": { fr: "Valide", ar: "ساري" },
+      "قريب الانتهاء": { fr: "Expire bientôt", ar: "قريب الانتهاء" },
+      "منتهي": { fr: "Expiré", ar: "منتهي" },
+      "ملغى": { fr: "Annulé", ar: "ملغى" },
+    };
+    return t(labels[status].fr, labels[status].ar);
   };
 
   const getStatusBadge = (status: LicenseStatus) => {
@@ -97,17 +100,21 @@ const LicensesPage = () => {
     return (
       <Badge className={`${className} gap-1`}>
         <Icon className="w-3 h-3" />
-        {statusLabels[status]}
+        {getStatusLabel(status)}
       </Badge>
     );
   };
 
   const getDaysRemaining = (expiryDate: string) => {
     const days = differenceInDays(new Date(expiryDate), new Date());
-    if (days < 0) return <span className="text-critical font-medium">Expiré depuis {Math.abs(days)} jours</span>;
-    if (days === 0) return <span className="text-critical font-medium">Expire aujourd'hui</span>;
-    if (days <= 30) return <span className="text-warning font-medium">{days} jours restants</span>;
-    return <span className="text-success">{days} jours restants</span>;
+    if (days < 0) return <span className="text-critical font-medium">{t(`Expiré depuis ${Math.abs(days)} jours`, `منتهي منذ ${Math.abs(days)} يوم`)}</span>;
+    if (days === 0) return <span className="text-critical font-medium">{t("Expire aujourd'hui", "ينتهي اليوم")}</span>;
+    if (days <= 30) return <span className="text-warning font-medium">{t(`${days} jours restants`, `${days} يوم متبقي`)}</span>;
+    return <span className="text-success">{t(`${days} jours restants`, `${days} يوم متبقي`)}</span>;
+  };
+
+  const getDateLocale = () => {
+    return t("fr", "ar") === "ar" ? ar : fr;
   };
 
   const filteredLicenses = licenses?.filter(license => {
@@ -398,7 +405,7 @@ const LicensesPage = () => {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-muted-foreground" />
-                          {format(new Date(license.expiry_date), "dd MMM yyyy", { locale: fr })}
+                          {format(new Date(license.expiry_date), "dd MMM yyyy", { locale: getDateLocale() })}
                         </div>
                       </TableCell>
                       <TableCell>{getDaysRemaining(license.expiry_date)}</TableCell>

@@ -56,11 +56,11 @@ const Header = () => {
             
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary-foreground/20 rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-lg sm:text-xl">J</span>
+                <span className="text-primary-foreground font-bold text-lg sm:text-xl">و</span>
               </div>
               <div className="hidden xs:block">
-                <h1 className="text-primary-foreground font-bold text-lg sm:text-xl">Jihety</h1>
-                <p className="text-primary-foreground/80 text-[10px] sm:text-xs hidden sm:block">{t("Gestion des établissements", "إدارة المنشآت")}</p>
+                <h1 className="text-primary-foreground font-bold text-lg sm:text-xl">{t("Wilaiety", "ولايتي")}</h1>
+                <p className="text-primary-foreground/80 text-[10px] sm:text-xs hidden sm:block">{t("Gestion des établissements", "إدارة المرافق")}</p>
               </div>
             </div>
           </div>

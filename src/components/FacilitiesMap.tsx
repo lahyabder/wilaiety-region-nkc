@@ -65,8 +65,8 @@ const FacilitiesMap = ({ height = "400px", showLegend = true }: FacilitiesMapPro
   const navigate = useNavigate();
   const { t, language } = useLanguage();
 
-  // Default center (Nouadhibou, Mauritania)
-  const defaultCenter: [number, number] = [20.9340, -17.0320];
+  // Default center (Nouakchott, Mauritania)
+  const defaultCenter: [number, number] = [18.0735, -15.9582];
 
   // Dynamic status labels
   const statusLabels: Record<FacilityStatus, string> = {

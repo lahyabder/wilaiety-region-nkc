@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,6 +28,7 @@ import {
 } from "@/components/ui/form";
 import { useCreateFacility, type FacilitySector, type OwnershipType, type LegalDomain, type JurisdictionType, type FacilityStatus } from "@/hooks/useFacilities";
 import { useAdministrativeDivisions } from "@/hooks/useAdministrativeDivisions";
+import { toast } from "sonner";
 import { 
   ArrowLeft, 
   Building2, 
@@ -36,7 +38,9 @@ import {
   FileText,
   Scale,
   Upload,
-  Loader2
+  Loader2,
+  Navigation,
+  LocateFixed
 } from "lucide-react";
 
 const sectors: FacilitySector[] = [
@@ -181,6 +185,8 @@ const AddFacility = () => {
   const createFacility = useCreateFacility();
   const { data: administrativeDivisions, isLoading: divisionsLoading } = useAdministrativeDivisions();
 
+  const [isLocating, setIsLocating] = useState(false);
+
   // Handle division change to auto-fill GPS coordinates
   const handleDivisionChange = (value: string, onChange: (value: string) => void) => {
     onChange(value);
@@ -188,6 +194,46 @@ const AddFacility = () => {
     if (selectedDivision?.gps_coordinates) {
       form.setValue("gps", selectedDivision.gps_coordinates);
     }
+  };
+
+  // Get current GPS location
+  const handleGetCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error(t("Géolocalisation non supportée", "الموقع الجغرافي غير مدعوم في هذا المتصفح"));
+      return;
+    }
+
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const coordinates = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+        form.setValue("gps", coordinates);
+        setIsLocating(false);
+        toast.success(t("Position détectée avec succès", "تم تحديد الموقع بنجاح"));
+      },
+      (error) => {
+        setIsLocating(false);
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            toast.error(t("Accès à la localisation refusé", "تم رفض الوصول إلى الموقع"));
+            break;
+          case error.POSITION_UNAVAILABLE:
+            toast.error(t("Position non disponible", "الموقع غير متاح"));
+            break;
+          case error.TIMEOUT:
+            toast.error(t("Délai d'attente dépassé", "انتهت مهلة تحديد الموقع"));
+            break;
+          default:
+            toast.error(t("Erreur de localisation", "خطأ في تحديد الموقع"));
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
   };
 
   const form = useForm<FacilityFormData>({
@@ -603,15 +649,32 @@ const AddFacility = () => {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>{t("Coordonnées GPS", "إحداثيات GPS")}</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder={t("Ex: 36.7538, 3.0588", "مثال: 36.7538, 3.0588")} 
-                              className="font-mono"
-                              {...field} 
-                            />
-                          </FormControl>
+                          <div className="flex gap-2">
+                            <FormControl>
+                              <Input 
+                                placeholder={t("Ex: 18.0790, -15.9657", "مثال: 18.0790, -15.9657")} 
+                                className="font-mono flex-1"
+                                {...field} 
+                              />
+                            </FormControl>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              onClick={handleGetCurrentLocation}
+                              disabled={isLocating}
+                              className="flex-shrink-0"
+                              title={t("Détecter ma position", "تحديد موقعي")}
+                            >
+                              {isLocating ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <LocateFixed className="w-4 h-4" />
+                              )}
+                            </Button>
+                          </div>
                           <FormDescription>
-                            {t("Format: latitude, longitude", "الصيغة: خط العرض, خط الطول")}
+                            {t("Format: latitude, longitude - Cliquez sur l'icône pour détecter votre position", "الصيغة: خط العرض, خط الطول - اضغط على الأيقونة لتحديد موقعك")}
                           </FormDescription>
                           <FormMessage />
                         </FormItem>

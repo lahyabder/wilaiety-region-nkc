@@ -289,7 +289,7 @@ const FacilityDetails = () => {
             <TabsContent value="basic" className="space-y-4 sm:space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 {/* Main Info Card */}
-                <div className="card-institutional space-y-5">
+                <div className={`card-institutional space-y-5 ${language === "ar" ? "text-right" : "text-left"}`}>
                   <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3">{t("Informations de l'établissement", "معلومات المنشأة")}</h2>
                   
                   <div className="space-y-4">
@@ -388,7 +388,7 @@ const FacilityDetails = () => {
                 </div>
 
                 {/* Classification Card */}
-                <div className="card-institutional space-y-5">
+                <div className={`card-institutional space-y-5 ${language === "ar" ? "text-right" : "text-left"}`}>
                   <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3">{t("Classification et activité", "التصنيف والنشاط")}</h2>
                   
                   <div className="space-y-4">
@@ -499,7 +499,7 @@ const FacilityDetails = () => {
             {/* Location Tab */}
             <TabsContent value="location" className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="card-institutional space-y-5">
+                <div className={`card-institutional space-y-5 ${language === "ar" ? "text-right" : "text-left"}`}>
                   <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3">{t("Coordonnées GPS", "إحداثيات GPS")}</h2>
                   
                   <div className="space-y-4">
@@ -597,7 +597,7 @@ const FacilityDetails = () => {
             <TabsContent value="legal" className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Ownership Card */}
-                <div className="card-institutional space-y-5">
+                <div className={`card-institutional space-y-5 ${language === "ar" ? "text-right" : "text-left"}`}>
                   <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3">{t("Statut de propriété", "حالة الملكية")}</h2>
                   
                   <div className="space-y-4">
@@ -655,7 +655,7 @@ const FacilityDetails = () => {
                 </div>
 
                 {/* License Card */}
-                <div className="card-institutional space-y-5">
+                <div className={`card-institutional space-y-5 ${language === "ar" ? "text-right" : "text-left"}`}>
                   <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3">{t("Informations de licence", "معلومات الترخيص")}</h2>
                   
                   {currentLicense ? (

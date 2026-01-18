@@ -15,8 +15,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import FacilityImageUpload from "@/components/FacilityImageUpload";
 import FacilityLocationMap from "@/components/FacilityLocationMap";
 import FacilityLocationEditor from "@/components/FacilityLocationEditor";
+import LicenseImageUpload from "@/components/LicenseImageUpload";
+import LicensePreviewCard from "@/components/LicensePreviewCard";
 import { useFacility, useUpdateFacility, type Facility, type FacilitySector, type OwnershipType, type LegalDomain, type JurisdictionType, type FacilityStatus } from "@/hooks/useFacilities";
-import { useFacilityLicenses } from "@/hooks/useLicenses";
+import { useFacilityLicenses, useUpdateLicense } from "@/hooks/useLicenses";
 import { 
   ArrowRight, 
   Building2, 
@@ -29,7 +31,8 @@ import {
   History,
   AlertTriangle,
   CheckCircle,
-  ExternalLink
+  ExternalLink,
+  Image
 } from "lucide-react";
 
 const sectors: FacilitySector[] = [
@@ -106,15 +109,23 @@ const FacilityDetails = () => {
   const { data: facility, isLoading, error } = useFacility(id || "");
   const { data: licenses } = useFacilityLicenses(id || "");
   const updateFacility = useUpdateFacility();
+  const updateLicense = useUpdateLicense();
   
   const [isEditing, setIsEditing] = useState(false);
   const [editedFacility, setEditedFacility] = useState<Partial<Facility>>({});
+  const [editedLicenseImage, setEditedLicenseImage] = useState<string | null>(null);
 
   useEffect(() => {
     if (facility) {
       setEditedFacility(facility);
     }
   }, [facility]);
+
+  useEffect(() => {
+    if (currentLicense) {
+      setEditedLicenseImage(currentLicense.image_url);
+    }
+  }, [licenses]);
 
   const handleSave = async () => {
     if (!id || !editedFacility) return;
@@ -140,6 +151,15 @@ const FacilityDetails = () => {
       image_url: editedFacility.image_url,
       website_url: editedFacility.website_url,
     });
+
+    // Update license image if changed
+    if (currentLicense && editedLicenseImage !== currentLicense.image_url) {
+      await updateLicense.mutateAsync({
+        id: currentLicense.id,
+        image_url: editedLicenseImage,
+      });
+    }
+    
     setIsEditing(false);
   };
 
@@ -147,11 +167,18 @@ const FacilityDetails = () => {
     if (facility) {
       setEditedFacility(facility);
     }
+    if (currentLicense) {
+      setEditedLicenseImage(currentLicense.image_url);
+    }
     setIsEditing(false);
   };
 
   const handleImageUploaded = (url: string) => {
     setEditedFacility(prev => ({ ...prev, image_url: url || null }));
+  };
+
+  const handleLicenseImageUploaded = (url: string) => {
+    setEditedLicenseImage(url || null);
   };
 
   const getStatusBadge = (status: string) => {
@@ -164,6 +191,8 @@ const FacilityDetails = () => {
     };
     return statusConfig[status] || "bg-muted text-muted-foreground";
   };
+
+  const currentLicense = licenses?.[0];
 
   if (isLoading) {
     return (
@@ -200,7 +229,6 @@ const FacilityDetails = () => {
     );
   }
 
-  const currentLicense = licenses?.[0];
 
   return (
     <div className="min-h-screen bg-background">
@@ -656,7 +684,12 @@ const FacilityDetails = () => {
 
                 {/* License Card */}
                 <div className={`card-institutional space-y-5 ${language === "ar" ? "text-right" : "text-left"}`}>
-                  <h2 className="text-lg font-semibold text-foreground border-b border-border pb-3">{t("Informations de licence", "معلومات الترخيص")}</h2>
+                  <div className="flex items-center justify-between border-b border-border pb-3">
+                    <h2 className="text-lg font-semibold text-foreground">{t("Informations de licence", "معلومات الترخيص")}</h2>
+                    {currentLicense && (
+                      <LicensePreviewCard license={currentLicense} />
+                    )}
+                  </div>
                   
                   {currentLicense ? (
                     <div className="space-y-4">
@@ -683,6 +716,22 @@ const FacilityDetails = () => {
                             {licenseStatusLabels[currentLicense.status] || currentLicense.status}
                           </Badge>
                         </div>
+                      </div>
+
+                      {/* License Image */}
+                      <div>
+                        <Label className="text-muted-foreground text-sm mb-2 block">
+                          <div className="flex items-center gap-2">
+                            <Image className="w-4 h-4" />
+                            {t("Image de la licence", "صورة الترخيص")}
+                          </div>
+                        </Label>
+                        <LicenseImageUpload
+                          licenseId={currentLicense.id}
+                          currentImageUrl={isEditing ? editedLicenseImage : currentLicense.image_url}
+                          onImageUploaded={handleLicenseImageUploaded}
+                          isEditing={isEditing}
+                        />
                       </div>
                     </div>
                   ) : (

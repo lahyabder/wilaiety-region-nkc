@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import Footer from "@/components/Footer";
 import FacilityCard from "@/components/FacilityCard";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useFacilities, type FacilitySector } from "@/hooks/useFacilities";
+import { useFacilities, type FacilitySector, type Facility } from "@/hooks/useFacilities";
+import { useAdministrativeDivisions } from "@/hooks/useAdministrativeDivisions";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,7 +17,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowRight, Building2, Search, Plus, Filter } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { ArrowRight, Building2, Search, Plus, Filter, Download, FileText, FileSpreadsheet, MapPin } from "lucide-react";
+import { toast } from "sonner";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+import * as XLSX from "xlsx";
 
 const sectorLabels: Record<FacilitySector, { fr: string; ar: string }> = {
   "صحية": { fr: "Santé", ar: "صحية" },
@@ -40,6 +52,13 @@ const sectorLabels: Record<FacilitySector, { fr: string; ar: string }> = {
   "بيئية": { fr: "Environnement", ar: "بيئية" },
 };
 
+const statusLabels: Record<string, { fr: string; ar: string }> = {
+  "نشط": { fr: "Actif", ar: "نشط" },
+  "غير نشط": { fr: "Inactif", ar: "غير نشط" },
+  "قيد الإنشاء": { fr: "En construction", ar: "قيد الإنشاء" },
+  "معلق": { fr: "Suspendu", ar: "معلق" },
+};
+
 const allSectors: FacilitySector[] = [
   "صحية", "تعليمية", "صناعية", "زراعية", "رياضية", "ثقافية", "اجتماعية", 
   "دينية", "نقل", "تجارة", "سياحة", "إدارية", "قضائية", "سياسية", 
@@ -47,12 +66,18 @@ const allSectors: FacilitySector[] = [
 ];
 
 const AllFacilitiesPage = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const { data: facilities, isLoading } = useFacilities();
+  const { data: divisions } = useAdministrativeDivisions();
   const [searchQuery, setSearchQuery] = useState("");
   const [sectorFilter, setSectorFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [regionFilter, setRegionFilter] = useState<string>("all");
+  const printRef = useRef<HTMLDivElement>(null);
+
+  // Get unique regions from facilities
+  const uniqueRegions = [...new Set(facilities?.map(f => f.region) || [])].filter(Boolean);
 
   const getStatusForCard = (status: string): "active" | "pending" | "expired" => {
     if (status === "نشط") return "active";
@@ -73,9 +98,173 @@ const AllFacilitiesPage = () => {
     
     const matchesSector = sectorFilter === "all" || facility.sector === sectorFilter;
     const matchesStatus = statusFilter === "all" || facility.status === statusFilter;
+    const matchesRegion = regionFilter === "all" || facility.region === regionFilter;
     
-    return matchesSearch && matchesSector && matchesStatus;
+    return matchesSearch && matchesSector && matchesStatus && matchesRegion;
   });
+
+  const getExportTitle = () => {
+    let title = t("Liste des établissements", "قائمة المنشآت");
+    if (sectorFilter !== "all") {
+      const sectorLabel = sectorLabels[sectorFilter as FacilitySector];
+      title += ` - ${t(sectorLabel.fr, sectorLabel.ar)}`;
+    }
+    if (regionFilter !== "all") {
+      title += ` - ${regionFilter}`;
+    }
+    return title;
+  };
+
+  const exportToPDF = async () => {
+    try {
+      toast.loading(t("Génération du PDF...", "جاري إنشاء PDF..."));
+
+      // Create a hidden div for PDF content
+      const container = document.createElement("div");
+      container.style.cssText = `
+        position: absolute; 
+        left: -9999px; 
+        top: 0; 
+        width: 800px; 
+        padding: 40px; 
+        background: white;
+        font-family: Arial, sans-serif;
+        direction: ${language === "ar" ? "rtl" : "ltr"};
+      `;
+
+      const exportTitle = getExportTitle();
+      const currentDate = new Date().toLocaleDateString(language === "ar" ? "ar-SA" : "fr-FR");
+
+      container.innerHTML = `
+        <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #1a5f2a; padding-bottom: 20px;">
+          <h1 style="color: #1a5f2a; font-size: 24px; margin: 0 0 10px 0;">${exportTitle}</h1>
+          <p style="color: #666; font-size: 14px; margin: 0;">${t("Date d'exportation", "تاريخ التصدير")}: ${currentDate}</p>
+          <p style="color: #666; font-size: 14px; margin: 5px 0 0 0;">${t("Nombre d'établissements", "عدد المنشآت")}: ${filteredFacilities?.length || 0}</p>
+        </div>
+        <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+          <thead>
+            <tr style="background: #1a5f2a; color: white;">
+              <th style="padding: 12px 8px; text-align: ${language === "ar" ? "right" : "left"}; border: 1px solid #ddd;">#</th>
+              <th style="padding: 12px 8px; text-align: ${language === "ar" ? "right" : "left"}; border: 1px solid #ddd;">${t("Nom", "الاسم")}</th>
+              <th style="padding: 12px 8px; text-align: ${language === "ar" ? "right" : "left"}; border: 1px solid #ddd;">${t("Abréviation", "الاختصار")}</th>
+              <th style="padding: 12px 8px; text-align: ${language === "ar" ? "right" : "left"}; border: 1px solid #ddd;">${t("Secteur", "القطاع")}</th>
+              <th style="padding: 12px 8px; text-align: ${language === "ar" ? "right" : "left"}; border: 1px solid #ddd;">${t("Région", "المنطقة")}</th>
+              <th style="padding: 12px 8px; text-align: ${language === "ar" ? "right" : "left"}; border: 1px solid #ddd;">${t("Statut", "الحالة")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filteredFacilities?.map((facility, index) => {
+              const sectorLabel = sectorLabels[facility.sector];
+              const statLabel = statusLabels[facility.status];
+              return `
+                <tr style="background: ${index % 2 === 0 ? "#f9f9f9" : "white"};">
+                  <td style="padding: 10px 8px; border: 1px solid #ddd;">${index + 1}</td>
+                  <td style="padding: 10px 8px; border: 1px solid #ddd; font-weight: 500;">${facility.name}</td>
+                  <td style="padding: 10px 8px; border: 1px solid #ddd;">${facility.short_name}</td>
+                  <td style="padding: 10px 8px; border: 1px solid #ddd;">${t(sectorLabel?.fr || facility.sector, sectorLabel?.ar || facility.sector)}</td>
+                  <td style="padding: 10px 8px; border: 1px solid #ddd;">${facility.region}</td>
+                  <td style="padding: 10px 8px; border: 1px solid #ddd;">${t(statLabel?.fr || facility.status, statLabel?.ar || facility.status)}</td>
+                </tr>
+              `;
+            }).join("") || ""}
+          </tbody>
+        </table>
+        <div style="margin-top: 30px; text-align: center; color: #999; font-size: 11px;">
+          <p>${t("Document généré automatiquement", "مستند تم إنشاؤه آلياً")}</p>
+        </div>
+      `;
+
+      document.body.appendChild(container);
+
+      const canvas = await html2canvas(container, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: "#ffffff",
+      });
+
+      document.body.removeChild(container);
+
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      const imgWidth = 190;
+      const pageHeight = 277;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 10;
+
+      pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight + 10;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      const fileName = `facilities-${sectorFilter !== "all" ? sectorFilter + "-" : ""}${regionFilter !== "all" ? regionFilter + "-" : ""}${new Date().toISOString().split("T")[0]}.pdf`;
+      pdf.save(fileName);
+
+      toast.dismiss();
+      toast.success(t("PDF exporté avec succès", "تم تصدير PDF بنجاح"));
+    } catch (error) {
+      console.error("Error exporting PDF:", error);
+      toast.dismiss();
+      toast.error(t("Erreur lors de l'exportation", "خطأ في التصدير"));
+    }
+  };
+
+  const exportToExcel = () => {
+    try {
+      if (!filteredFacilities || filteredFacilities.length === 0) {
+        toast.error(t("Aucune donnée à exporter", "لا توجد بيانات للتصدير"));
+        return;
+      }
+
+      const data = filteredFacilities.map((facility, index) => {
+        const sectorLabel = sectorLabels[facility.sector];
+        const statLabel = statusLabels[facility.status];
+        return {
+          [t("#", "#")]: index + 1,
+          [t("Nom", "الاسم")]: facility.name,
+          [t("Abréviation", "الاختصار")]: facility.short_name,
+          [t("Nom légal", "الاسم القانوني")]: facility.legal_name,
+          [t("Secteur", "القطاع")]: t(sectorLabel?.fr || facility.sector, sectorLabel?.ar || facility.sector),
+          [t("Type d'activité", "نوع النشاط")]: facility.activity_type,
+          [t("Région", "المنطقة")]: facility.region,
+          [t("Adresse", "العنوان")]: facility.address,
+          [t("Coordonnées GPS", "إحداثيات GPS")]: facility.gps_coordinates || "",
+          [t("Statut", "الحالة")]: t(statLabel?.fr || facility.status, statLabel?.ar || facility.status),
+          [t("Date de création", "تاريخ الإنشاء")]: facility.created_date,
+        };
+      });
+
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, t("Établissements", "المنشآت"));
+
+      // Auto-size columns
+      const maxWidth = 50;
+      const colWidths = Object.keys(data[0] || {}).map(key => ({
+        wch: Math.min(maxWidth, Math.max(key.length, ...data.map(row => String(row[key as keyof typeof row] || "").length)))
+      }));
+      worksheet["!cols"] = colWidths;
+
+      const fileName = `facilities-${sectorFilter !== "all" ? sectorFilter + "-" : ""}${regionFilter !== "all" ? regionFilter + "-" : ""}${new Date().toISOString().split("T")[0]}.xlsx`;
+      XLSX.writeFile(workbook, fileName);
+
+      toast.success(t("Excel exporté avec succès", "تم تصدير Excel بنجاح"));
+    } catch (error) {
+      console.error("Error exporting Excel:", error);
+      toast.error(t("Erreur lors de l'exportation", "خطأ في التصدير"));
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -107,15 +296,35 @@ const AllFacilitiesPage = () => {
                 </p>
               </div>
             </div>
-            <Button onClick={() => navigate("/add-facility")} className="gap-2">
-              <Plus className="w-4 h-4" />
-              {t("Ajouter", "إضافة منشأة")}
-            </Button>
+            <div className="flex gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="gap-2">
+                    <Download className="w-4 h-4" />
+                    {t("Exporter", "تصدير")}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={exportToPDF} className="gap-2 cursor-pointer">
+                    <FileText className="w-4 h-4" />
+                    {t("Exporter en PDF", "تصدير PDF")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={exportToExcel} className="gap-2 cursor-pointer">
+                    <FileSpreadsheet className="w-4 h-4" />
+                    {t("Exporter en Excel", "تصدير Excel")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button onClick={() => navigate("/add-facility")} className="gap-2">
+                <Plus className="w-4 h-4" />
+                {t("Ajouter", "إضافة منشأة")}
+              </Button>
+            </div>
           </div>
 
           {/* Filters */}
           <div className="card-institutional mb-6">
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col lg:flex-row gap-4">
               <div className="flex-1 relative">
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -126,7 +335,7 @@ const AllFacilitiesPage = () => {
                 />
               </div>
               <Select value={sectorFilter} onValueChange={setSectorFilter}>
-                <SelectTrigger className="w-full sm:w-48">
+                <SelectTrigger className="w-full lg:w-48">
                   <Filter className="w-4 h-4 ml-2" />
                   <SelectValue placeholder={t("Secteur", "القطاع")} />
                 </SelectTrigger>
@@ -139,8 +348,22 @@ const AllFacilitiesPage = () => {
                   ))}
                 </SelectContent>
               </Select>
+              <Select value={regionFilter} onValueChange={setRegionFilter}>
+                <SelectTrigger className="w-full lg:w-48">
+                  <MapPin className="w-4 h-4 ml-2" />
+                  <SelectValue placeholder={t("Région", "المنطقة")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("Toutes les régions", "جميع المناطق")}</SelectItem>
+                  {uniqueRegions.map((region) => (
+                    <SelectItem key={region} value={region}>
+                      {region}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full sm:w-40">
+                <SelectTrigger className="w-full lg:w-40">
                   <SelectValue placeholder={t("Statut", "الحالة")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -181,11 +404,11 @@ const AllFacilitiesPage = () => {
                 {t("Aucun établissement trouvé", "لا توجد منشآت")}
               </h3>
               <p className="text-muted-foreground mb-4">
-                {searchQuery || sectorFilter !== "all" || statusFilter !== "all"
+                {searchQuery || sectorFilter !== "all" || statusFilter !== "all" || regionFilter !== "all"
                   ? t("Essayez de modifier vos critères de recherche", "جرب تعديل معايير البحث")
                   : t("Commencez par ajouter un nouvel établissement", "ابدأ بإضافة منشأة جديدة")}
               </p>
-              {!searchQuery && sectorFilter === "all" && statusFilter === "all" && (
+              {!searchQuery && sectorFilter === "all" && statusFilter === "all" && regionFilter === "all" && (
                 <Button onClick={() => navigate("/add-facility")}>
                   <Plus className="w-4 h-4 ml-2" />
                   {t("Ajouter un établissement", "إضافة منشأة")}

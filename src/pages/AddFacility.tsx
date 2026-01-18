@@ -73,7 +73,13 @@ const sectorLabels: Record<FacilitySector, string> = {
 };
 
 const ownershipTypes: OwnershipType[] = ["ملكية كاملة", "إيجار", "شراكة", "مملوكة مع جهة أخرى"];
-const ownershipLabels: Record<OwnershipType, string> = {
+const ownershipLabelsAr: Record<OwnershipType, string> = {
+  "ملكية كاملة": "ملكية كاملة",
+  "إيجار": "إيجار",
+  "شراكة": "شراكة",
+  "مملوكة مع جهة أخرى": "ملكية مشتركة",
+};
+const ownershipLabelsFr: Record<OwnershipType, string> = {
   "ملكية كاملة": "Propriété totale",
   "إيجار": "Location",
   "شراكة": "Partenariat",
@@ -81,14 +87,24 @@ const ownershipLabels: Record<OwnershipType, string> = {
 };
 
 const legalDomains: LegalDomain[] = ["مجال عام للجهة", "مجال خاص للجهة", "خارج ملكية الجهة"];
-const legalDomainLabels: Record<LegalDomain, string> = {
+const legalDomainLabelsAr: Record<LegalDomain, string> = {
+  "مجال عام للجهة": "مجال عام للجهة",
+  "مجال خاص للجهة": "مجال خاص للجهة",
+  "خارج ملكية الجهة": "خارج ملكية الجهة",
+};
+const legalDomainLabelsFr: Record<LegalDomain, string> = {
   "مجال عام للجهة": "Domaine public",
   "مجال خاص للجهة": "Domaine privé",
   "خارج ملكية الجهة": "Hors propriété",
 };
 
 const facilityTypes: JurisdictionType[] = ["خاص", "محال", "تنسيق"];
-const jurisdictionLabels: Record<JurisdictionType, string> = {
+const jurisdictionLabelsAr: Record<JurisdictionType, string> = {
+  "خاص": "خاص",
+  "محال": "محال",
+  "تنسيق": "تنسيق",
+};
+const jurisdictionLabelsFr: Record<JurisdictionType, string> = {
   "خاص": "Privé",
   "محال": "Délégué",
   "تنسيق": "Coordination",
@@ -181,7 +197,7 @@ const facilitySchema = z.object({
 type FacilityFormData = z.infer<typeof facilitySchema>;
 
 const AddFacility = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const createFacility = useCreateFacility();
   const { data: administrativeDivisions, isLoading: divisionsLoading } = useAdministrativeDivisions();
@@ -610,7 +626,7 @@ const AddFacility = () => {
                             </FormControl>
                             <SelectContent>
                               {facilityTypes.map((type) => (
-                                <SelectItem key={type} value={type}>{jurisdictionLabels[type]}</SelectItem>
+                                <SelectItem key={type} value={type}>{language === 'fr' ? jurisdictionLabelsFr[type] : jurisdictionLabelsAr[type]}</SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
@@ -797,7 +813,7 @@ const AddFacility = () => {
                             </FormControl>
                             <SelectContent>
                               {ownershipTypes.map((type) => (
-                                <SelectItem key={type} value={type}>{ownershipLabels[type]}</SelectItem>
+                                <SelectItem key={type} value={type}>{language === 'fr' ? ownershipLabelsFr[type] : ownershipLabelsAr[type]}</SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
@@ -820,7 +836,7 @@ const AddFacility = () => {
                             </FormControl>
                             <SelectContent>
                               {legalDomains.map((domain) => (
-                                <SelectItem key={domain} value={domain}>{legalDomainLabels[domain]}</SelectItem>
+                                <SelectItem key={domain} value={domain}>{language === 'fr' ? legalDomainLabelsFr[domain] : legalDomainLabelsAr[domain]}</SelectItem>
                               ))}
                             </SelectContent>
                           </Select>

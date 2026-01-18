@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import Footer from "@/components/Footer";
@@ -86,6 +87,7 @@ const allSectors: FacilitySector[] = [
 ];
 
 const Index = () => {
+  const navigate = useNavigate();
   const { data: facilities, isLoading: facilitiesLoading } = useFacilities();
   const { data: stats, isLoading: statsLoading } = useFacilityStats();
   const { t } = useLanguage();
@@ -158,7 +160,10 @@ const Index = () => {
           <div className="mb-6 sm:mb-8">
             <div className="flex items-center justify-between mb-3 sm:mb-4">
               <h2 className="text-lg sm:text-xl font-bold text-foreground">{t("Secteurs", "القطاعات")}</h2>
-              <button className="text-primary hover:underline text-xs sm:text-sm font-medium">
+              <button 
+                onClick={() => navigate("/sector/all")}
+                className="text-primary hover:underline text-xs sm:text-sm font-medium"
+              >
                 {t("Voir tout", "عرض الكل")}
               </button>
             </div>
@@ -187,7 +192,10 @@ const Index = () => {
           <div>
             <div className="flex items-center justify-between mb-3 sm:mb-4">
               <h2 className="text-lg sm:text-xl font-bold text-foreground">{t("Derniers établissements", "أحدث المنشآت")}</h2>
-              <button className="text-primary hover:underline text-xs sm:text-sm font-medium">
+              <button 
+                onClick={() => navigate("/facilities")}
+                className="text-primary hover:underline text-xs sm:text-sm font-medium"
+              >
                 {t("Voir tout", "عرض الكل")}
               </button>
             </div>

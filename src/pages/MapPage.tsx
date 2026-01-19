@@ -202,7 +202,7 @@ const MapPage = () => {
                 <SelectTrigger className="w-[220px]">
                   <SelectValue placeholder={t("Filtrer par moughataa", "فلترة حسب المقاطعة")} />
                 </SelectTrigger>
-                <SelectContent className="bg-background border border-border shadow-lg z-50 max-h-[300px] overflow-y-auto">
+                <SelectContent className="bg-background border border-border shadow-lg z-[9999] max-h-[300px] overflow-y-auto">
                   {districts.map((district) => (
                     <SelectItem key={district.id} value={district.id}>
                       <div className="flex items-center justify-between w-full gap-2">
@@ -221,7 +221,7 @@ const MapPage = () => {
                 <SelectTrigger className="w-[200px]">
                   <SelectValue placeholder={t("Filtrer par secteur", "فلترة حسب القطاع")} />
                 </SelectTrigger>
-                <SelectContent className="bg-background border border-border shadow-lg z-50 max-h-[400px] overflow-y-auto">
+                <SelectContent className="bg-background border border-border shadow-lg z-[9999] max-h-[400px] overflow-y-auto">
                   {sectors.map((sector) => (
                     <SelectItem key={sector.id} value={sector.id}>
                       <div className="flex items-center justify-between w-full gap-2">

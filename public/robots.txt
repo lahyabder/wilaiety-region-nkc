@@ -1,13 +1,18 @@
 # Robots.txt for wilaiety.com
-# Clean deployment - no legacy domains
+# Official Facilities Management Platform
 
 User-agent: *
 Allow: /
+Allow: /login
+Allow: /security
+Allow: /privacy-policy
+Allow: /terms
+Allow: /contact
 
-# Sitemap
-Sitemap: https://wilaiety.com/sitemap.xml
-
-# Block potential attack vectors
+# Block sensitive paths
 Disallow: /api/
 Disallow: /.env
 Disallow: /config/
+
+# Sitemap
+Sitemap: https://wilaiety.com/sitemap.xml

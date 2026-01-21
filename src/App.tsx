@@ -19,6 +19,10 @@ import SectorFacilitiesPage from "./pages/SectorFacilitiesPage";
 import AllFacilitiesPage from "./pages/AllFacilitiesPage";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
+import SecurityPage from "./pages/SecurityPage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import TermsPage from "./pages/TermsPage";
+import ContactPage from "./pages/ContactPage";
 
 const queryClient = new QueryClient();
 
@@ -33,8 +37,15 @@ const App = () => (
               <Sonner />
               <MobileSidebar />
               <Routes>
+                {/* Public pages - Trust & Verification */}
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<LoginPage />} />
+                <Route path="/security" element={<SecurityPage />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+                <Route path="/terms" element={<TermsPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                
+                {/* Protected pages - Admin only */}
                 <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
                 <Route path="/facility/:id" element={<ProtectedRoute><FacilityDetails /></ProtectedRoute>} />
                 <Route path="/add-facility" element={<ProtectedRoute><AddFacility /></ProtectedRoute>} />
@@ -46,7 +57,8 @@ const App = () => (
                 <Route path="/activity-logs" element={<ProtectedRoute><ActivityLogsPage /></ProtectedRoute>} />
                 <Route path="/sector/:sector" element={<ProtectedRoute><SectorFacilitiesPage /></ProtectedRoute>} />
                 <Route path="/facilities" element={<ProtectedRoute><AllFacilitiesPage /></ProtectedRoute>} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                
+                {/* Catch-all */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </div>

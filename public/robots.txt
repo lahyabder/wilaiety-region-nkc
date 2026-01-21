@@ -1,14 +1,13 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
+# Robots.txt for wilaiety.com
+# Clean deployment - no legacy domains
 
 User-agent: *
 Allow: /
+
+# Sitemap
+Sitemap: https://wilaiety.com/sitemap.xml
+
+# Block potential attack vectors
+Disallow: /api/
+Disallow: /.env
+Disallow: /config/

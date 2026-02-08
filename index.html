@@ -1,25 +1,22 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
-
-    <!-- أيقونة الموقع -->
-    <link rel="icon" type="image/png" href="/favicon.png" />
-
-    <!-- إعدادات العرض -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- اسم افتراضي (سيتم تغييره ديناميكياً من React) -->
+    <!-- عنوان مبدئي (سيتم تحديثه من داخل React حسب ENV) -->
     <title>المنصة الجهوية</title>
 
-    <!-- وصف -->
-    <meta
-      name="description"
-      content="منصة رقمية لإدارة الجهات والولايات والمقاطعات"
-    />
+    <!-- أيقونة الموقع (ضع شعار العميل كـ public/favicon.png) -->
+    <link rel="icon" type="image/png" href="/favicon.png" />
+
+    <meta name="description" content="منصة إدارة المرافق والجهات" />
   </head>
+
   <body>
     <div id="root"></div>
+
+    <!-- مهم جدًا: هذا هو ملف تشغيل React في Vite -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

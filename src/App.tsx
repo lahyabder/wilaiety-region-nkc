@@ -5,7 +5,6 @@ import UsersPage from "./pages/UsersPage";
 
 function App() {
   useEffect(() => {
-    // اسم الجهة يمكن تغييره لاحقًا من ENV أو API
     const entityName = "جهة نواكشوط";
     document.title = `${entityName} | المنصة الجهوية`;
   }, []);
@@ -13,15 +12,15 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* ✅ اجعل الصفحة الرئيسية تذهب مباشرة لتسجيل الدخول */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        {/* الصفحة الرئيسية تذهب مباشرة إلى /users */}
+        <Route path="/" element={<Navigate to="/users" replace />} />
 
-        {/* صفحاتك الحالية */}
+        {/* صفحات التطبيق */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/users" element={<UsersPage />} />
 
-        {/* ✅ أي رابط غير معروف يذهب لتسجيل الدخول بدل صفحة بيضاء */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        {/* أي رابط غير معروف */}
+        <Route path="*" element={<Navigate to="/users" replace />} />
       </Routes>
     </BrowserRouter>
   );

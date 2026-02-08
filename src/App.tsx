@@ -1,37 +1,41 @@
+// src/App.tsx
 import { useEffect } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-
-import { LanguageProvider } from "./contexts/LanguageContext";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 
 import LoginPage from "./pages/LoginPage";
 import UsersPage from "./pages/UsersPage";
 
 export default function App() {
-  useEffect(() => {
-    const siteName =
-      (import.meta.env.VITE_SITE_NAME as string) || "المنصة الجهوية";
-    const tagline =
-      (import.meta.env.VITE_SITE_TAGLINE as string) ||
-      "منصة إدارة المرافق والجهات";
+  const location = useLocation();
 
-    document.title = `${siteName} | ${tagline}`;
-  }, []);
+  useEffect(() => {
+    // Site name from Vercel/Vite env
+    const siteName =
+      (import.meta.env.VITE_SITE_NAME as string) || "Wilaiety - ولايتي";
+
+    // Optional: add a small suffix depending on route (clean + helpful)
+    const path = location.pathname;
+    const suffix =
+      path.startsWith("/login")
+        ? " | تسجيل الدخول"
+        : path.startsWith("/users")
+        ? " | المستخدمون"
+        : "";
+
+    document.title = `${siteName}${suffix}`;
+  }, [location.pathname]);
 
   return (
-    <LanguageProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* الصفحة الافتراضية */}
-          <Route path="/" element={<Navigate to="/users" replace />} />
+    <Routes>
+      {/* المطلوب: الصفحة الافتراضية تكون /users */}
+      <Route path="/" element={<Navigate to="/users" replace />} />
 
-          {/* الصفحات */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/users" element={<UsersPage />} />
+      {/* Pages */}
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/users" element={<UsersPage />} />
 
-          {/* أي مسار غير معروف */}
-          <Route path="*" element={<Navigate to="/users" replace />} />
-        </Routes>
-      </BrowserRouter>
-    </LanguageProvider>
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/users" replace />} />
+    </Routes>
   );
 }

@@ -1,10 +1,19 @@
+// src/main.tsx
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import "./index.css";
 
+// IMPORTANT: this must wrap the whole app (fixes: useLanguage must be used within a LanguageProvider)
+import { LanguageProvider } from "./contexts/LanguageContext";
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <App />
+    <LanguageProvider>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </LanguageProvider>
   </React.StrictMode>
 );

@@ -14,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { siteConfig } from "../site.config";
 
 const Header = () => {
   const { user, signOut } = useAuth();
@@ -45,22 +46,26 @@ const Header = () => {
         <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Mobile Menu Button + Logo */}
           <div className="flex items-center gap-2 sm:gap-4">
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               className="md:hidden text-primary-foreground hover:bg-primary-foreground/10"
               onClick={handleMenuClick}
             >
               <Menu className="w-5 h-5" />
             </Button>
-            
+
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary-foreground/20 rounded-lg flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-lg sm:text-xl">و</span>
               </div>
               <div className="hidden xs:block">
-                <h1 className="text-primary-foreground font-bold text-lg sm:text-xl">{t("Wilaiety", "ولايتي")}</h1>
-                <p className="text-primary-foreground/80 text-[10px] sm:text-xs hidden sm:block">{t("Gestion des établissements", "إدارة المرافق")}</p>
+                <h1 className="text-primary-foreground font-bold text-lg sm:text-xl">
+                  {siteConfig.name}
+                </h1>
+                <p className="text-primary-foreground/80 text-[10px] sm:text-xs hidden sm:block">
+                  {siteConfig.tagline}
+                </p>
               </div>
             </div>
           </div>
@@ -80,28 +85,43 @@ const Header = () => {
           {/* Actions */}
           <div className="flex items-center gap-1 sm:gap-2">
             <LanguageToggle />
-            
-            <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10 w-8 h-8 sm:w-10 sm:h-10">
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-primary-foreground hover:bg-primary-foreground/10 w-8 h-8 sm:w-10 sm:h-10"
+            >
               <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
-            
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10 w-8 h-8 sm:w-10 sm:h-10">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-primary-foreground hover:bg-primary-foreground/10 w-8 h-8 sm:w-10 sm:h-10"
+                >
                   <User className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>
                   <div className="flex flex-col gap-1">
-                    <span className="font-medium truncate">{profile?.full_name || user?.email}</span>
+                    <span className="font-medium truncate">
+                      {profile?.full_name || user?.email}
+                    </span>
                     <span className="text-xs text-muted-foreground">
-                      {role === "admin" ? t("Administrateur", "مدير") : t("Utilisateur", "مستخدم")}
+                      {role === "admin"
+                        ? t("Administrateur", "مدير")
+                        : t("Utilisateur", "مستخدم")}
                     </span>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut} className="text-destructive cursor-pointer">
+                <DropdownMenuItem
+                  onClick={handleSignOut}
+                  className="text-destructive cursor-pointer"
+                >
                   <LogOut className="w-4 h-4 me-2" />
                   {t("Déconnexion", "تسجيل الخروج")}
                 </DropdownMenuItem>
